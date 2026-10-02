@@ -126,5 +126,18 @@
   }
   html {
     @apply font-sans;
+    scroll-behavior: smooth;
   }
 }
+
+/* ── Shared Animation Utilities ───────────────────────────────────── */
+@keyframes animate-in-fade {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+.animate-in {
+  animation-fill-mode: both;
+  animation-duration: 0.4s;
+}
+.fade-in { animation-name: animate-in-fade; }
+.duration-300 { animation-duration: 0.3s; }
