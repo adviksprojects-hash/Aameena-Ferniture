@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { Phone, Mail, MapPin, MessageSquare, Clock, Send, CheckCircle2 } from "lucide-react";
+import SearchableSelect from "@/components/SearchableSelect";
+import { validatePhone, validateName, validateEmail } from "@/lib/validation";
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
@@ -9,12 +11,31 @@ export default function ContactPage() {
     name: "",
     phone: "",
     email: "",
-    interest: "sofa",
+    interest: "Living Room Sofa Sets",
     message: "",
   });
+  const [errors, setErrors] = useState({});
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const newErrors = {};
+    const nameCheck = validateName(formData.name, "Full Name");
+    if (!nameCheck.valid) newErrors.name = nameCheck.error;
+
+    const phoneCheck = validatePhone(formData.phone);
+    if (!phoneCheck.valid) newErrors.phone = phoneCheck.error;
+
+    if (formData.email.trim()) {
+      const emailCheck = validateEmail(formData.email, false);
+      if (!emailCheck.valid) newErrors.email = emailCheck.error;
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
     setSubmitted(true);
   };
 
@@ -43,8 +64,9 @@ export default function ContactPage() {
                   <MapPin className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="font-bold text-slate-900 block">Flagship Showroom:</span>
-                  <span>Aameena Furniture Grand Showroom, Central Furniture Hub, Sector 14</span>
+                  <span className="font-bold text-slate-900 block">Sole Official Store & Workshop:</span>
+                  <span className="font-semibold text-amber-900 block">AMEENA Distributors’s Sofa Set Furniture Company</span>
+                  <span className="text-xs text-slate-600 block mt-0.5">Solapur, Maharashtra 413005 (Coordinates: 17.6578402, 75.9362493)</span>
                 </div>
               </div>
 
@@ -54,7 +76,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <span className="font-bold text-slate-900 block">Phone / Sales Hotline:</span>
-                  <span>+91 98765 43210 / +91 98123 45678</span>
+                  <span>+91 98765 00001 / +91 98765 00002</span>
                 </div>
               </div>
 
@@ -64,7 +86,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <span className="font-bold text-slate-900 block">Email Support:</span>
-                  <span>info@aameenafurniture.com</span>
+                  <span>contact@ameenadistributors.com</span>
                 </div>
               </div>
 
@@ -74,20 +96,30 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <span className="font-bold text-slate-900 block">Opening Hours:</span>
-                  <span>Monday - Sunday: 10:00 AM - 9:00 PM</span>
+                  <span>Monday - Sunday: 9:30 AM - 9:30 PM (All 7 Days Open)</span>
                 </div>
               </div>
             </div>
 
-            <div className="pt-4 border-t border-amber-100">
+            <div className="pt-4 border-t border-amber-100 space-y-2.5">
               <a
-                href="https://wa.me/919876543210"
+                href="https://www.google.com/maps/place/AMEENA+Distributors%E2%80%99s+Sofa+Set+Furniture+Company/@17.6578402,75.9362493,15z/data=!3m1!4b1!4m6!3m5!1s0x3bc5db34c23e5907:0x86af8fec8b37d0ed!8m2!3d17.6578402!4d75.9362493!16s%2Fg%2F11gypsrxj5"
                 target="_blank"
                 rel="noreferrer"
-                className="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-colors flex items-center justify-center gap-2 shadow-md"
+                className="w-full py-3.5 rounded-2xl bg-amber-900 hover:bg-amber-800 text-amber-50 font-bold text-xs transition-colors flex items-center justify-center gap-2 shadow-md"
+              >
+                <MapPin className="w-4 h-4 text-amber-400" />
+                <span>Open in Google Maps (Solapur Store)</span>
+              </a>
+
+              <a
+                href="https://wa.me/919876500001?text=Hello%20Ameena%20Distributors,%20I%20want%20to%20inquire%20about%20visiting%20your%20Solapur%20store."
+                target="_blank"
+                rel="noreferrer"
+                className="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-colors flex items-center justify-center gap-2 shadow-md"
               >
                 <MessageSquare className="w-4 h-4" />
-                <span>Instant Inquiry on WhatsApp</span>
+                <span>Instant WhatsApp Inquiry</span>
               </a>
             </div>
           </div>
@@ -123,55 +155,69 @@ export default function ContactPage() {
                     <input
                       type="text"
                       required
-                      placeholder="e.g. Rahul Verma"
+                      placeholder="Enter your full name"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full p-3.5 rounded-xl bg-amber-50/50 border border-amber-200 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      className={`w-full p-3.5 rounded-xl bg-amber-50/50 border text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 ${
+                        errors.name ? "border-red-400 focus:ring-red-300" : "border-amber-200 focus:ring-amber-500"
+                      }`}
                     />
+                    {errors.name && <p className="text-[11px] text-red-600 font-bold">{errors.name}</p>}
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 uppercase">Phone Number:</label>
+                    <label className="text-xs font-bold text-slate-700 uppercase">10-Digit Mobile Number:</label>
                     <input
                       type="tel"
                       required
-                      placeholder="+91 98765 43210"
+                      maxLength={10}
+                      placeholder="10-digit mobile number"
                       value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full p-3.5 rounded-xl bg-amber-50/50 border border-amber-200 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value.replace(/\D/g, "") })}
+                      className={`w-full p-3.5 rounded-xl bg-amber-50/50 border text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 font-mono ${
+                        errors.phone ? "border-red-400 focus:ring-red-300" : "border-amber-200 focus:ring-amber-500"
+                      }`}
                     />
+                    {errors.phone && <p className="text-[11px] text-red-600 font-bold">{errors.phone}</p>}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 uppercase">Email Address:</label>
+                    <label className="text-xs font-bold text-slate-700 uppercase">Email Address (Optional):</label>
                     <input
                       type="email"
-                      placeholder="rahul@example.com"
+                      placeholder="name@domain.com"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full p-3.5 rounded-xl bg-amber-50/50 border border-amber-200 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      className={`w-full p-3.5 rounded-xl bg-amber-50/50 border text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 ${
+                        errors.email ? "border-red-400 focus:ring-red-300" : "border-amber-200 focus:ring-amber-500"
+                      }`}
                     />
+                    {errors.email && <p className="text-[11px] text-red-600 font-bold">{errors.email}</p>}
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 uppercase">Interested Category:</label>
-                    <select
+                    <SearchableSelect
+                      label="Interested Category"
+                      options={[
+                        { value: "Living Room Sofa Sets", label: "Living Room Sofa Sets" },
+                        { value: "Bedroom Beds & Wardrobes", label: "Bedroom Beds & Wardrobes" },
+                        { value: "Dining Table Suites", label: "Dining Table Suites" },
+                        { value: "Temple & Mandir Carving", label: "Hand-Carved Home Temple (Mandir)" },
+                        { value: "Office Desks & Bookshelves", label: "Office Desks & Bookshelves" },
+                        { value: "Complete Villa Package", label: "Complete Villa / Turnkey Interior Package" },
+                      ]}
                       value={formData.interest}
-                      onChange={(e) => setFormData({ ...formData, interest: e.target.value })}
-                      className="w-full p-3.5 rounded-xl bg-amber-50/50 border border-amber-200 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                    >
-                      <option value="sofa">Living Room Sofa Sets</option>
-                      <option value="bed">Bedroom Beds & Wardrobes</option>
-                      <option value="dining">Dining Table Suites</option>
-                      <option value="custom">Complete Custom Interior Package</option>
-                    </select>
+                      onChange={(val) => setFormData({ ...formData, interest: val })}
+                      allowOther={true}
+                      otherPlaceholder="Enter custom furniture requirement..."
+                    />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 uppercase">Message / Requirements:</label>
+                  <label className="text-xs font-bold text-slate-700 uppercase">Message / Dimensions / Requirements:</label>
                   <textarea
                     rows="4"
                     placeholder="Tell us your room dimensions or custom furniture requirements..."

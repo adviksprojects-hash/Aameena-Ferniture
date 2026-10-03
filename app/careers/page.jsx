@@ -17,6 +17,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { getJobPostings, applyForJob } from "@/actions/careerActions";
+import { validatePhone, validateName, validateEmail } from "@/lib/validation";
 
 export default function CareersPage() {
   const [jobs, setJobs] = useState([]);
@@ -24,6 +25,7 @@ export default function CareersPage() {
   const [selectedJob, setSelectedJob] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [applicationResult, setApplicationResult] = useState(null);
+  const [formErrors, setFormErrors] = useState({});
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -50,10 +52,28 @@ export default function CareersPage() {
   const handleApply = (job) => {
     setSelectedJob(job);
     setApplicationResult(null);
+    setFormErrors({});
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const errors = {};
+    const nameCheck = validateName(formData.fullName, "Full Name");
+    if (!nameCheck.valid) errors.fullName = nameCheck.error;
+
+    const phoneCheck = validatePhone(formData.phone);
+    if (!phoneCheck.valid) errors.phone = phoneCheck.error;
+
+    const emailCheck = validateEmail(formData.email);
+    if (!emailCheck.valid) errors.email = emailCheck.error;
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+    setFormErrors({});
+
     setSubmitting(true);
 
     const res = await applyForJob({
@@ -202,22 +222,34 @@ export default function CareersPage() {
                       required
                       placeholder="e.g. Rameshwar Suthar"
                       value={formData.fullName}
-                      onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                      className="w-full p-3 rounded-xl bg-amber-50/50 border border-amber-200 text-slate-900 focus:outline-none focus:ring-1 focus:ring-amber-700"
+                      onChange={(e) => {
+                        setFormData({ ...formData, fullName: e.target.value });
+                        if (formErrors.fullName) setFormErrors((prev) => ({ ...prev, fullName: null }));
+                      }}
+                      className={`w-full p-3 rounded-xl bg-amber-50/50 border ${
+                        formErrors.fullName ? "border-red-500" : "border-amber-200"
+                      } text-slate-900 focus:outline-none focus:ring-1 focus:ring-amber-700`}
                     />
+                    {formErrors.fullName && <p className="text-red-500 text-[10px] mt-1">{formErrors.fullName}</p>}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="text-slate-700 font-bold block mb-1">Phone / WhatsApp *</label>
+                      <label className="text-slate-700 font-bold block mb-1">Phone / WhatsApp (10 digits) *</label>
                       <input
                         type="tel"
                         required
-                        placeholder="+91 98765 43210"
+                        placeholder="e.g. 9876543210"
                         value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        className="w-full p-3 rounded-xl bg-amber-50/50 border border-amber-200 text-slate-900 focus:outline-none focus:ring-1 focus:ring-amber-700"
+                        onChange={(e) => {
+                          setFormData({ ...formData, phone: e.target.value });
+                          if (formErrors.phone) setFormErrors((prev) => ({ ...prev, phone: null }));
+                        }}
+                        className={`w-full p-3 rounded-xl bg-amber-50/50 border ${
+                          formErrors.phone ? "border-red-500" : "border-amber-200"
+                        } text-slate-900 focus:outline-none focus:ring-1 focus:ring-amber-700`}
                       />
+                      {formErrors.phone && <p className="text-red-500 text-[10px] mt-1">{formErrors.phone}</p>}
                     </div>
 
                     <div>
@@ -227,9 +259,15 @@ export default function CareersPage() {
                         required
                         placeholder="artisan@domain.com"
                         value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full p-3 rounded-xl bg-amber-50/50 border border-amber-200 text-slate-900 focus:outline-none focus:ring-1 focus:ring-amber-700"
+                        onChange={(e) => {
+                          setFormData({ ...formData, email: e.target.value });
+                          if (formErrors.email) setFormErrors((prev) => ({ ...prev, email: null }));
+                        }}
+                        className={`w-full p-3 rounded-xl bg-amber-50/50 border ${
+                          formErrors.email ? "border-red-500" : "border-amber-200"
+                        } text-slate-900 focus:outline-none focus:ring-1 focus:ring-amber-700`}
                       />
+                      {formErrors.email && <p className="text-red-500 text-[10px] mt-1">{formErrors.email}</p>}
                     </div>
                   </div>
 

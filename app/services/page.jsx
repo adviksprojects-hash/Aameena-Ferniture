@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Wrench,
@@ -18,13 +18,26 @@ import {
   Award,
   ChevronRight,
   X,
+  ImageIcon,
 } from "lucide-react";
 import { createServiceInquiry } from "@/actions/serviceActions";
+import { getPublicServices } from "@/actions/serviceAdminActions";
+import SearchableSelect from "@/components/SearchableSelect";
+import { validatePhone, validateName } from "@/lib/validation";
+
+const WOOD_OPTIONS = [
+  { value: "Grade-A Sagwan Teak", label: "Grade-A Sagwan Teak" },
+  { value: "Solid Sheesham Hardwood", label: "Solid Sheesham Hardwood" },
+  { value: "Indian Rosewood", label: "Indian Rosewood" },
+  { value: "American Walnut", label: "American Walnut" },
+  { value: "African Mahogany", label: "African Mahogany" },
+];
 
 export default function ServicesPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submittedData, setSubmittedData] = useState(null);
+  const [formErrors, setFormErrors] = useState({});
   const [formData, setFormData] = useState({
     clientName: "",
     clientPhone: "",
@@ -32,12 +45,13 @@ export default function ServicesPage() {
     serviceType: "Bespoke Custom Furniture Crafting",
     woodChoice: "Grade-A Sagwan Teak",
     roomType: "Living Room",
-    dimensions: "Standard Room (approx. 20ft x 14ft)",
+    dimensions: "",
     notes: "",
   });
 
-  const services = [
+  const DEFAULT_SERVICES = [
     {
+      id: "default-1",
       icon: Ruler,
       title: "Bespoke Custom Furniture Crafting",
       description:
@@ -51,6 +65,7 @@ export default function ServicesPage() {
       tag: "Most Requested",
     },
     {
+      id: "default-2",
       icon: Building2,
       title: "Commercial & Corporate Furnishing",
       description:
@@ -64,6 +79,7 @@ export default function ServicesPage() {
       tag: "Turnkey B2B",
     },
     {
+      id: "default-3",
       icon: RefreshCw,
       title: "Heirloom Wood Restoration & Refurbishing",
       description:
@@ -77,6 +93,7 @@ export default function ServicesPage() {
       tag: "Heritage Craft",
     },
     {
+      id: "default-4",
       icon: Truck,
       title: "Doorstep White-Glove Installation",
       description:
@@ -90,6 +107,34 @@ export default function ServicesPage() {
       tag: "Complimentary Service",
     },
   ];
+
+  const [servicesList, setServicesList] = useState(DEFAULT_SERVICES);
+  const [loadingServices, setLoadingServices] = useState(true);
+
+  useEffect(() => {
+    async function loadServices() {
+      try {
+        const res = await getPublicServices();
+        if (res.success && res.data && res.data.length > 0) {
+          const mapped = res.data.map((srv) => ({
+            ...srv,
+            features: Array.isArray(srv.features)
+              ? srv.features
+              : typeof srv.features === "string"
+              ? JSON.parse(srv.features)
+              : [],
+            tag: srv.tag || "Workshop Craft",
+          }));
+          setServicesList(mapped);
+        }
+      } catch (err) {
+        console.error("Error loading public services:", err);
+      } finally {
+        setLoadingServices(false);
+      }
+    }
+    loadServices();
+  }, []);
 
   const TIMELINE_STEPS = [
     {
@@ -143,6 +188,19 @@ export default function ServicesPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const errors = {};
+    const nameCheck = validateName(formData.clientName, "Your Full Name");
+    if (!nameCheck.valid) errors.clientName = nameCheck.error;
+
+    const phoneCheck = validatePhone(formData.clientPhone);
+    if (!phoneCheck.valid) errors.clientPhone = phoneCheck.error;
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+    setFormErrors({});
+
     setSubmitting(true);
 
     const estimatedCost = calculateEstimate();
@@ -207,43 +265,59 @@ export default function ServicesPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {services.map((srv, idx) => (
-            <div
-              key={idx}
-              className="bg-white rounded-3xl p-8 border border-amber-200/70 shadow-sm hover:shadow-xl transition-all duration-300 space-y-6 flex flex-col justify-between group"
-            >
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="w-14 h-14 bg-amber-100/80 text-amber-900 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-transform">
-                    <srv.icon className="w-7 h-7" />
-                  </div>
-                  <span className="text-[10px] uppercase font-bold tracking-wider bg-amber-50 text-amber-900 border border-amber-200 px-3 py-1 rounded-full">
-                    {srv.tag}
-                  </span>
-                </div>
-
-                <h3 className="text-2xl font-bold font-serif text-slate-900">{srv.title}</h3>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">{srv.description}</p>
-
-                <div className="space-y-2.5 pt-3 border-t border-amber-100">
-                  {srv.features.map((feat, fIdx) => (
-                    <div key={fIdx} className="flex items-center gap-2.5 text-xs font-medium text-slate-700">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span>{feat}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <button
-                onClick={() => handleOpenModal(srv.title)}
-                className="w-full py-3.5 rounded-xl bg-amber-900 hover:bg-amber-800 text-amber-50 text-xs font-bold transition-colors flex items-center justify-center gap-2 shadow-sm"
+          {servicesList.map((srv, idx) => {
+            const IconComponent = srv.icon || Sparkles;
+            return (
+              <div
+                key={srv.id || idx}
+                className="bg-white rounded-3xl p-8 border border-amber-200/70 shadow-sm hover:shadow-xl transition-all duration-300 space-y-6 flex flex-col justify-between group"
               >
-                <Ruler className="w-4 h-4" />
-                <span>Request Custom Scope & Estimate</span>
-              </button>
-            </div>
-          ))}
+                <div className="space-y-4">
+                  {srv.imageUrl && (
+                    <div className="w-full h-52 rounded-2xl overflow-hidden border border-amber-200/80 bg-amber-50 relative shadow-inner">
+                      <img
+                        src={srv.imageUrl}
+                        alt={srv.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-amber-950/40 via-transparent to-transparent pointer-events-none" />
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between">
+                    <div className="w-14 h-14 bg-amber-100/80 text-amber-900 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-transform">
+                      <IconComponent className="w-7 h-7" />
+                    </div>
+                    <span className="text-[10px] uppercase font-bold tracking-wider bg-amber-50 text-amber-900 border border-amber-200 px-3 py-1 rounded-full">
+                      {srv.tag || "Bespoke Service"}
+                    </span>
+                  </div>
+
+                  <h3 className="text-2xl font-bold font-serif text-slate-900">{srv.title}</h3>
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">{srv.description}</p>
+
+                  {Array.isArray(srv.features) && srv.features.length > 0 && (
+                    <div className="space-y-2.5 pt-3 border-t border-amber-100">
+                      {srv.features.map((feat, fIdx) => (
+                        <div key={fIdx} className="flex items-center gap-2.5 text-xs font-medium text-slate-700">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                          <span>{feat}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => handleOpenModal(srv.title)}
+                  className="w-full py-3.5 rounded-xl bg-amber-900 hover:bg-amber-800 text-amber-50 text-xs font-bold transition-colors flex items-center justify-center gap-2 shadow-sm"
+                >
+                  <Ruler className="w-4 h-4" />
+                  <span>Request Custom Scope & Estimate</span>
+                </button>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -314,22 +388,34 @@ export default function ServicesPage() {
                       required
                       placeholder="e.g. Anand Mahindra"
                       value={formData.clientName}
-                      onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
-                      className="w-full p-3 rounded-xl bg-amber-50/50 border border-amber-200 text-slate-900 focus:outline-none focus:ring-1 focus:ring-amber-700"
+                      onChange={(e) => {
+                        setFormData({ ...formData, clientName: e.target.value });
+                        if (formErrors.clientName) setFormErrors((prev) => ({ ...prev, clientName: null }));
+                      }}
+                      className={`w-full p-3 rounded-xl bg-amber-50/50 border ${
+                        formErrors.clientName ? "border-red-500" : "border-amber-200"
+                      } text-slate-900 focus:outline-none focus:ring-1 focus:ring-amber-700`}
                     />
+                    {formErrors.clientName && <p className="text-red-500 text-[10px] mt-1">{formErrors.clientName}</p>}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="text-slate-700 font-bold block mb-1">WhatsApp / Phone *</label>
+                      <label className="text-slate-700 font-bold block mb-1">WhatsApp / Phone (10 digits) *</label>
                       <input
                         type="tel"
                         required
-                        placeholder="+91 98765 43210"
+                        placeholder="e.g. 9876543210"
                         value={formData.clientPhone}
-                        onChange={(e) => setFormData({ ...formData, clientPhone: e.target.value })}
-                        className="w-full p-3 rounded-xl bg-amber-50/50 border border-amber-200 text-slate-900 focus:outline-none focus:ring-1 focus:ring-amber-700"
+                        onChange={(e) => {
+                          setFormData({ ...formData, clientPhone: e.target.value });
+                          if (formErrors.clientPhone) setFormErrors((prev) => ({ ...prev, clientPhone: null }));
+                        }}
+                        className={`w-full p-3 rounded-xl bg-amber-50/50 border ${
+                          formErrors.clientPhone ? "border-red-500" : "border-amber-200"
+                        } text-slate-900 focus:outline-none focus:ring-1 focus:ring-amber-700`}
                       />
+                      {formErrors.clientPhone && <p className="text-red-500 text-[10px] mt-1">{formErrors.clientPhone}</p>}
                     </div>
 
                     <div>
@@ -344,33 +430,28 @@ export default function ServicesPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="text-slate-700 font-bold block mb-1">Selected Service</label>
-                      <select
+                      <SearchableSelect
+                        label="Selected Service"
+                        options={servicesList.map((srv, sIdx) => ({
+                          value: srv.title,
+                          label: srv.title,
+                        }))}
                         value={formData.serviceType}
-                        onChange={(e) => setFormData({ ...formData, serviceType: e.target.value })}
-                        className="w-full p-3 rounded-xl bg-amber-50/50 border border-amber-200 text-slate-900 focus:outline-none"
-                      >
-                        <option value="Bespoke Custom Furniture Crafting">Bespoke Custom Furniture</option>
-                        <option value="Commercial & Corporate Furnishing">Commercial Furnishing</option>
-                        <option value="Wood Restoration & Refurbishing">Heirloom Restoration</option>
-                        <option value="Doorstep Delivery & White-Glove Setup">White-Glove Setup</option>
-                      </select>
+                        onChange={(val) => setFormData({ ...formData, serviceType: val })}
+                        allowOther={true}
+                      />
                     </div>
 
                     <div>
-                      <label className="text-slate-700 font-bold block mb-1">Preferred Wood</label>
-                      <select
+                      <SearchableSelect
+                        label="Preferred Wood"
+                        options={WOOD_OPTIONS}
                         value={formData.woodChoice}
-                        onChange={(e) => setFormData({ ...formData, woodChoice: e.target.value })}
-                        className="w-full p-3 rounded-xl bg-amber-50/50 border border-amber-200 text-slate-900 focus:outline-none"
-                      >
-                        <option value="Grade-A Sagwan Teak">Grade-A Sagwan Teak</option>
-                        <option value="Solid Sheesham Hardwood">Solid Sheesham Hardwood</option>
-                        <option value="Indian Rosewood">Indian Rosewood</option>
-                        <option value="American Walnut">American Walnut</option>
-                      </select>
+                        onChange={(val) => setFormData({ ...formData, woodChoice: val })}
+                        allowOther={true}
+                      />
                     </div>
                   </div>
 

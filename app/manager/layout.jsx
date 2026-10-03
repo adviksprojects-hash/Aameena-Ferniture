@@ -16,11 +16,11 @@ export default function ManagerLayout({ children }) {
   const pathname = usePathname();
 
   const managerLinks = [
-    { title: "Manager Dashboard", url: "/manager", icon: LayoutDashboard },
+    { title: "Manufacturer Analytics", url: "/manager", icon: LayoutDashboard },
     { title: "Product Stock & Pricing", url: "/manager/products", icon: Package },
     { title: "Order Management", url: "/manager/orders", icon: ShoppingBag },
     { title: "WhatsApp Customer Alerts", url: "/manager/whatsapp", icon: MessageSquare },
-    { title: "Store Settings", url: "/manager/settings", icon: Settings },
+    { title: "Facility Settings", url: "/manager/settings", icon: Settings },
   ];
 
   return (
@@ -36,14 +36,14 @@ export default function ManagerLayout({ children }) {
               <div className="p-1.5 bg-amber-500 rounded-lg text-amber-950">
                 <Briefcase className="w-5 h-5" />
               </div>
-              <span>Store <span className="text-white font-sans text-xs uppercase bg-amber-900 px-2 py-0.5 rounded border border-amber-800">Manager</span></span>
+              <span>Manufacturer <span className="text-white font-sans text-xs uppercase bg-amber-900 px-2 py-0.5 rounded border border-amber-800">Manager</span></span>
             </Link>
-            <p className="text-[10px] text-amber-300/80 mt-1">Showroom Operations Portal</p>
+            <p className="text-[10px] text-amber-300/80 mt-1">Furniture Manufacturer Operations Portal</p>
           </div>
 
           {/* Navigation Links */}
           <nav className="space-y-1">
-            <p className="text-[10px] uppercase font-bold tracking-widest text-amber-400/80 px-3 mb-2">Branch Controls</p>
+            <p className="text-[10px] uppercase font-bold tracking-widest text-amber-400/80 px-3 mb-2">Facility Controls</p>
             {managerLinks.map((link) => {
               const isActive = pathname === link.url;
               return (

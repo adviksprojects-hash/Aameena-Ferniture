@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Aameena Furniture - Showroom Review Auto-Fill",
+  "version": "1.0.0",
+  "description": "Showroom tablet helper that automatically pastes customer reviews into the Google Maps review box",
+  "permissions": [
+    "clipboardRead"
+  ],
+  "host_permissions": [
+    "https://search.google.com/local/writereview*",
+    "https://www.google.com/maps/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://search.google.com/local/writereview*",
+        "https://www.google.com/maps/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

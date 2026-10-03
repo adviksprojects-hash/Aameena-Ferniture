@@ -48,18 +48,31 @@ export async function createEmployee(data) {
 }
 
 /**
- * Fetch job postings
+ * Fetch job postings with expiry and capacity checks
  */
 export async function getJobPostings(activeOnly = false) {
   try {
     const where = activeOnly ? { isActive: true } : {};
-    const jobs = await db.jobPosting.findMany({
+    let jobs = await db.jobPosting.findMany({
       where,
       include: {
         applications: true,
       },
       orderBy: { createdAt: "desc" },
     });
+
+    if (activeOnly) {
+      const now = new Date();
+      jobs = jobs.filter((job) => {
+        // Exclude if expired
+        if (job.expiresAt && new Date(job.expiresAt) < now) return false;
+        // Exclude if sufficient applications received
+        if (job.maxApplications && job.applications.length >= job.maxApplications) return false;
+        // Exclude if required hired number achieved
+        if (job.hiredTarget && job.hiredCount >= job.hiredTarget) return false;
+        return true;
+      });
+    }
 
     return { success: true, data: jobs };
   } catch (error) {
@@ -76,12 +89,15 @@ export async function createJobPosting(data) {
     const {
       title,
       department = "Carpentry & Woodcraft",
-      location = "Bandra West, Mumbai",
+      location = "Solapur Facility",
       type = "Full Time",
       experience = "3+ Years",
       salaryRange = "₹45,000 - ₹65,000 / month",
       description = "",
       requirements = [],
+      expiresAt = null,
+      maxApplications = 10,
+      hiredTarget = 1,
     } = data;
 
     if (!title) {
@@ -98,6 +114,10 @@ export async function createJobPosting(data) {
         salaryRange,
         description,
         requirements,
+        expiresAt: expiresAt ? new Date(expiresAt) : null,
+        maxApplications: maxApplications ? parseInt(maxApplications) : 10,
+        hiredTarget: hiredTarget ? parseInt(hiredTarget) : 1,
+        hiredCount: 0,
         isActive: true,
       },
     });
@@ -170,6 +190,24 @@ export async function applyForJob(data) {
       return { success: false, error: "Full Name, Phone, and Email are required." };
     }
 
+    // Verify job is still active and open
+    const job = await db.jobPosting.findUnique({
+      where: { id: jobId },
+      include: { applications: true },
+    });
+
+    if (!job || !job.isActive) {
+      return { success: false, error: "This position is no longer accepting applications." };
+    }
+
+    if (job.expiresAt && new Date(job.expiresAt) < new Date()) {
+      return { success: false, error: "This job position has expired." };
+    }
+
+    if (job.maxApplications && job.applications.length >= job.maxApplications) {
+      return { success: false, error: "Application limit for this position has been reached." };
+    }
+
     const application = await db.jobApplication.create({
       data: {
         jobId,
@@ -179,12 +217,21 @@ export async function applyForJob(data) {
         experience: experience || "Not specified",
         portfolioUrl: portfolioUrl || null,
         coverNotes: coverNotes || null,
-        status: "PENDING",
+        status: "ON_PROCESS",
+        isArchived: false,
       },
       include: {
         job: true,
       },
     });
+
+    // Auto-close job if maxApplications reached
+    if (job.maxApplications && job.applications.length + 1 >= job.maxApplications) {
+      await db.jobPosting.update({
+        where: { id: jobId },
+        data: { isActive: false },
+      });
+    }
 
     // Generate HR WhatsApp notification link
     const hrPhone = "919876500001";
@@ -197,6 +244,7 @@ Looking forward to discussing this opportunity.`;
     const whatsappUrl = `https://wa.me/${hrPhone}?text=${encodeURIComponent(msg)}`;
 
     revalidatePath("/admin/employees");
+    revalidatePath("/careers");
 
     return { success: true, data: application, whatsappUrl };
   } catch (error) {
@@ -206,11 +254,20 @@ Looking forward to discussing this opportunity.`;
 }
 
 /**
- * Fetch candidate applications (Admin)
+ * Fetch candidate applications (Admin) with archive support
  */
-export async function getJobApplications(jobId = null) {
+export async function getJobApplications(filters = {}) {
   try {
-    const where = jobId ? { jobId } : {};
+    const { jobId, includeArchived = false, archivedOnly = false } = filters;
+    const where = {};
+    if (jobId) where.jobId = jobId;
+
+    if (archivedOnly) {
+      where.isArchived = true;
+    } else if (!includeArchived) {
+      where.isArchived = false;
+    }
+
     const applications = await db.jobApplication.findMany({
       where,
       include: {
@@ -227,19 +284,113 @@ export async function getJobApplications(jobId = null) {
 }
 
 /**
- * Update candidate application status (Admin)
+ * Update candidate application status (Admin) - strictly 3 stages: ON_PROCESS, SELECTED, REJECTED
  */
 export async function updateApplicationStatus(applicationId, status) {
   try {
+    const validStatuses = ["ON_PROCESS", "SELECTED", "REJECTED"];
+    if (!validStatuses.includes(status)) {
+      return { success: false, error: `Invalid status. Must be one of: ${validStatuses.join(", ")}` };
+    }
+
+    const currentApp = await db.jobApplication.findUnique({
+      where: { id: applicationId },
+      include: { job: true },
+    });
+
+    if (!currentApp) {
+      return { success: false, error: "Application not found" };
+    }
+
     const updated = await db.jobApplication.update({
       where: { id: applicationId },
       data: { status },
+      include: { job: true },
     });
 
+    // If SELECTED, increment hiredCount on the job posting
+    if (status === "SELECTED" && currentApp.status !== "SELECTED" && currentApp.jobId) {
+      const job = await db.jobPosting.findUnique({ where: { id: currentApp.jobId } });
+      if (job) {
+        const nextHired = (job.hiredCount || 0) + 1;
+        const autoClose = job.hiredTarget && nextHired >= job.hiredTarget;
+        await db.jobPosting.update({
+          where: { id: currentApp.jobId },
+          data: {
+            hiredCount: nextHired,
+            isActive: autoClose ? false : job.isActive,
+          },
+        });
+      }
+    }
+
     revalidatePath("/admin/employees");
+    revalidatePath("/careers");
+
     return { success: true, data: updated };
   } catch (error) {
     console.error("Error updating application status:", error);
     return { success: false, error: error.message };
   }
 }
+
+/**
+ * Archive a rejected candidate application
+ */
+export async function archiveJobApplication(applicationId) {
+  try {
+    const app = await db.jobApplication.findUnique({ where: { id: applicationId } });
+    if (!app) return { success: false, error: "Application not found" };
+
+    if (app.status !== "REJECTED") {
+      return { success: false, error: "Only REJECTED candidates can be archived." };
+    }
+
+    const updated = await db.jobApplication.update({
+      where: { id: applicationId },
+      data: { isArchived: true },
+    });
+
+    revalidatePath("/admin/employees");
+    return { success: true, data: updated };
+  } catch (error) {
+    console.error("Error archiving application:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Restore an archived candidate application
+ */
+export async function restoreJobApplication(applicationId) {
+  try {
+    const updated = await db.jobApplication.update({
+      where: { id: applicationId },
+      data: { isArchived: false },
+    });
+
+    revalidatePath("/admin/employees");
+    return { success: true, data: updated };
+  } catch (error) {
+    console.error("Error restoring application:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Delete a candidate application permanently
+ */
+export async function deleteJobApplication(applicationId) {
+  try {
+    await db.jobApplication.delete({
+      where: { id: applicationId },
+    });
+
+    revalidatePath("/admin/employees");
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting application:", error);
+    return { success: false, error: error.message };
+  }
+}
+

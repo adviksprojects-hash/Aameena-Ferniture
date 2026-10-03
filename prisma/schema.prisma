@@ -116,6 +116,9 @@ model Product {
   dimensions     String?
   finishType     String?
   isFeatured     Boolean     @default(false)
+  isArchived     Boolean     @default(false)
+  showInquiryBtn Boolean     @default(true)
+  showDetailsBtn Boolean     @default(true)
   images         String[]    @default([])
   categoryId     String
   createdAt      DateTime    @default(now())
@@ -125,6 +128,7 @@ model Product {
 
   @@index([categoryId])
   @@index([woodType])
+  @@index([isArchived])
 }
 
 model Order {
@@ -142,6 +146,7 @@ model Order {
   trackingNumber  String?
   productionStage String?     @default("INQUIRY_RECEIVED")
   customerNotes   String?
+  isArchived      Boolean     @default(false)
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @default(now()) @updatedAt
   user            User?       @relation(fields: [userId], references: [id])
@@ -149,6 +154,7 @@ model Order {
 
   @@index([status])
   @@index([userId])
+  @@index([isArchived])
 }
 
 model OrderItem {
@@ -270,19 +276,23 @@ model WhatsAppTemplate {
 }
 
 model JobPosting {
-  id           String           @id @default(dbgenerated("gen_random_uuid()"))
-  title        String
-  department   String
-  location     String
-  type         String           @default("Full Time")
-  experience   String
-  salaryRange  String?
-  description  String
-  requirements String[]         @default([])
-  isActive     Boolean          @default(true)
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @default(now()) @updatedAt
-  applications JobApplication[]
+  id              String           @id @default(dbgenerated("gen_random_uuid()"))
+  title           String
+  department      String
+  location        String
+  type            String           @default("Full Time")
+  experience      String
+  salaryRange     String?
+  description     String
+  requirements    String[]         @default([])
+  isActive        Boolean          @default(true)
+  expiresAt       DateTime?
+  maxApplications Int?             @default(10)
+  hiredTarget     Int?             @default(1)
+  hiredCount      Int              @default(0)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @default(now()) @updatedAt
+  applications    JobApplication[]
 
   @@index([department])
   @@index([isActive])
@@ -298,10 +308,64 @@ model JobApplication {
   experience   String?
   portfolioUrl String?
   coverNotes   String?
-  status       String      @default("PENDING")
+  status       String      @default("ON_PROCESS")
+  isArchived   Boolean     @default(false)
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @default(now()) @updatedAt
 
   @@index([jobId])
   @@index([status])
+  @@index([isArchived])
 }
+
+model Service {
+  id          String    @id @default(dbgenerated("gen_random_uuid()"))
+  title       String
+  slug        String    @unique @default(uuid())
+  description String
+  features    String[]  @default([])
+  tag         String?   @default("Most Requested")
+  imageUrl    String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
+
+  @@index([isActive])
+}
+
+model PricingPackage {
+  id          String   @id @default(dbgenerated("gen_random_uuid()"))
+  name        String
+  subtitle    String?
+  price       String
+  description String
+  features    String[] @default([])
+  popular     Boolean  @default(false)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+}
+
+model PricingSettings {
+  id             String   @id @default("default-pricing-settings")
+  catalogPdfUrl  String?
+  catalogPdfName String?  @default("Aameena_Furniture_Official_Rate_Card.pdf")
+  calculatorData Json?
+  updatedAt      DateTime @default(now()) @updatedAt
+}
+
+model ReviewQuote {
+  id               String   @id @default(dbgenerated("gen_random_uuid()"))
+  rating           Int      @default(5)
+  category         String   @default("LIVING_SOFA")
+  experienceType   String   @default("PURCHASED")
+  productPurchased String?
+  quoteText        String
+  authorHint       String?
+  createdAt        DateTime @default(now())
+
+  @@index([rating])
+  @@index([experienceType])
+}
+
+

@@ -8,6 +8,9 @@ export const metadata = {
 
 export default async function ProductsPage() {
   const products = await db.product.findMany({
+    where: {
+      isArchived: false,
+    },
     include: {
       Category: true,
     },

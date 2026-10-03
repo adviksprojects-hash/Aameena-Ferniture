@@ -60,23 +60,33 @@ export default function Footer() {
 
           {/* Showroom Contact Info */}
           <div>
-            <h3 className="text-white text-base font-bold mb-4 font-serif">Main Showroom</h3>
+            <h3 className="text-white text-base font-bold mb-4 font-serif">Sole Official Store</h3>
             <ul className="space-y-3 text-sm text-amber-200/80">
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-                <span>Aameena Furniture Grand Showroom, Industrial Furniture Hub, City Center</span>
+                <div>
+                  <a
+                    href="https://www.google.com/maps/place/AMEENA+Distributors%E2%80%99s+Sofa+Set+Furniture+Company/@17.6578402,75.9362493,15z/data=!3m1!4b1!4m6!3m5!1s0x3bc5db34c23e5907:0x86af8fec8b37d0ed!8m2!3d17.6578402!4d75.9362493!16s%2Fg%2F11gypsrxj5"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-amber-300 font-semibold block text-white transition-colors"
+                  >
+                    AMEENA Distributors’s Sofa Set Furniture Company
+                  </a>
+                  <span className="text-xs text-amber-200/70 block mt-0.5">Solapur, Maharashtra 413005</span>
+                </div>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>+91 98765 43210 / +91 98123 45678</span>
+                <span>+91 98765 00001</span>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>info@aameenafurniture.com</span>
+                <span>contact@ameenadistributors.com</span>
               </li>
               <li className="pt-2">
                 <a 
-                  href="https://wa.me/919876543210" 
+                  href="https://wa.me/919876500001?text=Hello%20Ameena%20Distributors,%20I%20am%20inquiring%20about%20furniture%20from%20your%20website." 
                   target="_blank" 
                   rel="noreferrer" 
                   className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs px-4 py-2 rounded-lg transition-colors shadow-md"

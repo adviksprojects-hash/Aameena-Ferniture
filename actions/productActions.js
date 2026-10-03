@@ -8,9 +8,15 @@ import { revalidatePath } from "next/cache";
  */
 export async function getProducts(filters = {}) {
   try {
-    const { category, woodType, searchQuery } = filters;
+    const { category, woodType, searchQuery, includeArchived = false, archivedOnly = false } = filters;
 
     const where = {};
+
+    if (archivedOnly) {
+      where.isArchived = true;
+    } else if (!includeArchived) {
+      where.isArchived = false;
+    }
 
     if (category && category !== "all") {
       where.Category = { slug: category };
@@ -44,7 +50,7 @@ export async function getProducts(filters = {}) {
 }
 
 /**
- * Create a new product in the catalog
+ * Create a new product in the catalog with 1-3 images
  */
 export async function createProduct(productData) {
   try {
@@ -59,6 +65,8 @@ export async function createProduct(productData) {
       description = "",
       images = [],
       finishType = "Natural Teak Honey Polish",
+      showInquiryBtn = true,
+      showDetailsBtn = true,
     } = productData;
 
     if (!title || !price) {
@@ -87,6 +95,10 @@ export async function createProduct(productData) {
       "-" +
       Date.now().toString().slice(-4);
 
+    const safeImages = Array.isArray(images) && images.length > 0
+      ? images.slice(0, 3)
+      : ["https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80"];
+
     const created = await db.product.create({
       data: {
         title,
@@ -99,16 +111,17 @@ export async function createProduct(productData) {
         dimensions: dimensions || "Standard Dimensions",
         description,
         finishType,
-        images:
-          images.length > 0
-            ? images
-            : ["https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80"],
+        images: safeImages,
+        showInquiryBtn: Boolean(showInquiryBtn),
+        showDetailsBtn: Boolean(showDetailsBtn),
+        isArchived: false,
       },
     });
 
     revalidatePath("/products");
     revalidatePath("/admin/products");
     revalidatePath("/manager/products");
+    revalidatePath("/manager");
 
     return { success: true, data: created };
   } catch (error) {
@@ -118,18 +131,29 @@ export async function createProduct(productData) {
 }
 
 /**
- * Update product fields
+ * Update product fields (including 1-3 images & display toggles)
  */
 export async function updateProduct(id, updateData) {
   try {
+    const dataToUpdate = { ...updateData };
+    if (dataToUpdate.price !== undefined) dataToUpdate.price = parseFloat(dataToUpdate.price);
+    if (dataToUpdate.compareAtPrice !== undefined) dataToUpdate.compareAtPrice = parseFloat(dataToUpdate.compareAtPrice);
+    if (dataToUpdate.stock !== undefined) dataToUpdate.stock = parseInt(dataToUpdate.stock, 10);
+    if (dataToUpdate.showInquiryBtn !== undefined) dataToUpdate.showInquiryBtn = Boolean(dataToUpdate.showInquiryBtn);
+    if (dataToUpdate.showDetailsBtn !== undefined) dataToUpdate.showDetailsBtn = Boolean(dataToUpdate.showDetailsBtn);
+    if (Array.isArray(dataToUpdate.images)) {
+      dataToUpdate.images = dataToUpdate.images.slice(0, 3);
+    }
+
     const updated = await db.product.update({
       where: { id },
-      data: updateData,
+      data: dataToUpdate,
     });
 
     revalidatePath("/products");
     revalidatePath("/admin/products");
     revalidatePath("/manager/products");
+    revalidatePath("/manager");
 
     return { success: true, data: updated };
   } catch (error) {
@@ -139,21 +163,45 @@ export async function updateProduct(id, updateData) {
 }
 
 /**
- * Delete a product
+ * Archive a product (hides from customer storefront)
  */
-export async function deleteProduct(id) {
+export async function archiveProduct(id) {
   try {
-    await db.product.delete({
+    const updated = await db.product.update({
       where: { id },
+      data: { isArchived: true },
     });
 
     revalidatePath("/products");
     revalidatePath("/admin/products");
     revalidatePath("/manager/products");
+    revalidatePath("/manager");
 
-    return { success: true };
+    return { success: true, data: updated };
   } catch (error) {
-    console.error("Error deleting product:", error);
+    console.error("Error archiving product:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Restore an archived product
+ */
+export async function restoreProduct(id) {
+  try {
+    const updated = await db.product.update({
+      where: { id },
+      data: { isArchived: false },
+    });
+
+    revalidatePath("/products");
+    revalidatePath("/admin/products");
+    revalidatePath("/manager/products");
+    revalidatePath("/manager");
+
+    return { success: true, data: updated };
+  } catch (error) {
+    console.error("Error restoring product:", error);
     return { success: false, error: error.message };
   }
 }
@@ -176,10 +224,100 @@ export async function toggleStockStatus(id, forceStock = null) {
     revalidatePath("/products");
     revalidatePath("/admin/products");
     revalidatePath("/manager/products");
+    revalidatePath("/manager");
 
     return { success: true, data: updated };
   } catch (error) {
     console.error("Error toggling stock:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Delete a product permanently
+ */
+export async function deleteProduct(id) {
+  try {
+    await db.product.delete({
+      where: { id },
+    });
+
+    revalidatePath("/products");
+    revalidatePath("/admin/products");
+    revalidatePath("/manager/products");
+    revalidatePath("/manager");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Update storefront button display options for a product
+ */
+export async function updateProductDisplayOptions(id, { showInquiryBtn, showDetailsBtn }) {
+  try {
+    const dataToUpdate = {};
+    if (showInquiryBtn !== undefined) dataToUpdate.showInquiryBtn = showInquiryBtn;
+    if (showDetailsBtn !== undefined) dataToUpdate.showDetailsBtn = showDetailsBtn;
+
+    const updated = await db.product.update({
+      where: { id },
+      data: dataToUpdate,
+    });
+
+    revalidatePath("/products");
+    revalidatePath("/admin/products");
+    revalidatePath("/manager/products");
+    revalidatePath("/manager");
+
+    return { success: true, data: updated };
+  } catch (error) {
+    console.error("Error updating product display options:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Get a single product by ID or slug with Category and related products
+ */
+export async function getProductById(idOrSlug) {
+  try {
+    if (!idOrSlug) return { success: false, error: "Product identifier is required." };
+
+    const product = await db.product.findFirst({
+      where: {
+        OR: [
+          { id: idOrSlug },
+          { slug: idOrSlug },
+        ],
+      },
+      include: {
+        Category: true,
+      },
+    });
+
+    if (!product) {
+      return { success: false, error: "Product not found." };
+    }
+
+    const relatedProducts = await db.product.findMany({
+      where: {
+        categoryId: product.categoryId,
+        id: { not: product.id },
+        isArchived: false,
+      },
+      take: 4,
+      include: {
+        Category: true,
+      },
+    });
+
+    return { success: true, data: product, relatedProducts };
+  } catch (error) {
+    console.error("Error in getProductById:", error);
     return { success: false, error: error.message };
   }
 }

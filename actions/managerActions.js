@@ -121,3 +121,39 @@ export async function toggleManagerStatus(managerId, currentStatus) {
     return { success: false, error: error.message };
   }
 }
+
+/**
+ * Delete a manager account (Admin)
+ */
+export async function deleteManager(managerId) {
+  try {
+    const manager = await db.manager.findUnique({
+      where: { id: managerId },
+      include: { user: true },
+    });
+
+    if (!manager) {
+      return { success: false, error: "Manager not found" };
+    }
+
+    // Delete manager record
+    await db.manager.delete({
+      where: { id: managerId },
+    });
+
+    // Reset user role to USER if user exists
+    if (manager.userId) {
+      await db.user.update({
+        where: { id: manager.userId },
+        data: { role: "USER" },
+      });
+    }
+
+    revalidatePath("/admin/managers");
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting manager:", error);
+    return { success: false, error: error.message };
+  }
+}
+
