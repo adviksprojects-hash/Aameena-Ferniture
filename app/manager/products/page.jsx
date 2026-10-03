@@ -17,6 +17,8 @@ import {
   Upload,
   Image as ImageIcon,
   Eye,
+  EyeOff,
+  Minus,
   MessageSquare,
 } from "lucide-react";
 import {
@@ -27,6 +29,8 @@ import {
   archiveProduct,
   restoreProduct,
   updateProductDisplayOptions,
+  adjustProductStock,
+  toggleProductVisibility,
 } from "@/actions/productActions";
 import SearchableSelect from "@/components/SearchableSelect";
 import { validateName, validateAmount } from "@/lib/validation";
@@ -122,6 +126,41 @@ export default function ManagerProductsPage() {
       setProducts(
         products.map((p) => (p.id === product.id ? { ...p, stock: res.data.stock } : p))
       );
+    }
+    setUpdatingId(null);
+  };
+
+  const handleStockDelta = async (productId, delta) => {
+    setUpdatingId(productId);
+    const res = await adjustProductStock(productId, delta);
+    if (res.success) {
+      setProducts((prev) =>
+        prev.map((p) => (p.id === productId ? { ...p, stock: res.newStock } : p))
+      );
+      setMessage({ type: "success", text: `Stock updated to ${res.newStock} units.` });
+      setTimeout(() => setMessage(null), 3000);
+    } else {
+      setMessage({ type: "error", text: res.error || "Failed to adjust stock." });
+    }
+    setUpdatingId(null);
+  };
+
+  const handleToggleStoreVisibility = async (product) => {
+    setUpdatingId(product.id);
+    const res = await toggleProductVisibility(product.id);
+    if (res.success) {
+      setProducts((prev) =>
+        prev.map((p) => (p.id === product.id ? { ...p, isArchived: res.isArchived } : p))
+      );
+      setMessage({
+        type: "success",
+        text: res.isArchived
+          ? `"${product.title}" hidden from public storefront.`
+          : `"${product.title}" is now LIVE on public storefront!`,
+      });
+      setTimeout(() => setMessage(null), 4000);
+    } else {
+      setMessage({ type: "error", text: res.error || "Failed to toggle visibility." });
     }
     setUpdatingId(null);
   };
@@ -499,6 +538,7 @@ export default function ManagerProductsPage() {
 
                       <td className="p-4">
                         <button
+                          type="button"
                           disabled={isUpdating}
                           onClick={() => handleToggleStock(p)}
                           className={`px-3 py-1 rounded-full text-[10px] font-bold transition-all shadow-sm ${
@@ -506,30 +546,43 @@ export default function ManagerProductsPage() {
                               ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
                               : "bg-red-100 text-red-800 hover:bg-red-200"
                           }`}
+                          title="Click to toggle In Stock / Out of Stock"
                         >
                           {inStock ? `${p.stock} In Stock` : "Sold Out"}
                         </button>
                       </td>
 
-                      {/* Display Controls badges */}
+                      {/* Storefront Visibility & Buttons */}
                       <td className="p-4">
-                        <div className="flex flex-col gap-1 text-[10px] font-medium">
-                          <span
-                            className={`inline-flex items-center gap-1 ${
-                              p.showInquiryBtn !== false ? "text-emerald-700" : "text-slate-400 line-through"
+                        <div className="space-y-1.5">
+                          <button
+                            type="button"
+                            disabled={isUpdating}
+                            onClick={() => handleToggleStoreVisibility(p)}
+                            className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-colors inline-flex items-center gap-1.5 ${
+                              !p.isArchived
+                                ? "bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100"
+                                : "bg-slate-100 text-slate-600 border-slate-300 hover:bg-slate-200"
                             }`}
+                            title={!p.isArchived ? "Currently LIVE on storefront (click to hide)" : "Currently HIDDEN from storefront (click to show)"}
                           >
-                            <MessageSquare className="w-3 h-3" />
-                            <span>WhatsApp Inquiry</span>
-                          </span>
-                          <span
-                            className={`inline-flex items-center gap-1 ${
-                              p.showDetailsBtn !== false ? "text-blue-700" : "text-slate-400 line-through"
-                            }`}
-                          >
-                            <Eye className="w-3 h-3" />
-                            <span>See Details</span>
-                          </span>
+                            {!p.isArchived ? (
+                              <Eye className="w-3 h-3 text-emerald-700" />
+                            ) : (
+                              <EyeOff className="w-3 h-3 text-slate-500" />
+                            )}
+                            <span>{!p.isArchived ? "Live on Store" : "Hidden from Store"}</span>
+                          </button>
+
+                          <div className="flex items-center gap-2 text-[10px] text-slate-500">
+                            <span className={p.showInquiryBtn !== false ? "text-emerald-700 font-medium" : "text-slate-400 line-through"}>
+                              WhatsApp
+                            </span>
+                            <span>•</span>
+                            <span className={p.showDetailsBtn !== false ? "text-blue-700 font-medium" : "text-slate-400 line-through"}>
+                              Details
+                            </span>
+                          </div>
                         </div>
                       </td>
 

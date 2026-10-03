@@ -14,6 +14,8 @@ import {
   Camera,
   Upload,
   Eye,
+  EyeOff,
+  Minus,
   MessageSquare,
   X,
   Edit3,
@@ -26,6 +28,8 @@ import {
   archiveProduct,
   restoreProduct,
   updateProductDisplayOptions,
+  adjustProductStock,
+  toggleProductVisibility,
 } from "@/actions/productActions";
 import SearchableSelect from "@/components/SearchableSelect";
 import { validateName, validateAmount } from "@/lib/validation";
@@ -287,6 +291,37 @@ export default function AdminProductsPage() {
     }
   };
 
+  const handleStockDelta = async (productId, delta) => {
+    const res = await adjustProductStock(productId, delta);
+    if (res.success) {
+      setProducts((prev) =>
+        prev.map((p) => (p.id === productId ? { ...p, stock: res.newStock } : p))
+      );
+      setMessage({ type: "success", text: `Stock updated to ${res.newStock} units.` });
+      setTimeout(() => setMessage(null), 3000);
+    } else {
+      setMessage({ type: "error", text: res.error || "Failed to adjust stock." });
+    }
+  };
+
+  const handleToggleStoreVisibility = async (prod) => {
+    const res = await toggleProductVisibility(prod.id);
+    if (res.success) {
+      setProducts((prev) =>
+        prev.map((p) => (p.id === prod.id ? { ...p, isArchived: res.isArchived } : p))
+      );
+      setMessage({
+        type: "success",
+        text: res.isArchived
+          ? `"${prod.title}" is now hidden from customer storefront.`
+          : `"${prod.title}" is now LIVE on customer storefront!`,
+      });
+      setTimeout(() => setMessage(null), 4000);
+    } else {
+      setMessage({ type: "error", text: res.error || "Failed to toggle storefront visibility." });
+    }
+  };
+
   const handleToggleDisplay = async (productId, field, currentVal) => {
     const nextVal = !currentVal;
     const res = await updateProductDisplayOptions(productId, { [field]: nextVal });
@@ -445,44 +480,62 @@ export default function AdminProductsPage() {
                           </span>
                         )}
                       </div>
-                      <span
-                        className={`inline-block mt-1 px-2 py-0.5 rounded-full text-[9px] font-bold ${
-                          prod.stock > 0
-                            ? "bg-emerald-950 text-emerald-400 border border-emerald-800"
-                            : "bg-red-950 text-red-400 border border-red-800"
-                        }`}
-                      >
-                        {prod.stock > 0 ? `${prod.stock} in stock` : "Sold Out"}
-                      </span>
+                      <div className="mt-1.5">
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold inline-block ${
+                            prod.stock > 0
+                              ? "bg-emerald-950 text-emerald-400 border border-emerald-800"
+                              : "bg-red-950 text-red-400 border border-red-800"
+                          }`}
+                        >
+                          {prod.stock > 0 ? `${prod.stock} in stock` : "Sold Out"}
+                        </span>
+                      </div>
                     </td>
+
+                    {/* Storefront Visibility & Buttons */}
                     <td className="p-4">
-                      <div className="flex items-center gap-2">
+                      <div className="space-y-1.5">
                         <button
                           type="button"
-                          onClick={() => handleToggleDisplay(prod.id, "showDetailsBtn", prod.showDetailsBtn !== false)}
-                          className={`px-2 py-1 rounded text-[10px] font-bold border transition-colors flex items-center gap-1 ${
-                            prod.showDetailsBtn !== false
-                              ? "bg-amber-950/80 text-amber-400 border-amber-800"
-                              : "bg-slate-900 text-slate-600 border-slate-800 line-through"
+                          onClick={() => handleToggleStoreVisibility(prod)}
+                          className={`px-2 py-1 rounded text-[10px] font-bold border transition-colors flex items-center gap-1.5 ${
+                            !prod.isArchived
+                              ? "bg-emerald-950/80 text-emerald-400 border-emerald-800 hover:bg-emerald-900"
+                              : "bg-slate-900 text-slate-500 border-slate-800 hover:bg-slate-800"
                           }`}
-                          title="Toggle 'See Details' Button"
+                          title={!prod.isArchived ? "Currently LIVE on storefront (click to hide)" : "Currently HIDDEN from storefront (click to show)"}
                         >
-                          <Eye className="w-3 h-3" />
-                          <span>Details</span>
+                          {!prod.isArchived ? <Eye className="w-3 h-3 text-emerald-400" /> : <EyeOff className="w-3 h-3 text-slate-500" />}
+                          <span>{!prod.isArchived ? "Live on Store" : "Hidden from Store"}</span>
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => handleToggleDisplay(prod.id, "showInquiryBtn", prod.showInquiryBtn !== false)}
-                          className={`px-2 py-1 rounded text-[10px] font-bold border transition-colors flex items-center gap-1 ${
-                            prod.showInquiryBtn !== false
-                              ? "bg-emerald-950/80 text-emerald-400 border-emerald-800"
-                              : "bg-slate-900 text-slate-600 border-slate-800 line-through"
-                          }`}
-                          title="Toggle 'Direct Inquiry' Button"
-                        >
-                          <MessageSquare className="w-3 h-3" />
-                          <span>Inquiry</span>
-                        </button>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleToggleDisplay(prod.id, "showDetailsBtn", prod.showDetailsBtn !== false)}
+                            className={`px-1.5 py-0.5 rounded text-[9px] font-medium border transition-colors ${
+                              prod.showDetailsBtn !== false
+                                ? "bg-amber-950/60 text-amber-400 border-amber-900"
+                                : "bg-slate-900 text-slate-600 border-slate-800 line-through"
+                            }`}
+                            title="Toggle 'See Details' Button"
+                          >
+                            Details
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleToggleDisplay(prod.id, "showInquiryBtn", prod.showInquiryBtn !== false)}
+                            className={`px-1.5 py-0.5 rounded text-[9px] font-medium border transition-colors ${
+                              prod.showInquiryBtn !== false
+                                ? "bg-emerald-950/60 text-emerald-400 border-emerald-900"
+                                : "bg-slate-900 text-slate-600 border-slate-800 line-through"
+                            }`}
+                            title="Toggle 'Direct Inquiry' Button"
+                          >
+                            WhatsApp
+                          </button>
+                        </div>
                       </div>
                     </td>
                     <td className="p-4 text-right">

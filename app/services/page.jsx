@@ -106,6 +106,20 @@ export default function ServicesPage() {
       ],
       tag: "Complimentary Service",
     },
+    {
+      id: "default-5",
+      icon: Layers,
+      title: "Factory-Direct Loose Cloth & Sofa Upholstery Textiles Supply",
+      description:
+        "We maintain an extensive in-house factory stock of loose cloth for furniture, sofa upholstery textiles, luxury velvet rolls, chenille, linen, and custom foam materials directly at our Solapur manufacturing facility.",
+      features: [
+        "Extensive in-house factory stock of loose upholstery cloth available by the meter",
+        "Water-repellent velvets, Turkish jacquard, textured linens, and heavy-GSM suede",
+        "Direct manufacturer wholesale pricing with zero showroom or middleman retail markup",
+        "On-site cushion foam cutting, stitching, and custom furniture re-upholstery consultation",
+      ],
+      tag: "Factory Direct Stock",
+    },
   ];
 
   const [servicesList, setServicesList] = useState(DEFAULT_SERVICES);
@@ -253,6 +267,47 @@ export default function ServicesPage() {
           >
             <MessageSquare className="w-4 h-4 text-emerald-400" />
             <span>Chat with Master Craftsman</span>
+          </a>
+        </div>
+      </div>
+
+      {/* FACTORY LOOSE CLOTH & SOFA MATERIAL SPOTLIGHT BANNER */}
+      <div className="bg-amber-900/10 border border-amber-300/80 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
+        <div className="flex items-start gap-4">
+          <div className="p-3.5 bg-amber-900 text-amber-100 rounded-2xl shrink-0 mt-0.5 shadow-md">
+            <Layers className="w-6 h-6" />
+          </div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider bg-amber-200 text-amber-950 px-2 py-0.5 rounded">
+                Factory Raw Material Stock
+              </span>
+              <span className="text-xs font-bold text-amber-900">Direct From Solapur Facility</span>
+            </div>
+            <h3 className="text-lg sm:text-xl font-bold font-serif text-slate-900">
+              We Stock Loose Cloth & Sofa Upholstery Textiles Directly at the Factory
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 max-w-2xl leading-relaxed">
+              In addition to finished solid wood furniture, our manufacturing facility houses hundreds of rolls of loose cloth, premium velvet, Turkish jacquard, chenille, heavy linens, and foam cushions. Available for purchase by the meter or for custom sofa tailoring.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 shrink-0">
+          <Link
+            href="/products?cat=fabrics"
+            className="px-5 py-3 rounded-2xl bg-amber-900 hover:bg-amber-800 text-amber-50 text-xs font-bold transition-all shadow-md"
+          >
+            Browse Loose Fabrics
+          </Link>
+          <a
+            href="https://wa.me/919876500001?text=Hello%20Aameena%20Furniture,%20I%20want%20to%20inquire%20about%20loose%20cloth%20and%20sofa%20materials%20at%20your%20factory."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-3 rounded-2xl bg-white hover:bg-amber-50 text-amber-950 border border-amber-300 text-xs font-bold transition-all flex items-center gap-1.5"
+          >
+            <MessageSquare className="w-4 h-4 text-emerald-600" />
+            <span>Inquire Loose Cloth</span>
           </a>
         </div>
       </div>

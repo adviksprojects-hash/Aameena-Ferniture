@@ -1,7 +1,17 @@
 "use server";
 
 import { db } from "../lib/prisma.js";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+
+function purgeProductCache() {
+  try {
+    revalidatePath("/products");
+    revalidatePath("/admin/products");
+    revalidatePath("/manager/products");
+    revalidatePath("/manager");
+    revalidateTag("products");
+  } catch (e) {}
+}
 
 /**
  * Fetch products from database with optional filters
@@ -118,10 +128,7 @@ export async function createProduct(productData) {
       },
     });
 
-    revalidatePath("/products");
-    revalidatePath("/admin/products");
-    revalidatePath("/manager/products");
-    revalidatePath("/manager");
+    purgeProductCache();
 
     return { success: true, data: created };
   } catch (error) {
@@ -150,10 +157,7 @@ export async function updateProduct(id, updateData) {
       data: dataToUpdate,
     });
 
-    revalidatePath("/products");
-    revalidatePath("/admin/products");
-    revalidatePath("/manager/products");
-    revalidatePath("/manager");
+    purgeProductCache();
 
     return { success: true, data: updated };
   } catch (error) {
@@ -172,10 +176,7 @@ export async function archiveProduct(id) {
       data: { isArchived: true },
     });
 
-    revalidatePath("/products");
-    revalidatePath("/admin/products");
-    revalidatePath("/manager/products");
-    revalidatePath("/manager");
+    purgeProductCache();
 
     return { success: true, data: updated };
   } catch (error) {
@@ -194,10 +195,7 @@ export async function restoreProduct(id) {
       data: { isArchived: false },
     });
 
-    revalidatePath("/products");
-    revalidatePath("/admin/products");
-    revalidatePath("/manager/products");
-    revalidatePath("/manager");
+    purgeProductCache();
 
     return { success: true, data: updated };
   } catch (error) {
@@ -318,6 +316,52 @@ export async function getProductById(idOrSlug) {
     return { success: true, data: product, relatedProducts };
   } catch (error) {
     console.error("Error in getProductById:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Increment or decrement product stock count directly (+1 / -1)
+ */
+export async function adjustProductStock(id, delta) {
+  try {
+    const product = await db.product.findUnique({ where: { id } });
+    if (!product) return { success: false, error: "Product not found" };
+
+    const newStock = Math.max(0, (product.stock || 0) + Number(delta));
+
+    const updated = await db.product.update({
+      where: { id },
+      data: { stock: newStock },
+    });
+
+    purgeProductCache();
+
+    return { success: true, data: updated, newStock };
+  } catch (error) {
+    console.error("Error adjusting stock:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Toggle product storefront visibility (show on product page or hide)
+ */
+export async function toggleProductVisibility(id) {
+  try {
+    const product = await db.product.findUnique({ where: { id } });
+    if (!product) return { success: false, error: "Product not found" };
+
+    const updated = await db.product.update({
+      where: { id },
+      data: { isArchived: !product.isArchived },
+    });
+
+    purgeProductCache();
+
+    return { success: true, data: updated, isArchived: updated.isArchived };
+  } catch (error) {
+    console.error("Error toggling product visibility:", error);
     return { success: false, error: error.message };
   }
 }

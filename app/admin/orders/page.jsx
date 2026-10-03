@@ -24,6 +24,7 @@ import {
   Hammer,
   Ban,
   Printer,
+  ArrowRightCircle,
 } from "lucide-react";
 import {
   getOrders,
@@ -33,6 +34,8 @@ import {
   archiveOrder,
   restoreOrder,
   cancelCustomerOrder,
+  advanceOrderToNextStage,
+  cancelOrderByManager,
 } from "@/actions/orderActions";
 import { getProducts } from "@/actions/productActions";
 import SearchableSelect from "@/components/SearchableSelect";
@@ -72,6 +75,10 @@ export default function AdminOrdersPage() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showNotifyModal, setShowNotifyModal] = useState(false);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
+  const [cancelModalOrder, setCancelModalOrder] = useState(null);
+  const [cancelReason, setCancelReason] = useState("");
+  const [cancelling, setCancelling] = useState(false);
+  const [customStageFilter, setCustomStageFilter] = useState("");
   const [selectedOrderForEdit, setSelectedOrderForEdit] = useState(null);
   const [selectedOrderForNotify, setSelectedOrderForNotify] = useState(null);
   const [selectedOrderForReceipt, setSelectedOrderForReceipt] = useState(null);
@@ -164,14 +171,90 @@ export default function AdminOrdersPage() {
     setUpdatingId(null);
   };
 
-  const handleCancel = async (orderId, orderNumber) => {
-    if (!confirm(`Cancel order #${orderNumber}? This will mark it as CANCELLED and restore stock if already delivered.`)) return;
-    const res = await cancelCustomerOrder(orderId, "Cancelled by Admin");
+  const getNextStageDetails = (currentStage) => {
+    const sequence = [
+      { key: "INQUIRY_RECEIVED", next: "TIMBER_SELECTION", label: "Timber Selection" },
+      { key: "TIMBER_SELECTION", next: "CARVING_JOINERY", label: "Carving & Joinery" },
+      { key: "CARVING_JOINERY", next: "SEVEN_STEP_POLISHING", label: "7-Step Polishing" },
+      { key: "SEVEN_STEP_POLISHING", next: "QUALITY_INSPECTION", label: "Quality Inspection" },
+      { key: "QUALITY_INSPECTION", next: "DISPATCHED_WHITE_GLOVE", label: "White-Glove Dispatch" },
+      { key: "DISPATCHED_WHITE_GLOVE", next: "DELIVERED", label: "Delivered & Installed" },
+    ];
+    return sequence.find((s) => s.key === currentStage) || null;
+  };
+
+  const handleAdvanceStage = async (orderId) => {
+    setUpdatingId(orderId);
+    const res = await advanceOrderToNextStage(orderId);
     if (res.success) {
-      setActionMessage({ type: "success", text: `Order #${orderNumber} marked as CANCELLED.` });
-      loadData();
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === orderId
+            ? { ...o, productionStage: res.nextStage, status: res.newStatus }
+            : o
+        )
+      );
+      setActionMessage({
+        type: "success",
+        text: `Order advanced to stage: ${res.nextStage.replace(/_/g, " ")}${
+          res.newStatus === "DELIVERED" ? " (Marked DELIVERED & inventory updated)" : ""
+        }`,
+      });
+      setTimeout(() => setActionMessage(null), 4000);
+    } else {
+      setActionMessage({ type: "error", text: res.error || "Failed to advance stage." });
+    }
+    setUpdatingId(null);
+  };
+
+  const handleConfirmCancel = async (e) => {
+    e.preventDefault();
+    if (!cancelModalOrder) return;
+    if (!cancelReason.trim()) {
+      alert("Please provide a reason for cancelling this order.");
+      return;
+    }
+    setCancelling(true);
+    const res = await cancelOrderByManager(cancelModalOrder.id, cancelReason);
+    if (res.success) {
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === cancelModalOrder.id
+            ? {
+                ...o,
+                status: "CANCELLED",
+                productionStage: "CANCELLED",
+                customerNotes: o.customerNotes
+                  ? `${o.customerNotes} | [CANCELLED: ${cancelReason.trim()}]`
+                  : `[CANCELLED: ${cancelReason.trim()}]`,
+              }
+            : o
+        )
+      );
+      setActionMessage({
+        type: "success",
+        text: `Order #${cancelModalOrder.orderNumber} cancelled. Reason recorded in database.`,
+      });
+      setCancelModalOrder(null);
+      setCancelReason("");
+      setTimeout(() => setActionMessage(null), 4000);
     } else {
       setActionMessage({ type: "error", text: res.error || "Failed to cancel order." });
+    }
+    setCancelling(false);
+  };
+
+  const handleCustomStagePrompt = async (orderId) => {
+    const customStage = prompt("Enter custom manufacturing milestone / stage name (e.g. CNC 3D Carving, Velvet Tufting):");
+    if (!customStage || !customStage.trim()) return;
+    await handleUpdate(orderId, customStage.trim(), "IN_PRODUCTION");
+  };
+
+  const handleCancel = async (orderId, orderNumber) => {
+    const ord = orders.find((o) => o.id === orderId);
+    if (ord) {
+      setCancelModalOrder(ord);
+      setCancelReason("");
     }
   };
 
@@ -385,13 +468,28 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
   // Filtering
   const filteredOrders = orders.filter((o) => {
     const matchesTab = activeTab === "archived" ? o.isArchived === true : !o.isArchived;
-    const matchesStage = stageFilter === "ALL" || o.productionStage === stageFilter;
+
+    let matchesStage = true;
+    if (stageFilter === "ALL") {
+      matchesStage = true;
+    } else if (stageFilter === "OTHER") {
+      if (customStageFilter.trim()) {
+        matchesStage = (o.productionStage || "").toLowerCase().includes(customStageFilter.toLowerCase().trim());
+      } else {
+        const standardKeys = STAGE_OPTIONS.map((s) => s.value);
+        matchesStage = !standardKeys.includes(o.productionStage);
+      }
+    } else {
+      matchesStage = o.productionStage === stageFilter;
+    }
+
     const matchesSearch =
       !searchQuery ||
       o.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
       o.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (o.customerPhone && o.customerPhone.includes(searchQuery)) ||
-      (o.trackingNumber && o.trackingNumber.toLowerCase().includes(searchQuery.toLowerCase()));
+      (o.trackingNumber && o.trackingNumber.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (o.productionStage && o.productionStage.toLowerCase().includes(searchQuery.toLowerCase()));
 
     return matchesTab && matchesStage && matchesSearch;
   });
@@ -465,18 +563,30 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
               />
             </div>
 
-            <select
-              value={stageFilter}
-              onChange={(e) => setStageFilter(e.target.value)}
-              className="px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 text-xs focus:outline-none"
-            >
-              <option value="ALL">All Production Stages</option>
-              {STAGE_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+            <div className="flex items-center gap-2">
+              <select
+                value={stageFilter}
+                onChange={(e) => setStageFilter(e.target.value)}
+                className="px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 text-xs focus:outline-none"
+              >
+                <option value="ALL">All Production Stages</option>
+                {STAGE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+                <option value="OTHER">Other / Custom Stage Filter...</option>
+              </select>
+              {stageFilter === "OTHER" && (
+                <input
+                  type="text"
+                  value={customStageFilter}
+                  onChange={(e) => setCustomStageFilter(e.target.value)}
+                  placeholder="Type custom stage name..."
+                  className="px-3 py-2 rounded-xl bg-slate-900 border border-amber-600 text-slate-100 text-xs focus:outline-none w-44"
+                />
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -583,22 +693,48 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
                         </span>
                       </td>
                       <td className="p-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
+                        <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                          {/* 1-Click Advance to Next Stage */}
+                          {ord.status !== "DELIVERED" && ord.status !== "CANCELLED" && (() => {
+                            const nextInfo = getNextStageDetails(ord.productionStage);
+                            if (!nextInfo) return null;
+                            return (
+                              <button
+                                disabled={isUpdating}
+                                onClick={() => handleAdvanceStage(ord.id)}
+                                className="px-2 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs inline-flex items-center gap-1 transition-all shadow-sm"
+                                title={`1-Click: Advance directly to ${nextInfo.label}`}
+                              >
+                                <ArrowRightCircle className="w-3.5 h-3.5" />
+                                <span>Next ➔ {nextInfo.label.split(" ")[0]}</span>
+                              </button>
+                            );
+                          })()}
+
                           {/* Stage Dropdown */}
                           <select
-                            disabled={isUpdating || ord.status === "CANCELLED"}
-                            value={currentStage}
+                            disabled={isUpdating || ord.status === "CANCELLED" || ord.status === "DELIVERED"}
+                            value={STAGE_OPTIONS.some((s) => s.value === currentStage) ? currentStage : "OTHER"}
                             onChange={(e) => {
+                              if (e.target.value === "OTHER") {
+                                handleCustomStagePrompt(ord.id);
+                                return;
+                              }
                               const selected = STAGE_OPTIONS.find((s) => s.value === e.target.value);
                               handleUpdate(ord.id, e.target.value, selected?.status || ord.status);
                             }}
-                            className="bg-slate-900 text-slate-200 border border-slate-700 rounded-lg px-2 py-1 text-[11px] focus:outline-none focus:ring-1 focus:ring-amber-500"
+                            className="bg-slate-900 text-slate-200 border border-slate-700 rounded-lg px-2 py-1 text-[11px] focus:outline-none focus:ring-1 focus:ring-amber-500 max-w-[140px]"
                           >
                             {STAGE_OPTIONS.map((opt) => (
                               <option key={opt.value} value={opt.value}>
                                 {opt.label}
                               </option>
                             ))}
+                            <option value="OTHER">
+                              {!STAGE_OPTIONS.some((s) => s.value === currentStage) && currentStage !== "CANCELLED"
+                                ? `Milestone: ${currentStage}`
+                                : "+ Other (Custom Milestone)..."}
+                            </option>
                           </select>
 
                           {/* Edit Details */}
@@ -631,12 +767,12 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
                             <FileText className="w-3.5 h-3.5" />
                           </button>
 
-                          {/* Direct Cancel Button (Admin Power Action) */}
+                          {/* Cancel Button (Opens Modal with Mandatory Reason) */}
                           {ord.status !== "CANCELLED" && ord.status !== "DELIVERED" && (
                             <button
                               onClick={() => handleCancel(ord.id, ord.orderNumber)}
                               className="p-1.5 rounded-lg bg-red-950/60 hover:bg-red-900 text-red-400 border border-red-800 transition-colors"
-                              title="Cancel order immediately"
+                              title="Cancel order (mandatory reason required)"
                             >
                               <Ban className="w-3.5 h-3.5" />
                             </button>
@@ -849,10 +985,14 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
                 <div>
                   <SearchableSelect
                     label="Initial Milestone Stage *"
-                    options={STAGE_OPTIONS}
+                    options={[
+                      ...STAGE_OPTIONS,
+                      { value: "OTHER", label: "Other (Type custom milestone...)" },
+                    ]}
                     value={newOrder.productionStage}
                     onChange={(val) => setNewOrder({ ...newOrder, productionStage: val })}
-                    allowOther={false}
+                    allowOther={true}
+                    otherPlaceholder="Type custom milestone / stage (e.g. CNC 3D Carving)..."
                     dark={true}
                   />
                 </div>
@@ -959,14 +1099,29 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
                   {editErrors.totalAmount && <p className="text-red-400 text-[10px] mt-1">{editErrors.totalAmount}</p>}
                 </div>
                 <div>
-                  <label className="text-slate-300 font-bold block mb-1">Tracking Number</label>
-                  <input
-                    type="text"
-                    value={editFormData.trackingNumber}
-                    onChange={(e) => setEditFormData({ ...editFormData, trackingNumber: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none"
+                  <SearchableSelect
+                    label="Manufacturing Milestone"
+                    options={[
+                      ...STAGE_OPTIONS,
+                      { value: "OTHER", label: "Other (Type custom milestone...)" },
+                    ]}
+                    value={editFormData.productionStage}
+                    onChange={(val) => setEditFormData({ ...editFormData, productionStage: val })}
+                    allowOther={true}
+                    otherPlaceholder="Type custom milestone..."
+                    dark={true}
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="text-slate-300 font-bold block mb-1">Tracking Number</label>
+                <input
+                  type="text"
+                  value={editFormData.trackingNumber}
+                  onChange={(e) => setEditFormData({ ...editFormData, trackingNumber: e.target.value })}
+                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none"
+                />
               </div>
 
               <div>
@@ -1132,6 +1287,85 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal 4: Cancel Order with Mandatory Reason */}
+      {cancelModalOrder && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 max-w-md w-full border border-red-900 space-y-4">
+            <div className="flex items-center justify-between border-b border-red-900/60 pb-3">
+              <div>
+                <span className="text-[10px] uppercase font-bold tracking-widest text-red-400">
+                  Cancel Order
+                </span>
+                <h3 className="text-lg font-bold font-serif text-white">
+                  Cancel Order #{cancelModalOrder.orderNumber}
+                </h3>
+              </div>
+              <button
+                onClick={() => setCancelModalOrder(null)}
+                className="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-400">
+              Customer: <strong className="text-white">{cancelModalOrder.customerName}</strong> ({cancelModalOrder.customerPhone})
+            </p>
+
+            <form onSubmit={handleConfirmCancel} className="space-y-3">
+              <div>
+                <label className="text-xs font-bold text-slate-300 block mb-1">
+                  Reason for Cancellation *
+                </label>
+                <textarea
+                  rows="3"
+                  required
+                  placeholder="Enter detailed reason why the order is cancelled (e.g. Customer requested size changes, relocated, timber out of stock)..."
+                  value={cancelReason}
+                  onChange={(e) => setCancelReason(e.target.value)}
+                  className="w-full p-2.5 rounded-xl bg-slate-950 border border-red-900 focus:outline-none focus:ring-1 focus:ring-red-500 text-xs font-medium text-white"
+                />
+              </div>
+
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  "Customer requested specification change",
+                  "Customer relocated / timeline conflict",
+                  "Raw timber stock shortage",
+                  "Duplicate order created by mistake",
+                ].map((tag) => (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => setCancelReason(tag)}
+                    className="text-[10px] px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold"
+                  >
+                    + {tag}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setCancelModalOrder(null)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300"
+                >
+                  Close
+                </button>
+                <button
+                  type="submit"
+                  disabled={cancelling}
+                  className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-all disabled:opacity-50"
+                >
+                  {cancelling ? "Cancelling..." : "Confirm Cancellation"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

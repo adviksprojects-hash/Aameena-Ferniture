@@ -45,35 +45,35 @@ function AnimatedSection({ children, delay = 0, fromDir = "bottom", className = 
 /* ─── Infinite Horizontal Sliding Strip ───────────────────────────── */
 const SLIDE_IMAGES = [
   {
-    src: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80",
+    src: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=70",
     label: "Royal 7-Seater Teak Sofa",
   },
   {
-    src: "https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=600&q=80",
+    src: "https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=400&q=70",
     label: "Monarch Dining Suite",
   },
   {
-    src: "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=600&q=80",
+    src: "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=400&q=70",
     label: "Imperial Master Bedroom",
   },
   {
-    src: "https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=600&q=80",
+    src: "https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=400&q=70",
     label: "Heritage 4-Door Wardrobe",
   },
   {
-    src: "https://images.unsplash.com/photo-1533779283484-8da696530a65?auto=format&fit=crop&w=600&q=80",
+    src: "https://images.unsplash.com/photo-1533779283484-8da696530a65?auto=format&fit=crop&w=400&q=70",
     label: "Teak Center Table",
   },
   {
-    src: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=600&q=80",
+    src: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=400&q=70",
     label: "Executive Recliner Chair",
   },
   {
-    src: "https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=600&q=80",
+    src: "https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=400&q=70",
     label: "Custom Bespoke Furniture",
   },
   {
-    src: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=600&q=80",
+    src: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=400&q=70",
     label: "King Bed with Storage",
   },
 ];
@@ -115,10 +115,11 @@ function SlideCard({ img, width }) {
   const [hovered, setHovered] = useState(false);
 
   return (
-    <div
+    <Link
+      href="/products"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="relative shrink-0 rounded-2xl overflow-hidden cursor-pointer"
+      className="relative shrink-0 rounded-2xl overflow-hidden cursor-pointer block"
       style={{
         width,
         height: 200,
@@ -132,6 +133,8 @@ function SlideCard({ img, width }) {
       <img
         src={img.src}
         alt={img.label}
+        loading="lazy"
+        decoding="async"
         className="w-full h-full object-cover"
         style={{
           transform: hovered ? "scale(1.1)" : "scale(1)",
@@ -156,13 +159,11 @@ function SlideCard({ img, width }) {
           transition: "opacity 0.3s ease",
         }}
       >
-        <Link
-          href="/products"
-          className="px-4 py-2 rounded-full bg-amber-500 text-amber-950 text-[10px] font-extrabold hover:bg-amber-400 transition-colors"
-          onClick={(e) => e.stopPropagation()}
+        <span
+          className="px-4 py-2 rounded-full bg-amber-500 text-amber-950 text-[10px] font-extrabold hover:bg-amber-400 transition-colors shadow-md"
         >
           View Collection →
-        </Link>
+        </span>
       </div>
       {/* Shimmer on hover */}
       {hovered && (
@@ -174,7 +175,7 @@ function SlideCard({ img, width }) {
           }}
         />
       )}
-    </div>
+    </Link>
   );
 }
 
@@ -210,6 +211,8 @@ function FurnitureCard({ item }) {
         <img
           src={item.image}
           alt={item.name}
+          loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover"
           style={{
             transform: hovered ? "scale(1.1)" : "scale(1)",
@@ -248,14 +251,22 @@ function FurnitureCard({ item }) {
           <span className="text-xl font-extrabold text-slate-900">{item.price}</span>
           <span className="text-xs text-slate-400 line-through">{item.originalPrice}</span>
         </div>
-        <Link
-          href={`/contact?inquiry=${encodeURIComponent(item.name)}`}
-          className="w-full py-2.5 rounded-xl bg-amber-800 hover:bg-amber-900 text-amber-50 text-xs font-bold transition-colors flex items-center justify-center gap-2 group"
-        >
-          <MessageSquare className="w-3.5 h-3.5" />
-          <span>Inquire / Custom Quote</span>
-          <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-        </Link>
+        <div className="grid grid-cols-2 gap-2 pt-1">
+          <Link
+            href="/products"
+            className="py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-950 text-xs font-bold transition-colors flex items-center justify-center border border-amber-300"
+          >
+            <span>View Catalog</span>
+          </Link>
+          <Link
+            href={`/contact?inquiry=${encodeURIComponent(item.name)}`}
+            className="py-2.5 rounded-xl bg-amber-800 hover:bg-amber-900 text-amber-50 text-xs font-bold transition-colors flex items-center justify-center gap-1.5 group shadow-sm"
+          >
+            <MessageSquare className="w-3.5 h-3.5" />
+            <span>Inquire</span>
+            <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+          </Link>
+        </div>
       </div>
     </div>
   );
@@ -274,7 +285,7 @@ function CategoryCard({ cat }) {
   };
   return (
     <Link
-      href={`/products?category=${cat.id}`}
+      href={cat.href || `/products?category=${cat.id}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => { setHovered(false); setTilt({ x: 0, y: 0 }); }}
       onMouseMove={handleMouseMove}
@@ -290,6 +301,8 @@ function CategoryCard({ cat }) {
       <img
         src={cat.image}
         alt={cat.title}
+        loading="lazy"
+        decoding="async"
         className="w-full h-full object-cover"
         style={{
           transform: hovered ? "scale(1.12)" : "scale(1)",
@@ -344,6 +357,7 @@ export default function Home() {
       subtitle: "Royal Sofas, Recliners & Center Tables",
       image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80",
       itemsCount: "45+ Models",
+      href: "/products?category=living",
     },
     {
       id: "bedroom",
@@ -351,6 +365,7 @@ export default function Home() {
       subtitle: "Solid Wood King Beds & Wardrobes",
       image: "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=800&q=80",
       itemsCount: "38+ Designs",
+      href: "/products?category=bedroom",
     },
     {
       id: "dining",
@@ -358,13 +373,15 @@ export default function Home() {
       subtitle: "6 & 8 Seater Teak Dining Suites",
       image: "https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=800&q=80",
       itemsCount: "25+ Sets",
+      href: "/products?category=dining",
     },
     {
-      id: "custom",
-      title: "Bespoke Custom Furniture",
-      subtitle: "Tailor-made to your exact interior dimensions",
-      image: "https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=800&q=80",
-      itemsCount: "100% Customized",
+      id: "fabrics",
+      title: "Loose Cloth & Sofa Materials",
+      subtitle: "Factory Velvet, Jacquard & Upholstery Fabric Rolls",
+      image: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=800&q=80",
+      itemsCount: "Factory Stock",
+      href: "/products?category=fabrics",
     },
   ];
 
@@ -579,8 +596,48 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── AI REVIEWS BANNER ── */}
+      {/* ── SHOWROOM CONTACT ── */}
       <section className="container mx-auto px-4 md:px-8 pb-16">
+        <AnimatedSection>
+          <div className="bg-white rounded-3xl p-8 lg:p-12 border border-amber-200/70 shadow-sm grid grid-cols-1 lg:grid-cols-2 gap-8 items-center hover:shadow-xl transition-shadow duration-500">
+            <div className="space-y-6">
+              <span className="text-xs uppercase font-bold tracking-widest text-amber-800">Visit Our Showroom & Factory</span>
+              <h2 className="text-2xl sm:text-4xl font-bold font-serif text-slate-900">Experience the Craftsmanship in Person</h2>
+              <p className="text-slate-600 text-sm leading-relaxed">Step into our Solapur showroom and workshop to feel the premium Sagwan teak grains, test sofa comfort, inspect factory loose cloth rolls, and consult directly with our furniture designers.</p>
+              <div className="space-y-3 text-sm text-slate-700">
+                <div className="flex items-center gap-3"><MapPin className="w-5 h-5 text-amber-800 shrink-0" /><span>AMEENA Distributors’s Sofa Set Furniture Company, Solapur Facility</span></div>
+                <div className="flex items-center gap-3"><PhoneCall className="w-5 h-5 text-amber-800 shrink-0" /><span>+91 98765 00001</span></div>
+              </div>
+              <div className="flex flex-wrap gap-4 pt-2">
+                <Link href="/contact" className="px-6 py-3 rounded-full bg-amber-800 hover:bg-amber-900 text-amber-50 font-bold text-sm transition-all hover:scale-105">Book Appointment</Link>
+                <a href="https://wa.me/919876500001?text=Hello%20Aameena%20Furniture%20Solapur,%20I%20would%20like%20to%20visit%20your%20showroom%20and%20factory." target="_blank" rel="noreferrer" className="px-6 py-3 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition-all flex items-center gap-2 hover:scale-105">
+                  <MessageSquare className="w-4 h-4" />
+                  <span>WhatsApp Consultation</span>
+                </a>
+                <a
+                  href="https://www.google.com/maps/place/AMEENA+Distributors%E2%80%99s+Sofa+Set+Furniture+Company/@17.6578402,75.9362493,15z/data=!3m1!4b1!4m6!3m5!1s0x3bc5db34c23e5907:0x86af8fec8b37d0ed!8m2!3d17.6578402!4d75.9362493!16s%2Fg%2F11gypsrxj5"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-5 py-3 rounded-full bg-amber-50 hover:bg-amber-100 text-amber-950 font-bold text-sm border border-amber-300 transition-all flex items-center gap-2 hover:scale-105"
+                >
+                  <MapPin className="w-4 h-4 text-amber-800" />
+                  <span>Open in Google Maps</span>
+                </a>
+              </div>
+            </div>
+            <div className="relative rounded-2xl overflow-hidden h-80 bg-slate-200 border border-amber-200 shadow-inner">
+              <iframe
+                title="Aameena Furniture Solapur Facility"
+                src="https://maps.google.com/maps?q=17.6578402,75.9362493&z=15&output=embed"
+                className="w-full h-full border-0" allowFullScreen="" loading="lazy"
+              />
+            </div>
+          </div>
+        </AnimatedSection>
+      </section>
+
+      {/* ── AI REVIEWS BANNER (Placed between Contact and Careers) ── */}
+      <section className="container mx-auto px-4 md:px-8 pb-20">
         <AnimatedSection>
           <div className="bg-gradient-to-r from-amber-950 via-amber-900 to-amber-950 rounded-3xl p-8 lg:p-12 text-amber-50 shadow-2xl relative overflow-hidden group">
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
@@ -593,10 +650,15 @@ export default function Home() {
                 </div>
                 <h2 className="text-2xl sm:text-4xl font-bold font-serif leading-tight">Verified Google Location Reviews & AI Sentiment Insights</h2>
                 <p className="text-amber-200/90 text-sm md:text-base leading-relaxed">See what real homeowners say about Aameena Furniture's craftsmanship, durability, and on-time delivery.</p>
-                <Link href="/ai-reviews" className="group/btn inline-flex items-center gap-2 px-6 py-3 rounded-full bg-amber-500 hover:bg-amber-400 text-amber-950 font-bold text-sm transition-all hover:scale-105">
-                  <span>Explore AI Location Reviews</span>
-                  <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                </Link>
+                <div className="flex flex-wrap items-center gap-3 pt-1">
+                  <Link href="/ai-reviews" className="group/btn inline-flex items-center gap-2 px-6 py-3 rounded-full bg-amber-500 hover:bg-amber-400 text-amber-950 font-bold text-sm transition-all hover:scale-105">
+                    <span>Explore AI Location Reviews</span>
+                    <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                  </Link>
+                  <Link href="/careers" className="inline-flex items-center gap-1.5 px-5 py-3 rounded-full bg-amber-900/60 hover:bg-amber-900 text-amber-200 text-xs font-bold border border-amber-700 transition-colors">
+                    <span>Join Our Team (Careers)</span>
+                  </Link>
+                </div>
               </div>
               <div className="lg:col-span-4 bg-amber-900/60 p-6 rounded-2xl border border-amber-700/60 space-y-3 group-hover:border-amber-500/60 transition-colors">
                 <div className="flex items-center justify-between">
@@ -609,37 +671,6 @@ export default function Home() {
                 </div>
                 <p className="text-xs text-amber-200/80 leading-relaxed italic">"AI: 98% positive satisfaction on Teak quality and custom finishing."</p>
               </div>
-            </div>
-          </div>
-        </AnimatedSection>
-      </section>
-
-      {/* ── SHOWROOM CONTACT ── */}
-      <section className="container mx-auto px-4 md:px-8 pb-20">
-        <AnimatedSection>
-          <div className="bg-white rounded-3xl p-8 lg:p-12 border border-amber-200/70 shadow-sm grid grid-cols-1 lg:grid-cols-2 gap-8 items-center hover:shadow-xl transition-shadow duration-500">
-            <div className="space-y-6">
-              <span className="text-xs uppercase font-bold tracking-widest text-amber-800">Visit Our Showroom</span>
-              <h2 className="text-2xl sm:text-4xl font-bold font-serif text-slate-900">Experience the Craftsmanship in Person</h2>
-              <p className="text-slate-600 text-sm leading-relaxed">Step into our flagship showroom to feel the premium teak grains, test sofa comfort, and consult directly with our furniture designers.</p>
-              <div className="space-y-3 text-sm text-slate-700">
-                <div className="flex items-center gap-3"><MapPin className="w-5 h-5 text-amber-800 shrink-0" /><span>Aameena Furniture Grand Showroom, Central Furniture Hub</span></div>
-                <div className="flex items-center gap-3"><PhoneCall className="w-5 h-5 text-amber-800 shrink-0" /><span>+91 98765 43210</span></div>
-              </div>
-              <div className="flex flex-wrap gap-4 pt-2">
-                <Link href="/contact" className="px-6 py-3 rounded-full bg-amber-800 hover:bg-amber-900 text-amber-50 font-bold text-sm transition-all hover:scale-105">Book Appointment</Link>
-                <a href="https://wa.me/919876543210" target="_blank" rel="noreferrer" className="px-6 py-3 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition-all flex items-center gap-2 hover:scale-105">
-                  <MessageSquare className="w-4 h-4" />
-                  <span>WhatsApp Consultation</span>
-                </a>
-              </div>
-            </div>
-            <div className="relative rounded-2xl overflow-hidden h-80 bg-slate-200 border border-amber-200">
-              <iframe
-                title="Aameena Furniture Showroom"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3502.269789394625!2d77.2090!3d28.6139!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjg8MTInNTAuMCJOIDc3wrAxMiczMi40IkU!5e0!3m2!1sen!2sin!4v1620000000000!5m2!1sen!2sin"
-                className="w-full h-full border-0" allowFullScreen="" loading="lazy"
-              />
             </div>
           </div>
         </AnimatedSection>

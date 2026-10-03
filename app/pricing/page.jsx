@@ -22,6 +22,7 @@ export default function PricingPage() {
   const [woodType, setWoodType] = useState("teak");
   const [packages, setPackages] = useState([]);
   const [settings, setSettings] = useState(null);
+  const [categoryPdfs, setCategoryPdfs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,6 +32,7 @@ export default function PricingPage() {
       if (res.success) {
         setPackages(res.data.packages || []);
         setSettings(res.data.settings || {});
+        setCategoryPdfs(res.data.categoryPdfs || []);
       }
       setLoading(false);
     }
@@ -91,48 +93,118 @@ export default function PricingPage() {
         </p>
       </div>
 
-      {/* OFFICIAL PDF RATE CARD DOWNLOAD BANNER */}
-      {settings?.catalogPdfUrl && (
-        <div className="bg-amber-50 border border-amber-300 rounded-3xl p-6 sm:p-8 max-w-4xl mx-auto shadow-md flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-4 text-left">
-            <div className="p-4 bg-amber-900 text-amber-50 rounded-2xl shadow-md shrink-0">
-              <FileText className="w-8 h-8" />
+      {/* OFFICIAL PDF RATE CARDS: MASTER ALL-IN-ONE & CATEGORY-SPECIFIC */}
+      <div className="max-w-4xl mx-auto space-y-6">
+        {/* OPTION 1: MASTER COMPLETE CATALOG PDF */}
+        {settings?.catalogPdfUrl && (
+          <div className="bg-amber-50 border border-amber-300 rounded-3xl p-6 sm:p-8 shadow-md flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4 text-left">
+              <div className="p-4 bg-amber-900 text-amber-50 rounded-2xl shadow-md shrink-0">
+                <FileText className="w-8 h-8" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-amber-900 bg-amber-200/70 px-2.5 py-0.5 rounded">
+                    Master Factory Document
+                  </span>
+                  <span className="text-[10px] text-slate-500 font-bold bg-white px-2 py-0.5 rounded border border-amber-200">
+                    All Furniture Included
+                  </span>
+                </div>
+                <h2 className="text-lg sm:text-xl font-bold font-serif text-slate-900 mt-1">
+                  {settings.catalogPdfName || "Aameena Furniture Master Rate Card & Catalog"}
+                </h2>
+                <p className="text-xs text-slate-600 mt-0.5">
+                  Download the complete master price list covering all living room, dining, bedroom, and factory textile rates (PDF).
+                </p>
+              </div>
             </div>
-            <div>
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-amber-900 bg-amber-200/70 px-2.5 py-0.5 rounded">
-                Official Factory Document
+
+            <div className="flex flex-wrap items-center gap-3 shrink-0 w-full sm:w-auto">
+              <a
+                href={settings.catalogPdfUrl}
+                download={settings.catalogPdfName || "Aameena_Furniture_Master_Catalog.pdf"}
+                className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-amber-900 hover:bg-amber-800 text-amber-50 text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                <span>Download Master PDF</span>
+              </a>
+
+              <a
+                href={settings.catalogPdfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto px-4 py-3 rounded-2xl bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+              >
+                <ExternalLink className="w-4 h-4 text-amber-900" />
+                <span>Inspect Online</span>
+              </a>
+            </div>
+          </div>
+        )}
+
+        {/* OPTION 2: DEPARTMENT & CATEGORY-SPECIFIC PDFs */}
+        {categoryPdfs && categoryPdfs.length > 0 && (
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-amber-200/90 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-amber-100 pb-3">
+              <div>
+                <span className="text-[10px] uppercase font-bold tracking-wider text-amber-800">
+                  Individual Category Catalogs
+                </span>
+                <h3 className="text-base sm:text-lg font-bold font-serif text-slate-900">
+                  Download Department-Wise Price Lists
+                </h3>
+              </div>
+              <span className="text-xs text-slate-500">
+                Prefer a specific collection? Download individual category PDFs below:
               </span>
-              <h2 className="text-lg sm:text-xl font-bold font-serif text-slate-900 mt-1">
-                {settings.catalogPdfName || "Aameena Furniture Official Rate Card & Catalog"}
-              </h2>
-              <p className="text-xs text-slate-600 mt-0.5">
-                Download the complete Sagwan teak rate card, dimensions guide, and bespoke wood polish spec sheet (PDF).
-              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+              {categoryPdfs.map((catPdf) => (
+                <div
+                  key={catPdf.id}
+                  className="bg-amber-50/40 rounded-2xl p-4 border border-amber-200/70 hover:border-amber-400 hover:shadow-sm transition-all flex flex-col justify-between space-y-3"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-amber-200/80 text-amber-950">
+                        {catPdf.category}
+                      </span>
+                      <span className="text-[10px] text-slate-500 font-mono">
+                        {catPdf.fileSize || "PDF"}
+                      </span>
+                    </div>
+                    <h4 className="text-xs sm:text-sm font-bold text-slate-900 font-serif">
+                      {catPdf.title}
+                    </h4>
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-2 border-t border-amber-100/80">
+                    <a
+                      href={catPdf.pdfUrl}
+                      download={catPdf.pdfName || "Category_Catalog.pdf"}
+                      className="flex-1 py-2 px-3 rounded-xl bg-amber-900 hover:bg-amber-800 text-amber-50 text-[11px] font-bold text-center flex items-center justify-center gap-1.5 transition-colors"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>Download PDF</span>
+                    </a>
+                    <a
+                      href={catPdf.pdfUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="py-2 px-3 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-[11px] font-bold flex items-center gap-1 transition-colors"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>View</span>
+                    </a>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-
-          <div className="flex flex-wrap items-center gap-3 shrink-0 w-full sm:w-auto">
-            <a
-              href={settings.catalogPdfUrl}
-              download={settings.catalogPdfName || "Aameena_Furniture_Rate_Card.pdf"}
-              className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-amber-900 hover:bg-amber-800 text-amber-50 text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2"
-            >
-              <Download className="w-4 h-4" />
-              <span>Download PDF</span>
-            </a>
-
-            <a
-              href={settings.catalogPdfUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full sm:w-auto px-4 py-3 rounded-2xl bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
-            >
-              <ExternalLink className="w-4 h-4 text-amber-900" />
-              <span>Inspect Online</span>
-            </a>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Interactive Furniture Cost Estimator with Searchable Dropdowns */}
       <div className="bg-white rounded-3xl p-8 border border-amber-200/80 shadow-md space-y-6 max-w-3xl mx-auto">

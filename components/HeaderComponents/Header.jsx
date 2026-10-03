@@ -1,11 +1,9 @@
 import Link from 'next/link';
 import { Show, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
 import HeaderClient from './HeaderClient';
-import { checkUser } from '@/lib/checkUser';
 import { Shield, Briefcase, Sofa } from 'lucide-react';
 
-export default async function Header() {
-    await checkUser();
+export default function Header() {
 
     return (
         <header className="sticky top-0 z-50 w-full bg-amber-950/90 backdrop-blur-md border-b border-amber-900/40 text-amber-50 shadow-lg">

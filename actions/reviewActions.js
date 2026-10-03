@@ -643,9 +643,10 @@ export async function getVerifiedReviews() {
 /**
  * Fetch exactly 5 randomized review prompts for a chosen star rating
  */
-export async function getRandomFivePrompts(rating = 5) {
+export async function getRandomFivePrompts(rating = 5, count = 6) {
   try {
     const starRating = Number(rating) || 5;
+    const fetchLimit = Number(count) || 6;
 
     // Check count for star rating and seed if fewer than 5
     const countForStar = await db.reviewQuote.count({ where: { rating: starRating } });
@@ -663,13 +664,13 @@ export async function getRandomFivePrompts(rating = 5) {
       where: { rating: starRating },
     });
 
-    // Shuffle and return exactly 5
+    // Shuffle and return requested count (at least 5)
     const shuffled = [...allForStar].sort(() => 0.5 - Math.random());
-    const five = shuffled.slice(0, 5);
+    const selected = shuffled.slice(0, Math.max(5, fetchLimit));
 
     return {
       success: true,
-      prompts: five,
+      prompts: selected,
       totalCount: allForStar.length,
     };
   } catch (error) {
@@ -678,7 +679,7 @@ export async function getRandomFivePrompts(rating = 5) {
     const shuffled = [...fallback].sort(() => 0.5 - Math.random());
     return {
       success: true,
-      prompts: shuffled.slice(0, 5),
+      prompts: shuffled.slice(0, 6),
       totalCount: fallback.length,
     };
   }

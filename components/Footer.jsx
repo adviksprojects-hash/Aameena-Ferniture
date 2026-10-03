@@ -36,6 +36,7 @@ export default function Footer() {
               <li><Link href="/products" className="hover:text-amber-400 transition-colors">Furniture Catalog</Link></li>
               <li><Link href="/services" className="hover:text-amber-400 transition-colors">Custom Crafting Services</Link></li>
               <li><Link href="/pricing" className="hover:text-amber-400 transition-colors">Packages & Estimator</Link></li>
+              <li><Link href="/contact" className="hover:text-amber-400 transition-colors">Book Showroom Visit</Link></li>
               <li><Link href="/ai-reviews" className="hover:text-amber-400 transition-colors">AI Google Review Hub</Link></li>
               <li><Link href="/careers" className="hover:text-amber-400 transition-colors">Join Our Team</Link></li>
             </ul>
@@ -46,7 +47,6 @@ export default function Footer() {
             <h3 className="text-white text-base font-bold mb-4 font-serif">Support & Access</h3>
             <ul className="space-y-2.5 text-sm text-amber-200/80">
               <li><Link href="/orders" className="hover:text-amber-400 transition-colors">Track Order Status</Link></li>
-              <li><Link href="/contact" className="hover:text-amber-400 transition-colors">Book Showroom Visit</Link></li>
               <li><Link href="/about" className="hover:text-amber-400 transition-colors">Our Workshop Heritage</Link></li>
               <li className="pt-2">
                 <span className="text-xs font-semibold text-amber-400 uppercase tracking-wider block mb-1">Staff Access</span>

@@ -21,6 +21,8 @@ import {
   Hammer,
   Archive,
   RotateCcw,
+  Ban,
+  ArrowRightCircle,
 } from "lucide-react";
 import {
   getOrders,
@@ -29,6 +31,8 @@ import {
   updateOrderDetails,
   archiveOrder,
   restoreOrder,
+  advanceOrderToNextStage,
+  cancelOrderByManager,
 } from "@/actions/orderActions";
 import { getProducts } from "@/actions/productActions";
 import SearchableSelect from "@/components/SearchableSelect";
@@ -77,6 +81,10 @@ export default function ManagerOrdersPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showNotifyModal, setShowNotifyModal] = useState(false);
+  const [cancelModalOrder, setCancelModalOrder] = useState(null);
+  const [cancelReason, setCancelReason] = useState("");
+  const [cancelling, setCancelling] = useState(false);
+  const [customStageFilter, setCustomStageFilter] = useState("");
   const [selectedOrderForEdit, setSelectedOrderForEdit] = useState(null);
   const [selectedOrderForNotify, setSelectedOrderForNotify] = useState(null);
   const [actionMessage, setActionMessage] = useState(null);
@@ -170,6 +178,80 @@ export default function ManagerOrdersPage() {
       showBanner("success", `Order #${order.orderNumber} restored to active orders.`);
     }
     setUpdatingId(null);
+  };
+
+  const getNextStageDetails = (currentStage) => {
+    const sequence = [
+      { key: "INQUIRY_RECEIVED", next: "TIMBER_SELECTION", label: "Timber Selection" },
+      { key: "TIMBER_SELECTION", next: "CARVING_JOINERY", label: "Carving & Joinery" },
+      { key: "CARVING_JOINERY", next: "SEVEN_STEP_POLISHING", label: "7-Step Polishing" },
+      { key: "SEVEN_STEP_POLISHING", next: "QUALITY_INSPECTION", label: "Quality Inspection" },
+      { key: "QUALITY_INSPECTION", next: "DISPATCHED_WHITE_GLOVE", label: "White-Glove Dispatch" },
+      { key: "DISPATCHED_WHITE_GLOVE", next: "DELIVERED", label: "Delivered & Installed" },
+    ];
+    return sequence.find((s) => s.key === currentStage) || null;
+  };
+
+  const handleAdvanceStage = async (orderId) => {
+    setUpdatingId(orderId);
+    const res = await advanceOrderToNextStage(orderId);
+    if (res.success) {
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === orderId
+            ? { ...o, productionStage: res.nextStage, status: res.newStatus }
+            : o
+        )
+      );
+      showBanner(
+        "success",
+        `Order advanced to stage: ${res.nextStage.replace(/_/g, " ")}${
+          res.newStatus === "DELIVERED" ? " (Marked DELIVERED & inventory updated)" : ""
+        }`
+      );
+    } else {
+      showBanner("error", res.error || "Failed to advance stage.");
+    }
+    setUpdatingId(null);
+  };
+
+  const handleConfirmCancel = async (e) => {
+    e.preventDefault();
+    if (!cancelModalOrder) return;
+    if (!cancelReason.trim()) {
+      alert("Please provide a reason for cancelling this order.");
+      return;
+    }
+    setCancelling(true);
+    const res = await cancelOrderByManager(cancelModalOrder.id, cancelReason);
+    if (res.success) {
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === cancelModalOrder.id
+            ? {
+                ...o,
+                status: "CANCELLED",
+                productionStage: "CANCELLED",
+                customerNotes: o.customerNotes
+                  ? `${o.customerNotes} | [CANCELLED: ${cancelReason.trim()}]`
+                  : `[CANCELLED: ${cancelReason.trim()}]`,
+              }
+            : o
+        )
+      );
+      showBanner("success", `Order #${cancelModalOrder.orderNumber} cancelled. Reason recorded.`);
+      setCancelModalOrder(null);
+      setCancelReason("");
+    } else {
+      showBanner("error", res.error || "Failed to cancel order.");
+    }
+    setCancelling(false);
+  };
+
+  const handleCustomStagePrompt = async (orderId) => {
+    const customStage = prompt("Enter custom manufacturing milestone / stage name (e.g. CNC 3D Carving, Velvet Tufting):");
+    if (!customStage || !customStage.trim()) return;
+    await handleStageUpdate(orderId, customStage.trim(), "IN_PRODUCTION");
   };
 
   const showBanner = (type, text) => {
@@ -380,15 +462,29 @@ export default function ManagerOrdersPage() {
     { value: "DELIVERED", label: "Delivered & Installed", status: "DELIVERED" },
   ];
 
-  // Filter orders with archive tabs
+  // Filter orders with archive tabs and custom stage filter
   const filteredOrders = orders.filter((ord) => {
     const matchesSearch =
       ord.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
       ord.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (ord.customerPhone && ord.customerPhone.includes(searchQuery)) ||
-      (ord.city && ord.city.toLowerCase().includes(searchQuery.toLowerCase()));
+      (ord.city && ord.city.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (ord.productionStage && ord.productionStage.toLowerCase().includes(searchQuery.toLowerCase()));
 
-    const matchesStage = stageFilter === "ALL" || ord.productionStage === stageFilter;
+    let matchesStage = true;
+    if (stageFilter === "ALL") {
+      matchesStage = true;
+    } else if (stageFilter === "OTHER") {
+      if (customStageFilter.trim()) {
+        matchesStage = (ord.productionStage || "").toLowerCase().includes(customStageFilter.toLowerCase().trim());
+      } else {
+        const standardKeys = STAGES.map((s) => s.value);
+        matchesStage = !standardKeys.includes(ord.productionStage);
+      }
+    } else {
+      matchesStage = ord.productionStage === stageFilter;
+    }
+
     const matchesTab = activeTab === "archived" ? ord.isArchived === true : !ord.isArchived;
     return matchesSearch && matchesStage && matchesTab;
   });
@@ -485,20 +581,32 @@ export default function ManagerOrdersPage() {
             />
           </div>
 
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <Filter className="w-4 h-4 text-amber-800 shrink-0" />
-            <select
-              value={stageFilter}
-              onChange={(e) => setStageFilter(e.target.value)}
-              className="w-full sm:w-auto py-2 px-3 rounded-xl bg-amber-50/50 border border-amber-200 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-700"
-            >
-              <option value="ALL">All Stages</option>
-              {STAGES.map((s) => (
-                <option key={s.value} value={s.value}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
+          <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <Filter className="w-4 h-4 text-amber-800 shrink-0" />
+              <select
+                value={stageFilter}
+                onChange={(e) => setStageFilter(e.target.value)}
+                className="w-full sm:w-auto py-2 px-3 rounded-xl bg-amber-50/50 border border-amber-200 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-700"
+              >
+                <option value="ALL">All Stages</option>
+                {STAGES.map((s) => (
+                  <option key={s.value} value={s.value}>
+                    {s.label}
+                  </option>
+                ))}
+                <option value="OTHER">Other / Custom Stage Filter...</option>
+              </select>
+            </div>
+            {stageFilter === "OTHER" && (
+              <input
+                type="text"
+                value={customStageFilter}
+                onChange={(e) => setCustomStageFilter(e.target.value)}
+                placeholder="Type custom stage name..."
+                className="py-2 px-3 rounded-xl bg-amber-50 border border-amber-300 text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-700 w-full sm:w-48"
+              />
+            )}
           </div>
         </div>
       </div>
@@ -596,23 +704,45 @@ export default function ManagerOrdersPage() {
                         <span className="text-[10px] text-emerald-700 block font-medium">Paid / In Production</span>
                       </td>
 
-                      {/* Stage dropdown */}
+                      {/* Stage dropdown & Custom Milestone */}
                       <td className="p-4">
-                        <select
-                          disabled={isUpdating}
-                          value={currentStage}
-                          onChange={(e) => {
-                            const opt = STAGES.find((s) => s.value === e.target.value);
-                            handleStageUpdate(ord.id, e.target.value, opt?.status || ord.status);
-                          }}
-                          className="bg-amber-50/80 text-slate-900 border border-amber-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-amber-700"
-                        >
-                          {STAGES.map((opt) => (
-                            <option key={opt.value} value={opt.value}>
-                              {opt.label}
+                        <div className="space-y-1">
+                          <select
+                            disabled={isUpdating || ord.status === "DELIVERED" || ord.status === "CANCELLED"}
+                            value={STAGES.some((s) => s.value === currentStage) ? currentStage : "OTHER"}
+                            onChange={(e) => {
+                              if (e.target.value === "OTHER") {
+                                handleCustomStagePrompt(ord.id);
+                                return;
+                              }
+                              const opt = STAGES.find((s) => s.value === e.target.value);
+                              handleStageUpdate(ord.id, e.target.value, opt?.status || ord.status);
+                            }}
+                            className="bg-amber-50/80 text-slate-900 border border-amber-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-amber-700 max-w-[190px]"
+                          >
+                            {STAGES.map((opt) => (
+                              <option key={opt.value} value={opt.value}>
+                                {opt.label}
+                              </option>
+                            ))}
+                            <option value="OTHER">
+                              {!STAGES.some((s) => s.value === currentStage) && currentStage !== "CANCELLED"
+                                ? `Milestone: ${currentStage}`
+                                : "+ Other (Custom Milestone)..."}
                             </option>
-                          ))}
-                        </select>
+                          </select>
+
+                          {ord.status === "CANCELLED" && (
+                            <span className="block px-2 py-0.5 rounded text-[9px] font-bold bg-red-100 text-red-900 border border-red-200">
+                              Order Cancelled
+                            </span>
+                          )}
+                          {!STAGES.some((s) => s.value === currentStage) && ord.status !== "CANCELLED" && (
+                            <span className="block px-2 py-0.5 rounded text-[9px] font-bold bg-purple-100 text-purple-900 border border-purple-200 truncate max-w-[180px]">
+                              Custom: {currentStage}
+                            </span>
+                          )}
+                        </div>
                       </td>
 
                       {/* WhatsApp Notify */}
@@ -629,7 +759,40 @@ export default function ManagerOrdersPage() {
 
                       {/* Actions */}
                       <td className="p-4 text-right">
-                        <div className="inline-flex items-center gap-2">
+                        <div className="inline-flex items-center gap-1.5 flex-wrap justify-end">
+                          {/* 1-Click Advance to Next Stage */}
+                          {ord.status !== "DELIVERED" && ord.status !== "CANCELLED" && (() => {
+                            const nextInfo = getNextStageDetails(ord.productionStage);
+                            if (!nextInfo) return null;
+                            return (
+                              <button
+                                disabled={isUpdating}
+                                onClick={() => handleAdvanceStage(ord.id)}
+                                className="px-2.5 py-1.5 rounded-lg bg-amber-950 hover:bg-amber-900 text-amber-50 font-bold text-xs inline-flex items-center gap-1 transition-all shadow-sm"
+                                title={`1-Click: Advance to ${nextInfo.label}`}
+                              >
+                                <ArrowRightCircle className="w-3.5 h-3.5 text-amber-400" />
+                                <span>Next ➔ {nextInfo.label.split(" ")[0]}</span>
+                              </button>
+                            );
+                          })()}
+
+                          {/* Cancel Order with Reason Modal */}
+                          {ord.status !== "DELIVERED" && ord.status !== "CANCELLED" && (
+                            <button
+                              disabled={isUpdating}
+                              onClick={() => {
+                                setCancelModalOrder(ord);
+                                setCancelReason("");
+                              }}
+                              className="px-2.5 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-800 border border-red-200 font-bold text-xs inline-flex items-center gap-1 transition-colors"
+                              title="Cancel order (mandatory reason required)"
+                            >
+                              <Ban className="w-3 h-3 text-red-600" />
+                              <span>Cancel</span>
+                            </button>
+                          )}
+
                           <button
                             onClick={() => openEditModal(ord)}
                             className="px-2.5 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold text-xs inline-flex items-center gap-1 transition-colors"
@@ -900,10 +1063,14 @@ export default function ManagerOrdersPage() {
                 <div>
                   <SearchableSelect
                     label="Initial Production Stage"
-                    options={STAGE_OPTIONS}
+                    options={[
+                      ...STAGE_OPTIONS,
+                      { value: "OTHER", label: "Other (Type custom milestone...)" },
+                    ]}
                     value={newOrder.productionStage}
                     onChange={(val) => setNewOrder({ ...newOrder, productionStage: val })}
-                    allowOther={false}
+                    allowOther={true}
+                    otherPlaceholder="Type custom milestone / stage (e.g. CNC 3D Carving)..."
                   />
                 </div>
               </div>
@@ -1032,10 +1199,14 @@ export default function ManagerOrdersPage() {
                 <div>
                   <SearchableSelect
                     label="Manufacturing Stage:"
-                    options={STAGE_OPTIONS}
+                    options={[
+                      ...STAGE_OPTIONS,
+                      { value: "OTHER", label: "Other (Type custom milestone...)" },
+                    ]}
                     value={editFormData.productionStage}
                     onChange={(val) => setEditFormData({ ...editFormData, productionStage: val })}
-                    allowOther={false}
+                    allowOther={true}
+                    otherPlaceholder="Type custom milestone / stage (e.g. Velvet Tufting)..."
                   />
                 </div>
                 <div>
@@ -1125,6 +1296,87 @@ export default function ManagerOrdersPage() {
                 <span>Launch WhatsApp</span>
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* 🛑 MODAL 4: CANCEL ORDER WITH MANDATORY REASON                 */}
+      {/* ============================================================== */}
+      {cancelModalOrder && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-red-200">
+            <div className="flex items-center justify-between border-b border-red-100 pb-3">
+              <div>
+                <span className="text-[10px] uppercase font-bold tracking-widest text-red-800">
+                  Cancel Order
+                </span>
+                <h3 className="text-lg font-bold font-serif text-slate-900">
+                  Cancel Order #{cancelModalOrder.orderNumber}
+                </h3>
+              </div>
+              <button
+                onClick={() => setCancelModalOrder(null)}
+                className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-600">
+              Customer: <strong className="text-slate-900">{cancelModalOrder.customerName}</strong> ({cancelModalOrder.customerPhone})
+            </p>
+
+            <form onSubmit={handleConfirmCancel} className="space-y-3">
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">
+                  Reason for Cancellation *
+                </label>
+                <textarea
+                  rows="3"
+                  required
+                  placeholder="Enter detailed reason why the order is cancelled (e.g. Customer requested size changes, relocated, timber out of stock)..."
+                  value={cancelReason}
+                  onChange={(e) => setCancelReason(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 text-xs font-medium"
+                />
+              </div>
+
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  "Customer requested specification change",
+                  "Customer relocated / timeline conflict",
+                  "Raw timber stock shortage",
+                  "Duplicate order created by mistake",
+                ].map((tag) => (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => setCancelReason(tag)}
+                    className="text-[10px] px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold"
+                  >
+                    + {tag}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setCancelModalOrder(null)}
+                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700"
+                >
+                  Close
+                </button>
+                <button
+                  type="submit"
+                  disabled={cancelling}
+                  className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-all disabled:opacity-50"
+                >
+                  {cancelling ? "Cancelling..." : "Confirm Cancellation"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

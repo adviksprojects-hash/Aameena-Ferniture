@@ -61,6 +61,10 @@ export default function SearchableSelect({
   );
 
   const handleSelectOption = (optValue) => {
+    if (optValue === "Other" || optValue === "OTHER" || optValue?.toLowerCase() === "other") {
+      handleChooseOther();
+      return;
+    }
     setIsCustomMode(false);
     setCustomValue("");
     onChange(optValue);

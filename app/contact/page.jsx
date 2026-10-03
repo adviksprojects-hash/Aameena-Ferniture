@@ -204,14 +204,16 @@ export default function ContactPage() {
                         { value: "Living Room Sofa Sets", label: "Living Room Sofa Sets" },
                         { value: "Bedroom Beds & Wardrobes", label: "Bedroom Beds & Wardrobes" },
                         { value: "Dining Table Suites", label: "Dining Table Suites" },
+                        { value: "Factory Loose Cloth & Sofa Materials", label: "Factory Loose Cloth & Sofa Upholstery Material" },
                         { value: "Temple & Mandir Carving", label: "Hand-Carved Home Temple (Mandir)" },
                         { value: "Office Desks & Bookshelves", label: "Office Desks & Bookshelves" },
                         { value: "Complete Villa Package", label: "Complete Villa / Turnkey Interior Package" },
+                        { value: "Other", label: "Other (Type your custom requirement...)" },
                       ]}
                       value={formData.interest}
                       onChange={(val) => setFormData({ ...formData, interest: val })}
                       allowOther={true}
-                      otherPlaceholder="Enter custom furniture requirement..."
+                      otherPlaceholder="Enter custom category or requirement (e.g. Factory Loose Cloth, Swing, Bar Unit)..."
                     />
                   </div>
                 </div>

@@ -515,5 +515,124 @@ export async function getSalesAnalytics() {
   }
 }
 
+const STAGES_SEQUENCE = [
+  "INQUIRY_RECEIVED",
+  "TIMBER_SELECTION",
+  "CARVING_JOINERY",
+  "SEVEN_STEP_POLISHING",
+  "QUALITY_INSPECTION",
+  "DISPATCHED_WHITE_GLOVE",
+  "DELIVERED",
+];
+
+/**
+ * Direct 1-Click Advance Order to Next Stage
+ */
+export async function advanceOrderToNextStage(orderId) {
+  try {
+    const order = await db.order.findUnique({
+      where: { id: orderId },
+      include: { OrderItem: true },
+    });
+    if (!order) return { success: false, error: "Order not found" };
+
+    const currentStage = order.productionStage || "INQUIRY_RECEIVED";
+    const currentIndex = STAGES_SEQUENCE.indexOf(currentStage);
+
+    if (currentIndex === -1) {
+      // Default to second stage if current is unknown
+      var nextStage = "TIMBER_SELECTION";
+    } else if (currentIndex >= STAGES_SEQUENCE.length - 1) {
+      return { success: false, error: "Order has already reached the final stage (Delivered & Installed)." };
+    } else {
+      var nextStage = STAGES_SEQUENCE[currentIndex + 1];
+    }
+
+    const newStatus =
+      nextStage === "DELIVERED"
+        ? "DELIVERED"
+        : nextStage === "DISPATCHED_WHITE_GLOVE"
+        ? "SHIPPED"
+        : "IN_PRODUCTION";
+
+    // Auto-deduct stock if advancing to DELIVERED
+    if (nextStage === "DELIVERED" && order.status !== "DELIVERED") {
+      for (const item of order.OrderItem) {
+        if (item.productId) {
+          try {
+            const prod = await db.product.findUnique({ where: { id: item.productId } });
+            if (prod) {
+              await db.product.update({
+                where: { id: item.productId },
+                data: { stock: Math.max(0, prod.stock - (item.quantity || 1)) },
+              });
+            }
+          } catch (e) {
+            console.error("Error auto-deducting stock on advance:", e);
+          }
+        }
+      }
+    }
+
+    const updated = await db.order.update({
+      where: { id: orderId },
+      data: {
+        productionStage: nextStage,
+        status: newStatus,
+      },
+    });
+
+    revalidatePath("/admin/orders");
+    revalidatePath("/manager/orders");
+    revalidatePath("/manager");
+    revalidatePath("/orders");
+    revalidatePath("/products");
+
+    return { success: true, data: updated, nextStage, newStatus };
+  } catch (error) {
+    console.error("Error advancing order stage:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Cancel an order with mandatory reason (for Manager / Admin)
+ */
+export async function cancelOrderByManager(orderId, reason = "Cancelled by store manager") {
+  try {
+    const order = await db.order.findUnique({
+      where: { id: orderId },
+      include: { OrderItem: true },
+    });
+    if (!order) return { success: false, error: "Order not found" };
+
+    if (order.status === "DELIVERED") {
+      return { success: false, error: "Cannot cancel an order that has already been delivered." };
+    }
+
+    const cancellationNote = `[CANCELLED: ${reason.trim() || "No reason specified"}]`;
+    const updatedNotes = order.customerNotes ? `${order.customerNotes} | ${cancellationNote}` : cancellationNote;
+
+    const updated = await db.order.update({
+      where: { id: orderId },
+      data: {
+        status: "CANCELLED",
+        productionStage: "CANCELLED",
+        customerNotes: updatedNotes,
+      },
+    });
+
+    revalidatePath("/admin/orders");
+    revalidatePath("/manager/orders");
+    revalidatePath("/manager");
+    revalidatePath("/orders");
+
+    return { success: true, data: updated };
+  } catch (error) {
+    console.error("Error cancelling order:", error);
+    return { success: false, error: error.message };
+  }
+}
+
 
 
