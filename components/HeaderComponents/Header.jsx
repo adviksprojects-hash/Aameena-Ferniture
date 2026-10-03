@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Show, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
 import HeaderClient from './HeaderClient';
 import { Shield, Briefcase, Sofa } from 'lucide-react';
+import ThemeSwitcher from '@/components/ThemeSwitcher';
 
 export default function Header() {
 
@@ -20,8 +21,12 @@ export default function Header() {
                 {/* Navigation Links */}
                 <HeaderClient />
 
-                {/* Quick Portal Switcher & Auth */}
-                <div className="flex items-center gap-3">
+                {/* Quick Portal Switcher, Theme Switcher & Auth */}
+                <div className="flex items-center gap-2 sm:gap-3">
+                    {/* Theme Switcher (3 Luxury Themes: Teak, Light, Dark) */}
+                    <div className="hidden sm:block">
+                        <ThemeSwitcher />
+                    </div>
                     {/* Portal Switcher dropdown / buttons */}
                     <div className="hidden lg:flex items-center gap-2 bg-amber-900/50 p-1 rounded-full border border-amber-800/60 text-xs">
                         <Link 

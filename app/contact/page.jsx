@@ -123,6 +123,28 @@ export default function ContactPage() {
               </a>
             </div>
           </div>
+
+          {/* Official Solapur Facility Interactive Google Map */}
+          <div className="bg-white rounded-3xl p-4 border border-amber-200/80 shadow-sm overflow-hidden space-y-3">
+            <div className="flex items-center justify-between px-2 pt-1">
+              <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <MapPin className="w-4 h-4 text-amber-800" /> Solapur Manufacturing & Showroom Map
+              </span>
+              <span className="text-[10px] font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full">
+                Live Directions
+              </span>
+            </div>
+            <div className="relative rounded-2xl overflow-hidden h-64 sm:h-72 bg-slate-100 border border-amber-200 shadow-inner">
+              <iframe
+                title="AMEENA Distributors Sofa Set Furniture Company Solapur"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15207.349440686961!2d75.92592809504401!3d17.657860428118827!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc5db34c23e5907%3A0x86af8fec8b37d0ed!2sAMEENA%20Distributors%E2%80%99s%20Sofa%20Set%20Furniture%20Company!5e0!3m2!1sen!2sin!4v1791050521997!5m2!1sen!2sin"
+                className="w-full h-full border-0"
+                allowFullScreen=""
+                loading="lazy"
+                referrerPolicy="strict-origin-when-cross-origin"
+              />
+            </div>
+          </div>
         </div>
 
         {/* Contact / Consultation Form */}

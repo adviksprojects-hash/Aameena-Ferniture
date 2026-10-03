@@ -16,7 +16,7 @@ import {
   Sofa,
   Wrench,
   DollarSign,
-  Sparkles,
+  Star,
 } from "lucide-react";
 
 export default function AdminLayout({ children }) {
@@ -28,7 +28,7 @@ export default function AdminLayout({ children }) {
     { title: "Order Management", url: "/admin/orders", icon: ShoppingBag },
     { title: "Service Management", url: "/admin/services", icon: Wrench },
     { title: "Pricing & PDF Catalog", url: "/admin/pricing", icon: DollarSign },
-    { title: "AI Review Prompts", url: "/admin/reviews", icon: Sparkles },
+    { title: "Customer Reviews", url: "/admin/reviews", icon: Star },
     { title: "Manager Management", url: "/admin/managers", icon: UserCheck },
     { title: "Employee Management", url: "/admin/employees", icon: Users },
     { title: "Sales Analysis", url: "/admin/analysis", icon: BarChart3 },

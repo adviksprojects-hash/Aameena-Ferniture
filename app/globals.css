@@ -18,11 +18,6 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -39,17 +34,47 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
+  
+  /* 50% reduced border-radius for refined architectural luxury */
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.7);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-xl: calc(var(--radius) * 1.2);
+  --radius-2xl: calc(var(--radius) * 1.5);
+  --radius-3xl: calc(var(--radius) * 1.8);
+  --radius-4xl: calc(var(--radius) * 2.2);
 }
 
-:root {
-  --background: oklch(1 0 0);
+/* ===================================================================
+   🎨 MULTI-THEME DESIGN SYSTEM (Warm Royal Teak, Crisp Light, Obsidian Dark)
+   =================================================================== */
+
+/* 1. WARM ROYAL TEAK (Current Signature Default) */
+:root, [data-theme="warm"] {
+  --background: oklch(0.985 0.012 75);
+  --foreground: oklch(0.18 0.03 55);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.03 55);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.03 55);
+  --primary: oklch(0.35 0.1 50);
+  --primary-foreground: oklch(0.985 0.01 75);
+  --secondary: oklch(0.95 0.02 75);
+  --secondary-foreground: oklch(0.25 0.05 50);
+  --muted: oklch(0.95 0.01 75);
+  --muted-foreground: oklch(0.5 0.03 55);
+  --accent: oklch(0.94 0.03 75);
+  --accent-foreground: oklch(0.25 0.05 50);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.88 0.02 75);
+  --input: oklch(0.88 0.02 75);
+  --ring: oklch(0.65 0.15 65);
+  --radius: 0.5rem; /* Cut by 50% for tailored luxury */
+}
+
+/* 2. CRISP STUDIO LIGHT (Clean Minimalist White & Pearl) */
+[data-theme="light"] {
+  --background: oklch(0.985 0.005 240);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -57,64 +82,40 @@
   --popover-foreground: oklch(0.145 0 0);
   --primary: oklch(0.205 0 0);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
+  --secondary: oklch(0.96 0 0);
   --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
+  --muted: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.45 0 0);
+  --accent: oklch(0.95 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --border: oklch(0.9 0 0);
+  --input: oklch(0.9 0 0);
+  --ring: oklch(0.4 0 0);
+  --radius: 0.5rem;
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+/* 3. OBSIDIAN MIDNIGHT (Deep Dark Luxury Teak & Gold) */
+[data-theme="dark"], .dark {
+  --background: oklch(0.12 0.015 50);
+  --foreground: oklch(0.98 0.01 75);
+  --card: oklch(0.17 0.02 50);
+  --card-foreground: oklch(0.98 0.01 75);
+  --popover: oklch(0.17 0.02 50);
+  --popover-foreground: oklch(0.98 0.01 75);
+  --primary: oklch(0.75 0.15 75);
+  --primary-foreground: oklch(0.12 0.015 50);
+  --secondary: oklch(0.24 0.025 50);
+  --secondary-foreground: oklch(0.98 0.01 75);
+  --muted: oklch(0.22 0.02 50);
+  --muted-foreground: oklch(0.7 0.02 75);
+  --accent: oklch(0.25 0.03 50);
+  --accent-foreground: oklch(0.98 0.01 75);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --border: oklch(0.3 0.03 50);
+  --input: oklch(0.28 0.025 50);
+  --ring: oklch(0.75 0.15 75);
+  --radius: 0.5rem;
 }
 
 @layer base {
@@ -123,6 +124,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    transition: background-color 0.25s ease, color 0.25s ease;
   }
   html {
     @apply font-sans;
@@ -130,14 +132,117 @@
   }
 }
 
-/* ── Shared Animation Utilities ───────────────────────────────────── */
-@keyframes animate-in-fade {
-  0%   { opacity: 0; }
-  100% { opacity: 1; }
+/* ===================================================================
+   🌓 AUTOMATIC THEME ADAPTATION
+   =================================================================== */
+
+[data-theme="dark"] body {
+  background-color: oklch(0.12 0.015 50) !important;
+  color: oklch(0.98 0.01 75) !important;
 }
-.animate-in {
-  animation-fill-mode: both;
-  animation-duration: 0.4s;
+
+[data-theme="dark"] .bg-white {
+  background-color: oklch(0.17 0.02 50) !important;
+  color: oklch(0.98 0.01 75) !important;
 }
-.fade-in { animation-name: animate-in-fade; }
-.duration-300 { animation-duration: 0.3s; }
+
+[data-theme="dark"] .bg-amber-50\/20,
+[data-theme="dark"] .bg-amber-50\/30,
+[data-theme="dark"] .bg-amber-50\/50,
+[data-theme="dark"] .bg-amber-50\/60,
+[data-theme="dark"] .bg-amber-50 {
+  background-color: oklch(0.2 0.025 50) !important;
+}
+
+[data-theme="dark"] .bg-stone-50,
+[data-theme="dark"] .bg-slate-50 {
+  background-color: oklch(0.14 0.015 50) !important;
+}
+
+[data-theme="dark"] .text-slate-900,
+[data-theme="dark"] .text-slate-800 {
+  color: oklch(0.98 0.01 75) !important;
+}
+
+[data-theme="dark"] .text-slate-700,
+[data-theme="dark"] .text-slate-600 {
+  color: oklch(0.85 0.015 75) !important;
+}
+
+[data-theme="dark"] .text-slate-500,
+[data-theme="dark"] .text-slate-400 {
+  color: oklch(0.7 0.02 75) !important;
+}
+
+[data-theme="dark"] .border-amber-200,
+[data-theme="dark"] .border-amber-200\/70,
+[data-theme="dark"] .border-amber-200\/80,
+[data-theme="dark"] .border-amber-100,
+[data-theme="dark"] .border-slate-200,
+[data-theme="dark"] .border-slate-100 {
+  border-color: oklch(0.28 0.03 50) !important;
+}
+
+[data-theme="light"] body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* ===================================================================
+   📐 50% BORDER RADIUS REDUCTION (Tailored Modern Luxury)
+   =================================================================== */
+.rounded-3xl {
+  border-radius: 0.875rem !important; /* was 24px (1.5rem), now 14px */
+}
+.rounded-2xl {
+  border-radius: 0.625rem !important; /* was 16px (1rem), now 10px */
+}
+.rounded-xl {
+  border-radius: 0.5rem !important; /* was 12px (0.75rem), now 8px */
+}
+
+/* ===================================================================
+   📱 MOBILE & TABLET FLUID RESPONSIVENESS
+   =================================================================== */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+}
+
+/* ===================================================================
+   ✨ MICRO-ANIMATIONS & BEAUTIFUL POPUPS
+   =================================================================== */
+@keyframes popupEntrance {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.popup-animate {
+  animation: popupEntrance 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.45);
+  }
+}
+
+.pulse-glow {
+  animation: pulseGlow 3s infinite ease-in-out;
+}

@@ -473,7 +473,7 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
           className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-150"
         >
           <div
-            className="bg-white rounded-3xl max-w-3xl w-full p-5 sm:p-8 space-y-6 shadow-2xl border border-amber-200 my-auto transform transition-all animate-in zoom-in-95 duration-200"
+            className="bg-white rounded-3xl max-w-3xl w-full max-h-[92vh] overflow-y-auto p-5 sm:p-8 space-y-6 shadow-2xl border border-amber-200 my-auto transform transition-all animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between border-b border-amber-100 pb-4 gap-3">

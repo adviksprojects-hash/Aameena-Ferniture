@@ -185,8 +185,8 @@ export default function AiReviewsPage() {
         {/* Top Header */}
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold uppercase tracking-wider shadow-sm">
-            <Sparkles className="w-3.5 h-3.5 text-amber-700" />
-            <span>Interactive Google Review Assistant</span>
+            <Star className="w-3.5 h-3.5 text-amber-700 fill-amber-700" />
+            <span>Verified Patron Review Assistant</span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-serif text-slate-900">

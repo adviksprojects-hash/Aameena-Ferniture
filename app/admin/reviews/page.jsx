@@ -202,11 +202,11 @@ export default function AdminReviewsPage() {
             </span>
           </div>
           <h1 className="text-2xl font-bold font-serif text-white mt-1">
-            AI Review Prompts Database
+            Customer Review Prompts & Testimonials Database
           </h1>
           <p className="text-xs text-slate-400 mt-1 max-w-2xl">
-            Store 100–200 authentic reviews. When customers visit{" "}
-            <span className="text-amber-400 font-mono">/ai-reviews</span>, they choose a 1–5 star rating and are presented with exactly 5 randomized prompts with 1-tap copy and direct Google Maps Solapur redirect.
+            Store authentic reviews and recommendations. When customers visit{" "}
+            <span className="text-amber-400 font-mono">/ai-reviews</span>, they choose a 1–5 star rating and are presented with exactly 5 randomized suggestions with 1-tap copy and direct Google Maps Solapur redirect.
           </p>
         </div>
 

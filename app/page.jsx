@@ -628,15 +628,18 @@ export default function Home() {
             <div className="relative rounded-2xl overflow-hidden h-80 bg-slate-200 border border-amber-200 shadow-inner">
               <iframe
                 title="Aameena Furniture Solapur Facility"
-                src="https://maps.google.com/maps?q=17.6578402,75.9362493&z=15&output=embed"
-                className="w-full h-full border-0" allowFullScreen="" loading="lazy"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15207.349440686961!2d75.92592809504401!3d17.657860428118827!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc5db34c23e5907%3A0x86af8fec8b37d0ed!2sAMEENA%20Distributors%E2%80%99s%20Sofa%20Set%20Furniture%20Company!5e0!3m2!1sen!2sin!4v1791050521997!5m2!1sen!2sin"
+                className="w-full h-full border-0"
+                allowFullScreen=""
+                loading="lazy"
+                referrerPolicy="strict-origin-when-cross-origin"
               />
             </div>
           </div>
         </AnimatedSection>
       </section>
 
-      {/* ── AI REVIEWS BANNER (Placed between Contact and Careers) ── */}
+      {/* ── SHOWROOM REVIEWS & TESTIMONIALS BANNER ── */}
       <section className="container mx-auto px-4 md:px-8 pb-20">
         <AnimatedSection>
           <div className="bg-gradient-to-r from-amber-950 via-amber-900 to-amber-950 rounded-3xl p-8 lg:p-12 text-amber-50 shadow-2xl relative overflow-hidden group">
@@ -645,14 +648,14 @@ export default function Home() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
               <div className="lg:col-span-8 space-y-4">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-800/80 text-amber-300 text-xs font-semibold">
-                  <Sparkles className="w-4 h-4 text-amber-400" />
-                  <span>AI-Powered Review System</span>
+                  <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                  <span>Verified Patron Testimonials</span>
                 </div>
-                <h2 className="text-2xl sm:text-4xl font-bold font-serif leading-tight">Verified Google Location Reviews & AI Sentiment Insights</h2>
-                <p className="text-amber-200/90 text-sm md:text-base leading-relaxed">See what real homeowners say about Aameena Furniture's craftsmanship, durability, and on-time delivery.</p>
+                <h2 className="text-2xl sm:text-4xl font-bold font-serif leading-tight">Authentic Google Showroom Reviews & Solapur Facility Ratings</h2>
+                <p className="text-amber-200/90 text-sm md:text-base leading-relaxed">See what real homeowners say about Aameena Furniture's hand-carved craftsmanship, timber durability, and white-glove delivery.</p>
                 <div className="flex flex-wrap items-center gap-3 pt-1">
                   <Link href="/ai-reviews" className="group/btn inline-flex items-center gap-2 px-6 py-3 rounded-full bg-amber-500 hover:bg-amber-400 text-amber-950 font-bold text-sm transition-all hover:scale-105">
-                    <span>Explore AI Location Reviews</span>
+                    <span>Explore Showroom Reviews</span>
                     <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                   </Link>
                   <Link href="/careers" className="inline-flex items-center gap-1.5 px-5 py-3 rounded-full bg-amber-900/60 hover:bg-amber-900 text-amber-200 text-xs font-bold border border-amber-700 transition-colors">
@@ -669,7 +672,7 @@ export default function Home() {
                   <span className="text-4xl font-extrabold text-white">4.9</span>
                   <span className="text-amber-200 text-sm">/ 5.0 stars</span>
                 </div>
-                <p className="text-xs text-amber-200/80 leading-relaxed italic">"AI: 98% positive satisfaction on Teak quality and custom finishing."</p>
+                <p className="text-xs text-amber-200/80 leading-relaxed italic">"Over 98% customer satisfaction on Sagwan Teak craftsmanship and personalized doorstep assembly."</p>
               </div>
             </div>
           </div>

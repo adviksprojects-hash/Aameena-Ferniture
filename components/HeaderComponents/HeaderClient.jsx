@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { navLinks } from '@/data/HeaderData/HeaderData';
 import { cn } from '@/lib/utils';
 import { Shield, Briefcase } from 'lucide-react';
+import ThemeSwitcher from '@/components/ThemeSwitcher';
 
 export default function HeaderClient() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -90,7 +91,12 @@ export default function HeaderClient() {
                     </nav>
 
                     <div className="pt-2 mt-2 border-t border-amber-900/60 flex flex-col gap-2">
-                        <div className="text-xs uppercase font-semibold tracking-wider text-amber-400 px-2">Dashboards</div>
+                        <div className="flex items-center justify-between px-2 pt-1">
+                            <span className="text-xs uppercase font-semibold tracking-wider text-amber-400">Theme</span>
+                            <ThemeSwitcher />
+                        </div>
+
+                        <div className="text-xs uppercase font-semibold tracking-wider text-amber-400 px-2 pt-2">Dashboards</div>
                         <Link 
                             href="/manager" 
                             onClick={() => setIsMobileMenuOpen(false)}
