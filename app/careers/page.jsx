@@ -1,104 +1,330 @@
 "use client";
 
-import { useState } from "react";
-import { Briefcase, MapPin, CheckCircle2, Send, Users, Sparkles } from "lucide-react";
+import { useState, useEffect } from "react";
+import {
+  Briefcase,
+  MapPin,
+  CheckCircle2,
+  Send,
+  Users,
+  Sparkles,
+  RefreshCw,
+  MessageSquare,
+  X,
+  Building2,
+  Clock,
+  DollarSign,
+  AlertCircle,
+} from "lucide-react";
+import { getJobPostings, applyForJob } from "@/actions/careerActions";
 
 export default function CareersPage() {
-  const [appliedRole, setAppliedRole] = useState(null);
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [applicationResult, setApplicationResult] = useState(null);
 
-  const jobs = [
-    {
-      id: "c1",
-      title: "Master Hardwood Craftsman / Carpenter",
-      location: "Main Workshop Hub",
-      type: "Full Time",
-      experience: "5+ Years",
-      description: "Expert in Sagwan Teak and Sheesham wood carving, jointing, and precision structural framing.",
-    },
-    {
-      id: "c2",
-      title: "3D Interior & Furniture Designer",
-      location: "Grand Showroom Studio",
-      type: "Full Time",
-      experience: "2+ Years",
-      description: "Proficient in AutoCAD / 3ds Max / SketchUp to create custom room layouts and furniture render designs for clients.",
-    },
-    {
-      id: "c3",
-      title: "Showroom Store Manager",
-      location: "South Studio Location",
-      type: "Full Time",
-      experience: "3+ Years",
-      description: "Manage client consultations, order dispatches, stock listings, and showroom sales staff.",
-    },
-  ];
+  const [formData, setFormData] = useState({
+    fullName: "",
+    phone: "",
+    email: "",
+    experience: "",
+    portfolioUrl: "",
+    coverNotes: "",
+  });
+
+  const loadJobs = async () => {
+    setLoading(true);
+    const res = await getJobPostings(true); // active only
+    if (res.success) {
+      setJobs(res.data);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadJobs();
+  }, []);
+
+  const handleApply = (job) => {
+    setSelectedJob(job);
+    setApplicationResult(null);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+
+    const res = await applyForJob({
+      jobId: selectedJob.id,
+      ...formData,
+    });
+
+    if (res.success) {
+      setApplicationResult({
+        appId: res.data.id,
+        whatsappUrl: res.whatsappUrl,
+        jobTitle: selectedJob.title,
+      });
+      setFormData({
+        fullName: "",
+        phone: "",
+        email: "",
+        experience: "",
+        portfolioUrl: "",
+        coverNotes: "",
+      });
+    } else {
+      alert("Error: " + (res.error || "Failed to submit application."));
+    }
+
+    setSubmitting(false);
+  };
 
   return (
     <div className="container mx-auto px-4 md:px-8 py-12 space-y-12">
-      
-      {/* Header */}
+      {/* Header Banner */}
       <div className="bg-gradient-to-r from-amber-950 via-amber-900 to-amber-950 rounded-3xl p-8 lg:p-12 text-amber-50 shadow-xl space-y-4 text-center max-w-4xl mx-auto">
-        <span className="text-xs uppercase font-bold tracking-widest text-amber-400">Join Our Artisanal Family</span>
+        <div className="inline-flex items-center gap-2 bg-amber-900/60 border border-amber-700/80 px-4 py-1.5 rounded-full text-xs uppercase font-bold tracking-widest text-amber-400">
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>Join Our Artisanal Heritage</span>
+        </div>
         <h1 className="text-3xl sm:text-5xl font-bold font-serif">Careers at Aameena Furniture</h1>
-        <p className="text-amber-200/90 text-sm md:text-base leading-relaxed">
-          Be a part of a passionate team shaping luxury homes with handcrafted hardwood furniture and interior design excellence.
+        <p className="text-amber-200/90 text-sm md:text-base leading-relaxed max-w-2xl mx-auto">
+          We are seeking master woodcarvers, 3D furniture architects, and luxury showroom consultants passionate about
+          preserving timeless Indian woodwork traditions.
         </p>
       </div>
 
       {/* Open Positions List */}
       <div className="space-y-6 max-w-4xl mx-auto">
-        <h2 className="text-2xl font-bold font-serif text-slate-900">Current Openings</h2>
-
-        <div className="space-y-4">
-          {jobs.map((job) => (
-            <div key={job.id} className="bg-white rounded-3xl p-6 border border-amber-200/70 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-md transition-shadow">
-              <div className="space-y-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs font-extrabold bg-amber-100 text-amber-900 px-3 py-1 rounded-full">
-                    {job.type}
-                  </span>
-                  <span className="text-xs text-slate-500 font-semibold flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5 text-amber-800" /> {job.location}
-                  </span>
-                </div>
-                <h3 className="text-lg font-bold font-serif text-slate-900">{job.title}</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">{job.description}</p>
-                <p className="text-xs text-amber-800 font-bold">Required Experience: {job.experience}</p>
-              </div>
-
-              <button
-                onClick={() => setAppliedRole(job.title)}
-                className="px-6 py-3 rounded-xl bg-amber-800 hover:bg-amber-900 text-amber-50 text-xs font-bold transition-colors shrink-0"
-              >
-                Apply for Position
-              </button>
-            </div>
-          ))}
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold font-serif text-slate-900">Current Openings</h2>
+            <p className="text-xs text-slate-500 mt-0.5">Live positions published directly from our workshop recruitment desk.</p>
+          </div>
+          <button
+            onClick={loadJobs}
+            className="p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 transition-colors"
+            title="Refresh positions"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+          </button>
         </div>
+
+        {loading ? (
+          <div className="text-center py-20 bg-white rounded-3xl border border-amber-200 p-8 space-y-3">
+            <RefreshCw className="w-8 h-8 animate-spin mx-auto text-amber-800" />
+            <p className="text-slate-600 text-xs font-medium">Fetching active career openings from database...</p>
+          </div>
+        ) : jobs.length === 0 ? (
+          <div className="text-center py-16 bg-white rounded-3xl border border-amber-200 p-8 space-y-3">
+            <Briefcase className="w-8 h-8 mx-auto text-slate-400" />
+            <h3 className="text-lg font-bold font-serif text-slate-800">No Open Positions Currently</h3>
+            <p className="text-xs text-slate-500">Check back soon or send your resume to careers@aameenafurniture.com</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {jobs.map((job) => (
+              <div
+                key={job.id}
+                className="bg-white rounded-3xl p-6 lg:p-8 border border-amber-200/70 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-6"
+              >
+                <div className="space-y-3 max-w-2xl">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-[10px] uppercase font-bold bg-amber-100 text-amber-900 px-3 py-1 rounded-full border border-amber-200">
+                      {job.department}
+                    </span>
+                    <span className="text-xs text-slate-500 font-semibold flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5 text-amber-800" /> {job.location}
+                    </span>
+                    <span className="text-xs text-slate-500 font-semibold flex items-center gap-1">
+                      <Clock className="w-3.5 h-3.5 text-slate-400" /> {job.type}
+                    </span>
+                  </div>
+
+                  <h3 className="text-xl font-bold font-serif text-slate-900">{job.title}</h3>
+                  <p className="text-xs text-slate-600 leading-relaxed">{job.description}</p>
+
+                  <div className="flex flex-wrap items-center gap-4 text-xs font-semibold pt-1">
+                    <span className="text-amber-900">Experience: {job.experience}</span>
+                    {job.salaryRange && (
+                      <span className="text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200">
+                        {job.salaryRange}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => handleApply(job)}
+                  className="px-6 py-3.5 rounded-xl bg-amber-800 hover:bg-amber-900 text-amber-50 text-xs font-bold transition-all shadow-sm hover:shadow-amber-800/20 shrink-0 transform hover:-translate-y-0.5"
+                >
+                  Apply for Position
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Modal Application Form */}
-      {appliedRole && (
-        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-8 max-w-md w-full space-y-4 border border-amber-200 shadow-2xl">
-            <h3 className="text-xl font-bold font-serif text-slate-900">Apply for {appliedRole}</h3>
-            <p className="text-xs text-slate-500">Please submit your contact details below.</p>
+      {selectedJob && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full space-y-4 border border-amber-200 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => setSelectedJob(null)}
+              className="absolute top-6 right-6 p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700"
+            >
+              <X className="w-5 h-5" />
+            </button>
 
-            <form onSubmit={(e) => { e.preventDefault(); alert("Application submitted successfully!"); setAppliedRole(null); }} className="space-y-3">
-              <input type="text" required placeholder="Full Name" className="w-full p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs font-medium" />
-              <input type="tel" required placeholder="Phone Number" className="w-full p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs font-medium" />
-              <input type="email" required placeholder="Email Address" className="w-full p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs font-medium" />
-              <textarea placeholder="Brief summary of woodworking / design experience..." rows="3" className="w-full p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs font-medium" />
+            {!applicationResult ? (
+              <>
+                <div>
+                  <span className="text-[10px] uppercase font-bold tracking-widest text-amber-800">
+                    Application Desk
+                  </span>
+                  <h3 className="text-xl font-bold font-serif text-slate-900 mt-0.5">
+                    Apply for {selectedJob.title}
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Location: {selectedJob.location} • {selectedJob.department}
+                  </p>
+                </div>
 
-              <div className="flex items-center gap-3 pt-2">
-                <button type="submit" className="flex-1 py-3 rounded-xl bg-amber-800 text-white font-bold text-xs">Submit Application</button>
-                <button type="button" onClick={() => setAppliedRole(null)} className="py-3 px-4 rounded-xl bg-slate-200 text-slate-700 font-bold text-xs">Cancel</button>
+                <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
+                  <div>
+                    <label className="text-slate-700 font-bold block mb-1">Full Name *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Rameshwar Suthar"
+                      value={formData.fullName}
+                      onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                      className="w-full p-3 rounded-xl bg-amber-50/50 border border-amber-200 text-slate-900 focus:outline-none focus:ring-1 focus:ring-amber-700"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-slate-700 font-bold block mb-1">Phone / WhatsApp *</label>
+                      <input
+                        type="tel"
+                        required
+                        placeholder="+91 98765 43210"
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        className="w-full p-3 rounded-xl bg-amber-50/50 border border-amber-200 text-slate-900 focus:outline-none focus:ring-1 focus:ring-amber-700"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-slate-700 font-bold block mb-1">Email Address *</label>
+                      <input
+                        type="email"
+                        required
+                        placeholder="artisan@domain.com"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        className="w-full p-3 rounded-xl bg-amber-50/50 border border-amber-200 text-slate-900 focus:outline-none focus:ring-1 focus:ring-amber-700"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-slate-700 font-bold block mb-1">Relevant Woodworking / Design Experience *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. 5 Years in Solid Teak Sofas, 3ds Max CAD rendering"
+                      value={formData.experience}
+                      onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
+                      className="w-full p-3 rounded-xl bg-amber-50/50 border border-amber-200 text-slate-900 focus:outline-none focus:ring-1 focus:ring-amber-700"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-slate-700 font-bold block mb-1">Portfolio or Social Link (Optional)</label>
+                    <input
+                      type="url"
+                      placeholder="https://behance.net/... or Instagram handle"
+                      value={formData.portfolioUrl}
+                      onChange={(e) => setFormData({ ...formData, portfolioUrl: e.target.value })}
+                      className="w-full p-3 rounded-xl bg-amber-50/50 border border-amber-200 text-slate-900 focus:outline-none focus:ring-1 focus:ring-amber-700"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-slate-700 font-bold block mb-1">Cover Note / Why Aameena Furniture?</label>
+                    <textarea
+                      rows="2"
+                      placeholder="Tell us about your background with Sagwan Teak or luxury furniture sales..."
+                      value={formData.coverNotes}
+                      onChange={(e) => setFormData({ ...formData, coverNotes: e.target.value })}
+                      className="w-full p-3 rounded-xl bg-amber-50/50 border border-amber-200 text-slate-900 focus:outline-none"
+                    ></textarea>
+                  </div>
+
+                  <div className="flex items-center gap-3 pt-2">
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="flex-1 py-3.5 rounded-xl bg-amber-800 hover:bg-amber-900 text-white font-bold transition-all disabled:opacity-50 shadow-md"
+                    >
+                      {submitting ? "Submitting Application..." : "Submit Application"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedJob(null)}
+                      className="py-3.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </>
+            ) : (
+              <div className="text-center py-6 space-y-4">
+                <div className="w-16 h-16 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto">
+                  <CheckCircle2 className="w-8 h-8" />
+                </div>
+                <h3 className="text-2xl font-bold font-serif text-slate-900">Application Received!</h3>
+                <p className="text-xs text-slate-600 max-w-sm mx-auto leading-relaxed">
+                  Your application for <span className="font-bold text-slate-900">{applicationResult.jobTitle}</span> has
+                  been recorded in our recruitment system.
+                </p>
+
+                <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs space-y-1 text-slate-700">
+                  <div>
+                    <span className="text-slate-500">Applicant ID:</span>{" "}
+                    <span className="font-mono font-bold text-slate-900">{applicationResult.appId}</span>
+                  </div>
+                </div>
+
+                <div className="pt-2 flex flex-col gap-2.5">
+                  <a
+                    href={applicationResult.whatsappUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    <span>Connect with Recruitment Desk on WhatsApp</span>
+                  </a>
+                  <button
+                    onClick={() => setSelectedJob(null)}
+                    className="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs"
+                  >
+                    Close Window
+                  </button>
+                </div>
               </div>
-            </form>
+            )}
           </div>
         </div>
       )}
-
     </div>
   );
 }

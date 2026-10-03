@@ -1,0 +1,115 @@
+"use server";
+
+import { db } from "../lib/prisma.js";
+import { revalidatePath } from "next/cache";
+
+/**
+ * Generate a prefilled WhatsApp inquiry link
+ */
+export async function generateWhatsAppLink({
+  clientName = "Client",
+  serviceType = "Bespoke Custom Furniture",
+  woodChoice = "Grade-A Sagwan Teak",
+  dimensions = "Standard",
+}) {
+  const phone = "919876500001"; // Official showroom WhatsApp business number
+  const message = `Hello Aameena Furniture, my name is ${clientName}. I would like to book a consultation for "${serviceType}". 
+Preferred Wood: ${woodChoice}
+Dimensions / Scope: ${dimensions}. 
+Please connect me with a master craftsman.`;
+
+  return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+}
+
+/**
+ * Submit a bespoke service consultation inquiry
+ */
+export async function createServiceInquiry(data) {
+  try {
+    const {
+      clientName,
+      clientPhone,
+      clientEmail,
+      serviceType = "Bespoke Custom Furniture Crafting",
+      woodChoice = "Grade-A Sagwan Teak",
+      dimensions = "Standard Living Room",
+      roomType = "Living Room",
+      estimatedCost = 0,
+      notes = "",
+    } = data;
+
+    if (!clientName || !clientPhone) {
+      return { success: false, error: "Name and phone number are required." };
+    }
+
+    const inquiry = await db.serviceInquiry.create({
+      data: {
+        clientName,
+        clientPhone,
+        clientEmail: clientEmail || null,
+        serviceType,
+        woodChoice,
+        dimensions,
+        roomType,
+        estimatedCost: parseFloat(estimatedCost) || null,
+        notes,
+        status: "PENDING",
+      },
+    });
+
+    const whatsappUrl = await generateWhatsAppLink({
+      clientName,
+      serviceType,
+      woodChoice,
+      dimensions,
+    });
+
+    revalidatePath("/admin");
+    revalidatePath("/services");
+
+    return {
+      success: true,
+      data: inquiry,
+      whatsappUrl,
+    };
+  } catch (error) {
+    console.error("Error creating service inquiry:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Get all service inquiries
+ */
+export async function getInquiries(status = null) {
+  try {
+    const where = status && status !== "ALL" ? { status } : {};
+    const inquiries = await db.serviceInquiry.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+    });
+
+    return { success: true, data: inquiries };
+  } catch (error) {
+    console.error("Error getting inquiries:", error);
+    return { success: false, error: error.message, data: [] };
+  }
+}
+
+/**
+ * Update inquiry status
+ */
+export async function updateInquiryStatus(id, status) {
+  try {
+    const updated = await db.serviceInquiry.update({
+      where: { id },
+      data: { status },
+    });
+
+    revalidatePath("/admin");
+    return { success: true, data: updated };
+  } catch (error) {
+    console.error("Error updating inquiry status:", error);
+    return { success: false, error: error.message };
+  }
+}

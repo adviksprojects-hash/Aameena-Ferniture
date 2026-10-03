@@ -1,17 +1,307 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
+  provider = "postgresql"
+}
+
+enum Role {
+  USER
+  MANAGER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  IN_PRODUCTION
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum QuoteStatus {
+  PENDING
+  REVIEWING
+  ESTIMATED
+  ACCEPTED
+  DECLINED
+}
+
+enum Sentiment {
+  POSITIVE
+  NEUTRAL
+  CRITICAL
+}
+
+enum InquiryStatus {
+  PENDING
+  CONSULTATION_SCHEDULED
+  ESTIMATE_SENT
+  CONVERTED_TO_ORDER
+  CLOSED
+}
+
+enum OrderStage {
+  INQUIRY_RECEIVED
+  TIMBER_SELECTION
+  CARVING_JOINERY
+  SEVEN_STEP_POLISHING
+  QUALITY_INSPECTION
+  DISPATCHED_WHITE_GLOVE
+  DELIVERED
 }
 
 model User {
-    id          String   @id @default(uuid())
-    clerkUserId String   @unique
-    email       String   @unique
-    name        String?
-    imageUrl    String?
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+  id           String         @id @default(dbgenerated("gen_random_uuid()"))
+  clerkUserId  String         @unique
+  email        String         @unique
+  name         String?
+  imageUrl     String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  phone        String?
+  role         Role           @default(USER)
+  address      String?
+  city         String?
+  postalCode   String?
+  orders       Order[]
+  QuoteRequest QuoteRequest[]
+  manager      Manager?
+}
+
+model Branch {
+  id        String    @id @default(dbgenerated("gen_random_uuid()"))
+  name      String
+  city      String
+  address   String
+  phone     String
+  managers  Manager[]
+  createdAt DateTime  @default(now())
+}
+
+model Manager {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  branchId  String
+  branch    Branch   @relation(fields: [branchId], references: [id])
+  phone     String
+  status    String   @default("ACTIVE")
+  createdAt DateTime @default(now())
+}
+
+model Category {
+  id          String    @id @default(dbgenerated("gen_random_uuid()"))
+  name        String
+  slug        String    @unique
+  description String?
+  imageUrl    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
+  Product     Product[]
+}
+
+model Product {
+  id             String      @id @default(dbgenerated("gen_random_uuid()"))
+  title          String
+  slug           String      @unique @default(uuid())
+  description    String
+  price          Float
+  compareAtPrice Float?
+  costPrice      Float?
+  stock          Int         @default(10)
+  woodType       String
+  dimensions     String?
+  finishType     String?
+  isFeatured     Boolean     @default(false)
+  images         String[]    @default([])
+  categoryId     String
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @default(now()) @updatedAt
+  OrderItem      OrderItem[]
+  Category       Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([categoryId])
+  @@index([woodType])
+}
+
+model Order {
+  id              String      @id @default(dbgenerated("gen_random_uuid()"))
+  orderNumber     String      @unique @default(uuid())
+  userId          String?
+  customerName    String
+  customerEmail   String
+  customerPhone   String?
+  shippingAddress String
+  city            String
+  postalCode      String
+  totalAmount     Float
+  status          OrderStatus @default(PENDING)
+  trackingNumber  String?
+  productionStage String?     @default("INQUIRY_RECEIVED")
+  customerNotes   String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @default(now()) @updatedAt
+  user            User?       @relation(fields: [userId], references: [id])
+  OrderItem       OrderItem[]
+
+  @@index([status])
+  @@index([userId])
+}
+
+model OrderItem {
+  id         String   @id @default(dbgenerated("gen_random_uuid()"))
+  orderId    String
+  productId  String?
+  title      String
+  price      Float
+  quantity   Int      @default(1)
+  woodType   String?
+  finishType String?
+  imageUrl   String?
+  Order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  Product    Product? @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model ServiceInquiry {
+  id            String        @id @default(dbgenerated("gen_random_uuid()"))
+  clientName    String
+  clientPhone   String
+  clientEmail   String?
+  serviceType   String
+  woodChoice    String?
+  dimensions    String?
+  roomType      String?
+  estimatedCost Float?
+  notes         String?
+  status        InquiryStatus @default(PENDING)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model QuoteRequest {
+  id             String      @id @default(dbgenerated("gen_random_uuid()"))
+  userId         String?
+  fullName       String
+  email          String
+  phone          String
+  woodType       String
+  dimensions     String
+  finishType     String?
+  budget         String
+  projectType    String?
+  description    String
+  status         QuoteStatus @default(PENDING)
+  estimatedPrice Float?
+  adminNotes     String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @default(now()) @updatedAt
+  User           User?       @relation(fields: [userId], references: [id])
+
+  @@index([status])
+  @@index([userId])
+}
+
+model Employee {
+  id         String   @id @default(dbgenerated("gen_random_uuid()"))
+  name       String
+  email      String   @unique
+  phone      String?
+  department String
+  roleTitle  String
+  status     String   @default("ACTIVE")
+  joinedDate DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  @@index([department])
+}
+
+model GoogleLocationReview {
+  id            String    @id @default(dbgenerated("gen_random_uuid()"))
+  locationName  String
+  author        String
+  authorAvatar  String?
+  rating        Int       @default(5)
+  reviewText    String
+  reviewDate    DateTime  @default(now())
+  aiSentiment   Sentiment @default(POSITIVE)
+  aiKeyTopics   String[]  @default([])
+  aiSummary     String
+  verified      Boolean   @default(true)
+  googleMapsUrl String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+
+  @@index([aiSentiment])
+  @@index([locationName])
+}
+
+model WhatsAppLog {
+  id               String            @id @default(dbgenerated("gen_random_uuid()"))
+  templateId       String?
+  recipientPhone   String
+  recipientName    String
+  messageContent   String
+  status           String            @default("SENT")
+  orderId          String?
+  createdAt        DateTime          @default(now())
+  WhatsAppTemplate WhatsAppTemplate? @relation(fields: [templateId], references: [id])
+
+  @@index([orderId])
+  @@index([templateId])
+}
+
+model WhatsAppTemplate {
+  id          String        @id @default(dbgenerated("gen_random_uuid()"))
+  name        String        @unique
+  label       String
+  body        String
+  variables   String[]      @default([])
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @default(now()) @updatedAt
+  WhatsAppLog WhatsAppLog[]
+}
+
+model JobPosting {
+  id           String           @id @default(dbgenerated("gen_random_uuid()"))
+  title        String
+  department   String
+  location     String
+  type         String           @default("Full Time")
+  experience   String
+  salaryRange  String?
+  description  String
+  requirements String[]         @default([])
+  isActive     Boolean          @default(true)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @default(now()) @updatedAt
+  applications JobApplication[]
+
+  @@index([department])
+  @@index([isActive])
+}
+
+model JobApplication {
+  id           String      @id @default(dbgenerated("gen_random_uuid()"))
+  jobId        String
+  job          JobPosting  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  fullName     String
+  email        String
+  phone        String
+  experience   String?
+  portfolioUrl String?
+  coverNotes   String?
+  status       String      @default("PENDING")
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @default(now()) @updatedAt
+
+  @@index([jobId])
+  @@index([status])
 }
