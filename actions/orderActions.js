@@ -9,7 +9,13 @@ import { checkUser } from "../lib/checkUser.js";
  */
 export async function getMyOrders() {
   try {
-    const user = await checkUser();
+    let user = null;
+    try {
+      user = await checkUser();
+    } catch (uErr) {
+      console.warn("Notice in getMyOrders checkUser:", uErr?.message || uErr);
+    }
+
     if (!user) {
       return { success: true, data: [], requiresLogin: true, user: null };
     }
@@ -24,34 +30,41 @@ export async function getMyOrders() {
       whereConditions.push({ customerPhone: { equals: user.phone, mode: "insensitive" } });
     }
 
-    const orders = await db.order.findMany({
-      where: {
-        OR: whereConditions,
-      },
-      include: {
-        OrderItem: {
-          include: {
-            Product: true,
+    let orders = [];
+    try {
+      orders = await db.order.findMany({
+        where: {
+          OR: whereConditions,
+        },
+        include: {
+          OrderItem: {
+            include: {
+              Product: true,
+            },
           },
         },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+        orderBy: { createdAt: "desc" },
+      });
+    } catch (dbErr) {
+      console.warn("Notice fetching user orders from DB:", dbErr?.message || dbErr);
+    }
+
+    const sanitizedOrders = JSON.parse(JSON.stringify(orders || []));
 
     return {
       success: true,
-      data: orders,
+      data: sanitizedOrders,
       requiresLogin: false,
       user: {
         id: user.id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
+        name: user.name || "Customer",
+        email: user.email || "",
+        phone: user.phone || "",
       },
     };
   } catch (error) {
-    console.error("Error in getMyOrders:", error);
-    return { success: false, error: error.message, data: [] };
+    console.warn("Notice in getMyOrders (safely handled):", error?.message || error);
+    return { success: true, data: [], requiresLogin: false, user: null };
   }
 }
 
@@ -226,10 +239,64 @@ export async function createDirectOrder(orderData) {
 }
 
 /**
+ * Automatically adjust product stock when an order transitions to/from DELIVERED
+ */
+async function adjustStockForOrderStatus(existingOrder, targetStatus, targetStage) {
+  if (!existingOrder) return;
+  const isNowDelivered = targetStatus === "DELIVERED" || targetStage === "DELIVERED";
+  const wasDelivered =
+    existingOrder.status === "DELIVERED" || existingOrder.productionStage === "DELIVERED";
+
+  // Transitioning TO Delivered -> Decrement stock
+  if (isNowDelivered && !wasDelivered) {
+    for (const item of existingOrder.OrderItem || []) {
+      if (item.productId) {
+        try {
+          const prod = await db.product.findUnique({ where: { id: item.productId } });
+          if (prod) {
+            const qty = Math.max(1, parseInt(item.quantity || 1, 10));
+            const newStock = Math.max(0, (prod.stock || 0) - qty);
+            await db.product.update({
+              where: { id: item.productId },
+              data: { stock: newStock },
+            });
+          }
+        } catch (stockErr) {
+          console.error("Error reducing stock for product:", item.productId, stockErr);
+        }
+      }
+    }
+  }
+
+  // Transitioning FROM Delivered to Cancelled or earlier stage -> Restore stock
+  if (wasDelivered && !isNowDelivered) {
+    for (const item of existingOrder.OrderItem || []) {
+      if (item.productId) {
+        try {
+          const qty = Math.max(1, parseInt(item.quantity || 1, 10));
+          await db.product.update({
+            where: { id: item.productId },
+            data: { stock: { increment: qty } },
+          });
+        } catch (stockErr) {
+          console.error("Error restoring stock for product:", item.productId, stockErr);
+        }
+      }
+    }
+  }
+}
+
+/**
  * Update full order details (customer details, address, amount, notes, tracking, stage)
  */
 export async function updateOrderDetails(orderId, updateData) {
   try {
+    const existing = await db.order.findUnique({
+      where: { id: orderId },
+      include: { OrderItem: true },
+    });
+    if (!existing) return { success: false, error: "Order not found" };
+
     const {
       customerName,
       customerPhone,
@@ -243,6 +310,11 @@ export async function updateOrderDetails(orderId, updateData) {
       customerNotes,
       trackingNumber,
     } = updateData;
+
+    // Adjust product stock if status / stage transitions to or from DELIVERED
+    if (status !== undefined || productionStage !== undefined) {
+      await adjustStockForOrderStatus(existing, status, productionStage);
+    }
 
     const dataToUpdate = {};
     if (customerName !== undefined) dataToUpdate.customerName = customerName;
@@ -269,6 +341,9 @@ export async function updateOrderDetails(orderId, updateData) {
     revalidatePath("/manager/orders");
     revalidatePath("/manager");
     revalidatePath("/orders");
+    revalidatePath("/products");
+    revalidatePath("/admin/products");
+    revalidatePath("/manager/products");
 
     return { success: true, data: updated };
   } catch (error) {
@@ -297,41 +372,8 @@ export async function updateOrderStage(orderId, { stage, status }) {
       dataToUpdate.status = "DELIVERED";
     }
 
-    // Auto-reduce stock when order is DELIVERED
-    if (targetStatus === "DELIVERED" && existing.status !== "DELIVERED") {
-      for (const item of existing.OrderItem) {
-        if (item.productId) {
-          try {
-            const prod = await db.product.findUnique({ where: { id: item.productId } });
-            if (prod) {
-              const newStock = Math.max(0, prod.stock - (item.quantity || 1));
-              await db.product.update({
-                where: { id: item.productId },
-                data: { stock: newStock },
-              });
-            }
-          } catch (stockErr) {
-            console.error("Error reducing stock for product:", item.productId, stockErr);
-          }
-        }
-      }
-    }
-
-    // Auto-restore stock if previously DELIVERED order is cancelled or reverted
-    if (existing.status === "DELIVERED" && targetStatus === "CANCELLED") {
-      for (const item of existing.OrderItem) {
-        if (item.productId) {
-          try {
-            await db.product.update({
-              where: { id: item.productId },
-              data: { stock: { increment: item.quantity || 1 } },
-            });
-          } catch (stockErr) {
-            console.error("Error restoring stock for product:", item.productId, stockErr);
-          }
-        }
-      }
-    }
+    // Auto-adjust stock
+    await adjustStockForOrderStatus(existing, targetStatus, stage);
 
     const updated = await db.order.update({
       where: { id: orderId },
@@ -372,7 +414,11 @@ export async function trackOrderByToken(query) {
         ],
       },
       include: {
-        OrderItem: true,
+        OrderItem: {
+          include: {
+            Product: true,
+          },
+        },
       },
     });
 
@@ -556,23 +602,7 @@ export async function advanceOrderToNextStage(orderId) {
         : "IN_PRODUCTION";
 
     // Auto-deduct stock if advancing to DELIVERED
-    if (nextStage === "DELIVERED" && order.status !== "DELIVERED") {
-      for (const item of order.OrderItem) {
-        if (item.productId) {
-          try {
-            const prod = await db.product.findUnique({ where: { id: item.productId } });
-            if (prod) {
-              await db.product.update({
-                where: { id: item.productId },
-                data: { stock: Math.max(0, prod.stock - (item.quantity || 1)) },
-              });
-            }
-          } catch (e) {
-            console.error("Error auto-deducting stock on advance:", e);
-          }
-        }
-      }
-    }
+    await adjustStockForOrderStatus(order, newStatus, nextStage);
 
     const updated = await db.order.update({
       where: { id: orderId },
@@ -587,6 +617,8 @@ export async function advanceOrderToNextStage(orderId) {
     revalidatePath("/manager");
     revalidatePath("/orders");
     revalidatePath("/products");
+    revalidatePath("/admin/products");
+    revalidatePath("/manager/products");
 
     return { success: true, data: updated, nextStage, newStatus };
   } catch (error) {
@@ -626,13 +658,120 @@ export async function cancelOrderByManager(orderId, reason = "Cancelled by store
     revalidatePath("/manager/orders");
     revalidatePath("/manager");
     revalidatePath("/orders");
-
     return { success: true, data: updated };
   } catch (error) {
     console.error("Error cancelling order:", error);
     return { success: false, error: error.message };
   }
 }
+
+/**
+ * Create an order from shopping cart with multiple items
+ */
+export async function createCartOrder(orderData) {
+  try {
+    const {
+      customerName,
+      customerPhone,
+      customerEmail = "",
+      shippingAddress,
+      city = "Mumbai",
+      postalCode = "400050",
+      customerNotes = "",
+      items = [],
+      totalAmount,
+    } = orderData;
+
+    if (!customerName || !customerPhone || !shippingAddress || !items.length) {
+      return {
+        success: false,
+        error: "Please provide your full name, phone number, delivery address, and ensure your cart is not empty.",
+      };
+    }
+
+    let user = null;
+    try {
+      user = await checkUser();
+    } catch {
+      // User might be guest or unauthenticated
+    }
+
+    const orderNumber = `AF-ORD-${Date.now().toString().slice(-6)}`;
+    const trackingNumber = `AF-MFG-${Math.floor(100000 + Math.random() * 900000)}`;
+
+    const computedTotal =
+      totalAmount && !isNaN(totalAmount)
+        ? parseFloat(totalAmount)
+        : items.reduce(
+            (sum, item) => sum + (parseFloat(item.price) || 0) * (parseInt(item.quantity, 10) || 1),
+            0
+          );
+
+    const orderItemsData = items.map((item) => ({
+      title: item.title || "Handcrafted Luxury Furniture",
+      price: parseFloat(item.price) || 0,
+      quantity: parseInt(item.quantity, 10) || 1,
+      woodType: item.woodType || "Grade-A Sagwan Teak",
+      finishType: item.finishType || "Natural Teak Honey Polish",
+      productId:
+        item.productId ||
+        (item.id && typeof item.id === "string" ? item.id.split("__")[0] : null) ||
+        null,
+      imageUrl:
+        item.imageUrl ||
+        item.image ||
+        "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80",
+    }));
+
+    const createdOrder = await db.order.create({
+      data: {
+        orderNumber,
+        trackingNumber,
+        userId: user?.id || null,
+        customerName: customerName.trim(),
+        customerPhone: customerPhone.trim(),
+        customerEmail:
+          customerEmail.trim() || (user?.email || "customer@aameenafurniture.com"),
+        shippingAddress: shippingAddress.trim(),
+        city: city.trim(),
+        postalCode: postalCode.trim(),
+        totalAmount: computedTotal,
+        status: "CONFIRMED",
+        productionStage: "INQUIRY_RECEIVED",
+        customerNotes: customerNotes
+          ? `[Direct Cart Order] ${customerNotes.trim()}`
+          : "[Direct Cart Order - Factory Booking]",
+        OrderItem: {
+          create: orderItemsData,
+        },
+      },
+      include: {
+        OrderItem: {
+          include: {
+            Product: true,
+          },
+        },
+      },
+    });
+
+    revalidatePath("/orders");
+    revalidatePath("/admin/orders");
+    revalidatePath("/manager/orders");
+    revalidatePath("/manager");
+    revalidatePath("/products");
+
+    return {
+      success: true,
+      data: createdOrder,
+      orderNumber: createdOrder.orderNumber,
+      trackingNumber: createdOrder.trackingNumber,
+    };
+  } catch (error) {
+    console.error("Error creating cart order:", error);
+    return { success: false, error: error.message };
+  }
+}
+
 
 
 

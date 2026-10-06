@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   Package,
   Plus,
@@ -19,6 +20,7 @@ import {
   MessageSquare,
   X,
   Edit3,
+  ExternalLink,
 } from "lucide-react";
 import {
   getProducts,
@@ -40,6 +42,8 @@ const CATEGORY_OPTIONS = [
   { value: "dining", label: "Dining Room" },
   { value: "office", label: "Office & Study" },
   { value: "outdoor", label: "Outdoor & Garden" },
+  { value: "fabrics", label: "Loose Cloth & Fabrics" },
+  { value: "custom", label: "Custom Artisanal Pieces" },
 ];
 
 const WOOD_OPTIONS = [
@@ -48,6 +52,10 @@ const WOOD_OPTIONS = [
   { value: "Indian Rosewood", label: "Indian Rosewood" },
   { value: "American Walnut", label: "American Walnut" },
   { value: "Steam Beechwood", label: "Steam Beechwood" },
+  { value: "100% Pure Breathable Cotton", label: "100% Pure Breathable Cotton" },
+  { value: "Textured Chenille-Cotton", label: "Textured Chenille-Cotton" },
+  { value: "Royal Velvet Upholstery Cloth", label: "Royal Velvet Upholstery Cloth" },
+  { value: "Turkish Floral Jacquard Fabric", label: "Turkish Floral Jacquard Fabric" },
 ];
 
 const FINISH_OPTIONS = [
@@ -56,9 +64,13 @@ const FINISH_OPTIONS = [
   { value: "High Gloss Melamine", label: "High Gloss Melamine" },
   { value: "Raw Antique Wax Polish", label: "Raw Antique Wax Polish" },
   { value: "Distressed White Wash", label: "Distressed White Wash" },
+  { value: "Natural Soft Matte Weave", label: "Natural Soft Matte Weave" },
+  { value: "Water-Repellent Velvet Sheen", label: "Water-Repellent Velvet Sheen" },
+  { value: "Heritage Jacquard Woven Texture", label: "Heritage Jacquard Woven Texture" },
 ];
 
 export default function AdminProductsPage() {
+  const [mounted, setMounted] = useState(false);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -75,6 +87,7 @@ export default function AdminProductsPage() {
     title: "",
     categorySlug: "living",
     woodType: "Grade-A Sagwan Teak",
+    materialPurity: "",
     price: "",
     compareAtPrice: "",
     stock: "",
@@ -101,6 +114,7 @@ export default function AdminProductsPage() {
   };
 
   useEffect(() => {
+    setMounted(true);
     loadProducts();
   }, []);
 
@@ -169,6 +183,7 @@ export default function AdminProductsPage() {
         title: "",
         categorySlug: "living",
         woodType: "Grade-A Sagwan Teak",
+        materialPurity: "",
         price: "",
         compareAtPrice: "",
         stock: "",
@@ -194,6 +209,7 @@ export default function AdminProductsPage() {
       title: prod.title,
       categorySlug: prod.Category?.slug || "living",
       woodType: prod.woodType || "Grade-A Sagwan Teak",
+      materialPurity: prod.materialPurity || "",
       finishType: prod.finishType || "Natural Teak Honey Polish",
       price: prod.price,
       compareAtPrice: prod.compareAtPrice || "",
@@ -349,10 +365,37 @@ export default function AdminProductsPage() {
     activeTab === "archived" ? p.isArchived === true : !p.isArchived
   );
 
+  if (!mounted) {
+    return (
+      <div className="space-y-8" suppressHydrationWarning>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-950 p-6 rounded-3xl border border-slate-800" suppressHydrationWarning>
+          <div className="space-y-2">
+            <span className="text-xs uppercase font-bold tracking-widest text-amber-400">Inventory Management</span>
+            <h1 className="text-2xl font-bold font-serif text-white mt-1">Admin Product Management</h1>
+            <p className="text-xs text-slate-400 mt-1">
+              Add & edit furniture specifications, upload 1-3 device photos, configure inquiry/detail buttons, and manage archives.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-700 w-10 h-10" />
+            <div className="px-5 py-2.5 rounded-xl bg-amber-500/70 w-36 h-10" />
+          </div>
+        </div>
+
+        <div className="min-h-[420px] flex flex-col items-center justify-center space-y-4 rounded-3xl bg-slate-950 border border-slate-800 p-8" suppressHydrationWarning>
+          <RefreshCw className="w-8 h-8 animate-spin text-amber-500" />
+          <p className="text-xs text-slate-400 font-semibold tracking-wider uppercase">
+            Loading Catalog Inventory & Specifications...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-8" suppressHydrationWarning>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-950 p-6 rounded-3xl border border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-950 p-6 rounded-3xl border border-slate-800" suppressHydrationWarning>
         <div>
           <span className="text-xs uppercase font-bold tracking-widest text-amber-400">Inventory Management</span>
           <h1 className="text-2xl font-bold font-serif text-white mt-1">Admin Product Management</h1>
@@ -362,6 +405,7 @@ export default function AdminProductsPage() {
         </div>
         <div className="flex items-center gap-3">
           <button
+            suppressHydrationWarning
             onClick={loadProducts}
             className="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 transition-colors"
             title="Refresh database records"
@@ -369,6 +413,7 @@ export default function AdminProductsPage() {
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
           </button>
           <button
+            suppressHydrationWarning
             onClick={() => setShowAddModal(true)}
             className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition-colors flex items-center gap-2 shadow-lg shadow-amber-500/10"
           >
@@ -379,8 +424,9 @@ export default function AdminProductsPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
+      <div className="flex items-center gap-2 border-b border-slate-800 pb-3" suppressHydrationWarning>
         <button
+          suppressHydrationWarning
           onClick={() => setActiveTab("active")}
           className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
             activeTab === "active"
@@ -419,8 +465,8 @@ export default function AdminProductsPage() {
 
       {/* Products Table */}
       <div className="bg-slate-950 rounded-3xl border border-slate-800 overflow-hidden shadow-xl">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
+        <div className="overflow-x-auto touch-pan-x overscroll-x-contain scrollbar-thin scrollbar-thumb-amber-500/30 scrollbar-track-slate-900">
+          <table className="w-full text-left text-xs text-slate-300 min-w-[880px]">
             <thead className="bg-slate-900 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
               <tr>
                 <th className="p-4">Item & Photos</th>
@@ -540,6 +586,15 @@ export default function AdminProductsPage() {
                     </td>
                     <td className="p-4 text-right">
                       <div className="flex items-center justify-end gap-2">
+                        <Link
+                          href={`/products/${prod.slug || prod.id}`}
+                          target="_blank"
+                          className="p-2 bg-slate-900 hover:bg-slate-800 rounded-lg text-amber-400 border border-slate-700/80 transition-colors"
+                          title="View public storefront page (/products/{id})"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </Link>
+
                         <button
                           onClick={() => handleOpenEdit(prod)}
                           className="p-2 bg-amber-950/80 hover:bg-amber-900 rounded-lg text-amber-400 border border-amber-800 transition-colors"
@@ -667,6 +722,22 @@ export default function AdminProductsPage() {
                   allowOther={true}
                   dark={true}
                 />
+              </div>
+
+              <div>
+                <label className="text-slate-300 font-bold block mb-1">
+                  Material / Timber Purity & Authenticity (%)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. 100% Pure Cotton, 100% Grade-A Sagwan Teak, 95% Organic Cotton"
+                  value={newProduct.materialPurity}
+                  onChange={(e) => setNewProduct({ ...newProduct, materialPurity: e.target.value })}
+                  className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+                />
+                <p className="text-[10px] text-slate-500 mt-1">
+                  Appears on product badge (e.g. "✓ 100% Pure Cotton" or "✓ 100% Genuine Sagwan"). Defaults to 100% Genuine Quality if left blank.
+                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -893,6 +964,22 @@ export default function AdminProductsPage() {
                   allowOther={true}
                   dark={true}
                 />
+              </div>
+
+              <div>
+                <label className="text-slate-300 font-bold block mb-1">
+                  Material / Timber Purity & Authenticity (%)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. 100% Pure Cotton, 100% Grade-A Sagwan Teak, 95% Organic Cotton"
+                  value={editingProduct.materialPurity || ""}
+                  onChange={(e) => setEditingProduct({ ...editingProduct, materialPurity: e.target.value })}
+                  className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+                />
+                <p className="text-[10px] text-slate-500 mt-1">
+                  Appears on product badge (e.g. "✓ 100% Pure Cotton" or "✓ 100% Genuine Sagwan"). Defaults to 100% Genuine Quality if left blank.
+                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-3">

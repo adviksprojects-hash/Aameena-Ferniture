@@ -23,6 +23,8 @@ import {
   RotateCcw,
   Ban,
   ArrowRightCircle,
+  Eye,
+  Printer,
 } from "lucide-react";
 import {
   getOrders,
@@ -65,6 +67,7 @@ const STAGE_OPTIONS = [
 ];
 
 export default function ManagerOrdersPage() {
+  const [mounted, setMounted] = useState(false);
   const [orders, setOrders] = useState([]);
   const [catalogProducts, setCatalogProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -87,6 +90,9 @@ export default function ManagerOrdersPage() {
   const [customStageFilter, setCustomStageFilter] = useState("");
   const [selectedOrderForEdit, setSelectedOrderForEdit] = useState(null);
   const [selectedOrderForNotify, setSelectedOrderForNotify] = useState(null);
+  const [selectedOrderForInspect, setSelectedOrderForInspect] = useState(null);
+  const [selectedOrderForReceipt, setSelectedOrderForReceipt] = useState(null);
+  const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [actionMessage, setActionMessage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -145,7 +151,19 @@ export default function ManagerOrdersPage() {
   };
 
   useEffect(() => {
+    setMounted(true);
     loadData();
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const stageParam = params.get("stage");
+      const searchParam = params.get("search");
+      if (stageParam) {
+        setStageFilter(stageParam);
+      }
+      if (searchParam) {
+        setSearchQuery(searchParam);
+      }
+    }
   }, []);
 
   const handleStageUpdate = async (orderId, stage, status) => {
@@ -414,42 +432,46 @@ export default function ManagerOrdersPage() {
     setShowNotifyModal(true);
   };
 
-  // Generate WhatsApp Message text incorporating Product ID / Name and Custom Furniture Details
+  // Generate WhatsApp Message text incorporating all items, prices, and address
   const generateWhatsAppMessage = (order) => {
     if (!order) return "";
     const items = order.OrderItem || [];
     const itemDetails = items
       .map((item, idx) => {
-        if (item.productId) {
-          return `   ${idx + 1}. Product: ${item.title}\n      • Product ID: ${item.productId.slice(0, 10)}...\n      • Timber: ${item.woodType || "Solid Teak"}\n      • Finish: ${item.finishType || "Natural Polish"}`;
-        } else {
-          return `   ${idx + 1}. [Custom Bespoke Furniture]: ${item.title}\n      • Timber: ${item.woodType || "Grade-A Sagwan Teak"}\n      • Finish: ${item.finishType || "Hand-Rubbed Polish"}\n      • Notes: ${order.customerNotes || "Handcrafted to custom specs"}`;
-        }
+        const title = item.title || "Handcrafted Furniture";
+        const qty = item.quantity || 1;
+        const wood = item.woodType || item.Product?.woodType || "Grade-A Sagwan Teak";
+        const finish = item.finishType || item.Product?.finishType || "Natural Teak Honey Polish";
+        const price = Number(item.price || 0);
+        return `   ${idx + 1}. *${title}*\n      • Qty: ${qty} | Timber: ${wood}\n      • Polish: ${finish} | Price: ₹${(price * qty).toLocaleString("en-IN")}`;
       })
       .join("\n\n");
 
     const stageFormatted = (order.productionStage || "INQUIRY_RECEIVED").replace(/_/g, " ");
 
     return (
-      `*AAMEENA FURNITURE MANUFACTURER*\n` +
-      `*Order Production & Dispatch Notice*\n\n` +
+      `*AAMEENA FURNITURE MANUFACTURER, SOLAPUR*\n` +
+      `*Official Order Production & Dispatch Notice*\n\n` +
       `Hello ${order.customerName},\n\n` +
-      `Your custom furniture order *#${order.orderNumber}* has been updated!\n\n` +
+      `Your handcrafted furniture order *#${order.orderNumber}* has been updated!\n\n` +
       `📍 *Current Crafting Stage:* ${stageFormatted}\n` +
       `🚚 *Tracking ID:* ${order.trackingNumber || "AF-MFG-" + order.orderNumber}\n` +
+      `🏡 *Delivery Destination:* ${order.shippingAddress || "Solapur"}, ${order.city || "Solapur"}${order.postalCode ? " - " + order.postalCode : ""}\n` +
       `🏢 *Manufacturer Unit:* AMEENA Distributors’s Sofa Set Furniture Company, Solapur\n\n` +
-      `🪵 *Furniture Project Details:*\n` +
+      `🪵 *Ordered Furniture Items (${items.length}):*\n` +
       `${itemDetails || "   • Handcrafted Luxury Solid Wood Furniture"}\n\n` +
+      `💰 *Total Order Amount:* ₹${Number(order.totalAmount || 0).toLocaleString("en-IN")}\n\n` +
       `Our master artisans ensure every mortise-and-tenon joint and polish coat meets heirloom quality standards.\n\n` +
-      `Track live anytime: http://localhost:3000/orders\n` +
+      `Track live anytime: https://aameenafurniture.com/orders\n` +
       `Thank you for trusting Aameena Furniture Manufacturer!`
     );
   };
 
   const dispatchWhatsApp = (order) => {
     const phone = (order.customerPhone || "").replace(/[^0-9]/g, "");
+    const formattedPhone = phone.startsWith("91") ? phone : (phone ? `91${phone}` : "918600570542");
     const msg = generateWhatsAppMessage(order);
-    window.open(`https://wa.me/${phone || "919876500001"}?text=${encodeURIComponent(msg)}`, "_blank");
+    window.open(`https://api.whatsapp.com/send?phone=${formattedPhone}&text=${encodeURIComponent(msg)}`, "_blank");
     setShowNotifyModal(false);
   };
 
@@ -492,10 +514,41 @@ export default function ManagerOrdersPage() {
   const activeOrdersCount = orders.filter((o) => !o.isArchived).length;
   const archivedOrdersCount = orders.filter((o) => o.isArchived).length;
 
+  if (!mounted) {
+    return (
+      <div className="space-y-8" suppressHydrationWarning>
+        <div className="bg-white p-6 lg:p-8 rounded-3xl border border-amber-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4" suppressHydrationWarning>
+          <div className="space-y-2">
+            <span className="text-xs uppercase font-bold tracking-widest text-amber-800">
+              Furniture Manufacturer Logistics • Solapur Facility
+            </span>
+            <h1 className="text-2xl font-bold font-serif text-slate-900 mt-1">
+              Manufacturer Order & Dispatch Control
+            </h1>
+            <p className="text-xs text-slate-600 mt-1">
+              Create direct walk-in customer orders, manage custom furniture crafting stages, edit order specs, archive delivered orders, and send rich WhatsApp project updates.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 w-10 h-10" />
+            <div className="px-5 py-2.5 rounded-xl bg-amber-900/60 w-48 h-10" />
+          </div>
+        </div>
+
+        <div className="min-h-[420px] flex flex-col items-center justify-center space-y-4 rounded-3xl bg-white border border-amber-200 p-8 shadow-sm" suppressHydrationWarning>
+          <RefreshCw className="w-8 h-8 animate-spin text-amber-800" />
+          <p className="text-xs text-slate-600 font-semibold tracking-wider uppercase">
+            Loading Workshop Orders & Dispatch Console...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-8" suppressHydrationWarning>
       {/* Header */}
-      <div className="bg-white p-6 lg:p-8 rounded-3xl border border-amber-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="bg-white p-6 lg:p-8 rounded-3xl border border-amber-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4" suppressHydrationWarning>
         <div>
           <span className="text-xs uppercase font-bold tracking-widest text-amber-800">
             Furniture Manufacturer Logistics • Solapur Facility
@@ -510,6 +563,7 @@ export default function ManagerOrdersPage() {
 
         <div className="flex items-center gap-3">
           <button
+            suppressHydrationWarning
             onClick={loadData}
             className="p-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 transition-colors"
             title="Refresh database records"
@@ -517,6 +571,7 @@ export default function ManagerOrdersPage() {
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
           </button>
           <button
+            suppressHydrationWarning
             onClick={() => setShowCreateModal(true)}
             className="px-5 py-2.5 rounded-xl bg-amber-900 hover:bg-amber-800 text-amber-50 text-xs font-bold transition-all flex items-center gap-2 shadow-md hover:shadow-amber-900/20"
           >
@@ -540,9 +595,10 @@ export default function ManagerOrdersPage() {
       )}
 
       {/* Tabs & Filter Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-amber-200/70 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="bg-white p-4 rounded-2xl border border-amber-200/70 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4" suppressHydrationWarning>
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <button
+            suppressHydrationWarning
             type="button"
             onClick={() => setActiveTab("active")}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
@@ -613,13 +669,14 @@ export default function ManagerOrdersPage() {
 
       {/* Orders Table */}
       <div className="bg-white rounded-3xl border border-amber-200/70 overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-700">
+        <div className="overflow-x-auto touch-pan-x overscroll-x-contain scrollbar-thin scrollbar-thumb-amber-500/30 scrollbar-track-amber-100">
+          <table className="w-full text-left text-xs text-slate-700 min-w-[920px]">
             <thead className="bg-amber-50 text-amber-900 uppercase text-[10px] tracking-wider border-b border-amber-200">
               <tr>
                 <th className="p-4">Order ID & Date</th>
                 <th className="p-4">Customer Details</th>
-                <th className="p-4">Project / Furniture Item</th>
+                <th className="p-4">Delivery Destination (Where From)</th>
+                <th className="p-4">Project / Furniture Items</th>
                 <th className="p-4">Total Amount</th>
                 <th className="p-4">Manufacturing Stage</th>
                 <th className="p-4 text-center">WhatsApp Alert</th>
@@ -629,14 +686,14 @@ export default function ManagerOrdersPage() {
             <tbody className="divide-y divide-amber-100">
               {loading && orders.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="p-8 text-center text-slate-500">
+                  <td colSpan="8" className="p-8 text-center text-slate-500">
                     <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-amber-800" />
                     Fetching manufacturer orders from database...
                   </td>
                 </tr>
               ) : filteredOrders.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="p-8 text-center text-slate-500">
+                  <td colSpan="8" className="p-8 text-center text-slate-500">
                     No orders matching your filter. Click "Create Direct Customer Order" above.
                   </td>
                 </tr>
@@ -646,11 +703,12 @@ export default function ManagerOrdersPage() {
                   const isUpdating = updatingId === ord.id;
                   const firstItem = ord.OrderItem?.[0];
                   const isCustom = !firstItem?.productId;
+                  const itemsCount = ord.OrderItem?.length || 0;
 
                   return (
                     <tr key={ord.id} className="hover:bg-amber-50/50 transition-colors">
                       {/* Order # */}
-                      <td className="p-4">
+                      <td className="p-4 align-top">
                         <span className="font-bold text-slate-900 block font-mono">{ord.orderNumber}</span>
                         <span className="text-[10px] text-slate-400">
                           {new Date(ord.createdAt).toLocaleDateString("en-IN", {
@@ -659,19 +717,40 @@ export default function ManagerOrdersPage() {
                             year: "numeric",
                           })}
                         </span>
+                        {ord.trackingNumber && (
+                          <span className="text-[9px] text-slate-500 font-mono block mt-0.5">
+                            Track: {ord.trackingNumber}
+                          </span>
+                        )}
                       </td>
 
                       {/* Customer Info */}
-                      <td className="p-4">
+                      <td className="p-4 align-top">
                         <span className="font-bold text-slate-900 block">{ord.customerName}</span>
-                        <span className="text-slate-500 text-[10px] block">{ord.customerPhone}</span>
-                        <span className="text-slate-400 text-[10px]">{ord.city || "Mumbai"}</span>
+                        <span className="text-slate-600 text-[11px] block">{ord.customerPhone}</span>
+                        {ord.customerEmail && (
+                          <span className="text-slate-400 text-[10px] block truncate max-w-[140px]">
+                            {ord.customerEmail}
+                          </span>
+                        )}
                       </td>
 
-                      {/* Item Details */}
-                      <td className="p-4 max-w-xs">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-1.5">
+                      {/* Delivery Destination (Where From) */}
+                      <td className="p-4 align-top max-w-[200px]">
+                        <div className="font-semibold text-slate-900 flex items-center gap-1">
+                          <MapPin className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                          <span>{ord.city || "Solapur"}</span>
+                          {ord.postalCode && <span className="text-slate-400 text-xs font-normal">({ord.postalCode})</span>}
+                        </div>
+                        <div className="text-[11px] text-slate-600 mt-1 leading-snug line-clamp-2" title={ord.shippingAddress}>
+                          {ord.shippingAddress}
+                        </div>
+                      </td>
+
+                      {/* Item Details: Multi-item display */}
+                      <td className="p-4 align-top max-w-xs">
+                        <div className="space-y-1.5">
+                          <div className="flex items-center gap-1.5 flex-wrap">
                             {isCustom ? (
                               <span className="px-2 py-0.5 rounded-md text-[9px] font-bold bg-purple-100 text-purple-900 uppercase">
                                 Custom Bespoke
@@ -681,15 +760,31 @@ export default function ManagerOrdersPage() {
                                 Catalog Piece
                               </span>
                             )}
+                            {itemsCount > 1 && (
+                              <span className="px-2 py-0.5 rounded-md text-[9px] font-bold bg-amber-200 text-amber-950 uppercase">
+                                {itemsCount} Items Ordered
+                              </span>
+                            )}
                           </div>
-                          <p className="font-semibold text-slate-800 text-xs line-clamp-1">
-                            {firstItem?.title || "Handcrafted Furniture"}
-                          </p>
-                          <p className="text-[10px] text-slate-500 line-clamp-1">
-                            {firstItem?.woodType} • {firstItem?.finishType}
-                          </p>
+
+                          {/* All Ordered Items Itemized */}
+                          <div className="space-y-1 mt-1 max-w-[260px]">
+                            {(ord.OrderItem || []).map((item, idx) => (
+                              <div key={idx} className="bg-amber-50/70 border border-amber-200/80 rounded-lg p-1.5 text-[11px] leading-tight">
+                                <div className="font-bold text-slate-900 flex items-start gap-1">
+                                  <span className="text-amber-800 font-mono font-bold shrink-0">{idx + 1}.</span>
+                                  <span className="line-clamp-1">{item.title}</span>
+                                </div>
+                                <div className="text-[10px] text-slate-500 mt-0.5 flex items-center justify-between">
+                                  <span>Qty: {item.quantity || 1} • {item.woodType ? item.woodType.split(" ")[0] : "Teak"}</span>
+                                  <span className="text-slate-800 font-mono font-medium">₹{((item.price || 0) * (item.quantity || 1)).toLocaleString("en-IN")}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+
                           {ord.customerNotes && (
-                            <p className="text-[10px] text-amber-800 italic line-clamp-1">
+                            <p className="text-[10px] text-amber-800 italic line-clamp-2 mt-1">
                               Note: {ord.customerNotes}
                             </p>
                           )}
@@ -697,15 +792,17 @@ export default function ManagerOrdersPage() {
                       </td>
 
                       {/* Amount */}
-                      <td className="p-4">
-                        <span className="font-bold text-slate-900 text-sm">
+                      <td className="p-4 align-top">
+                        <span className="font-bold text-slate-900 text-sm block">
                           ₹{Number(ord.totalAmount).toLocaleString("en-IN")}
                         </span>
-                        <span className="text-[10px] text-emerald-700 block font-medium">Paid / In Production</span>
+                        <span className="text-[10px] text-emerald-700 block font-medium">
+                          {itemsCount} {itemsCount === 1 ? "Item" : "Items"} • Confirmed
+                        </span>
                       </td>
 
                       {/* Stage dropdown & Custom Milestone */}
-                      <td className="p-4">
+                      <td className="p-4 align-top">
                         <div className="space-y-1">
                           <select
                             disabled={isUpdating || ord.status === "DELIVERED" || ord.status === "CANCELLED"}
@@ -746,11 +843,11 @@ export default function ManagerOrdersPage() {
                       </td>
 
                       {/* WhatsApp Notify */}
-                      <td className="p-4 text-center">
+                      <td className="p-4 text-center align-top">
                         <button
                           onClick={() => openNotifyModal(ord)}
-                          className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs inline-flex items-center gap-1.5 transition-colors shadow-sm"
-                          title="Send detailed WhatsApp notification with product/custom furniture info"
+                          className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs inline-flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+                          title="Send detailed WhatsApp notification with all ordered items"
                         >
                           <MessageSquare className="w-3.5 h-3.5" />
                           <span>Notify</span>
@@ -758,7 +855,7 @@ export default function ManagerOrdersPage() {
                       </td>
 
                       {/* Actions */}
-                      <td className="p-4 text-right">
+                      <td className="p-4 text-right align-top">
                         <div className="inline-flex items-center gap-1.5 flex-wrap justify-end">
                           {/* 1-Click Advance to Next Stage */}
                           {ord.status !== "DELIVERED" && ord.status !== "CANCELLED" && (() => {
@@ -768,7 +865,7 @@ export default function ManagerOrdersPage() {
                               <button
                                 disabled={isUpdating}
                                 onClick={() => handleAdvanceStage(ord.id)}
-                                className="px-2.5 py-1.5 rounded-lg bg-amber-950 hover:bg-amber-900 text-amber-50 font-bold text-xs inline-flex items-center gap-1 transition-all shadow-sm"
+                                className="px-2.5 py-1.5 rounded-lg bg-amber-950 hover:bg-amber-900 text-amber-50 font-bold text-xs inline-flex items-center gap-1 transition-all shadow-sm cursor-pointer"
                                 title={`1-Click: Advance to ${nextInfo.label}`}
                               >
                                 <ArrowRightCircle className="w-3.5 h-3.5 text-amber-400" />
@@ -776,6 +873,29 @@ export default function ManagerOrdersPage() {
                               </button>
                             );
                           })()}
+
+                          {/* Inspect Full Order Dossier */}
+                          <button
+                            onClick={() => setSelectedOrderForInspect(ord)}
+                            className="px-2.5 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-200 font-bold text-xs inline-flex items-center gap-1 transition-colors cursor-pointer"
+                            title="Inspect full order dossier with all items, client details & delivery destination"
+                          >
+                            <Eye className="w-3 h-3 text-indigo-700" />
+                            <span>Inspect</span>
+                          </button>
+
+                          {/* Receipt / Invoice Modal */}
+                          <button
+                            onClick={() => {
+                              setSelectedOrderForReceipt(ord);
+                              setShowReceiptModal(true);
+                            }}
+                            className="px-2.5 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200 font-bold text-xs inline-flex items-center gap-1 transition-colors cursor-pointer"
+                            title="View official workshop receipt & invoice breakdown"
+                          >
+                            <FileText className="w-3 h-3 text-blue-700" />
+                            <span>Receipt</span>
+                          </button>
 
                           {/* Cancel Order with Reason Modal */}
                           {ord.status !== "DELIVERED" && ord.status !== "CANCELLED" && (
@@ -785,7 +905,7 @@ export default function ManagerOrdersPage() {
                                 setCancelModalOrder(ord);
                                 setCancelReason("");
                               }}
-                              className="px-2.5 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-800 border border-red-200 font-bold text-xs inline-flex items-center gap-1 transition-colors"
+                              className="px-2.5 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-800 border border-red-200 font-bold text-xs inline-flex items-center gap-1 transition-colors cursor-pointer"
                               title="Cancel order (mandatory reason required)"
                             >
                               <Ban className="w-3 h-3 text-red-600" />
@@ -795,7 +915,7 @@ export default function ManagerOrdersPage() {
 
                           <button
                             onClick={() => openEditModal(ord)}
-                            className="px-2.5 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold text-xs inline-flex items-center gap-1 transition-colors"
+                            className="px-2.5 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold text-xs inline-flex items-center gap-1 transition-colors cursor-pointer"
                           >
                             <Edit className="w-3 h-3 text-amber-800" />
                             <span>Edit</span>
@@ -805,7 +925,7 @@ export default function ManagerOrdersPage() {
                             <button
                               disabled={isUpdating}
                               onClick={() => handleRestoreOrder(ord)}
-                              className="px-2.5 py-1.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold text-xs inline-flex items-center gap-1 transition-colors"
+                              className="px-2.5 py-1.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold text-xs inline-flex items-center gap-1 transition-colors cursor-pointer"
                               title="Restore order"
                             >
                               <RotateCcw className="w-3 h-3 text-emerald-700" />
@@ -816,7 +936,7 @@ export default function ManagerOrdersPage() {
                               <button
                                 disabled={isUpdating}
                                 onClick={() => handleArchiveOrder(ord)}
-                                className="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-red-100 hover:text-red-900 text-slate-600 font-bold text-xs inline-flex items-center gap-1 transition-colors"
+                                className="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-red-100 hover:text-red-900 text-slate-600 font-bold text-xs inline-flex items-center gap-1 transition-colors cursor-pointer"
                                 title="Archive completed or cancelled order"
                               >
                                 <Archive className="w-3 h-3" />
@@ -1364,19 +1484,321 @@ export default function ManagerOrdersPage() {
                 <button
                   type="button"
                   onClick={() => setCancelModalOrder(null)}
-                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700"
+                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 cursor-pointer"
                 >
                   Close
                 </button>
                 <button
                   type="submit"
                   disabled={cancelling}
-                  className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-all disabled:opacity-50"
+                  className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer"
                 >
                   {cancelling ? "Cancelling..." : "Confirm Cancellation"}
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* 📄 MODAL 5: OFFICIAL WORKSHOP INVOICE / RECEIPT SUMMARY         */}
+      {/* ============================================================== */}
+      {showReceiptModal && selectedOrderForReceipt && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-4 shadow-2xl border border-amber-200 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-amber-100 pb-3">
+              <div>
+                <span className="text-[10px] text-amber-800 uppercase font-bold tracking-widest block">Official Workshop Invoice</span>
+                <h3 className="text-lg font-bold font-serif text-slate-900">Order Receipt #{selectedOrderForReceipt.orderNumber}</h3>
+              </div>
+              <button
+                onClick={() => setShowReceiptModal(false)}
+                className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div className="grid grid-cols-2 gap-3 bg-amber-50/60 p-3 rounded-2xl border border-amber-200/80">
+                <div>
+                  <span className="text-slate-500 block text-[10px]">Client Name:</span>
+                  <span className="font-bold text-slate-900 block">{selectedOrderForReceipt.customerName}</span>
+                  <span className="text-slate-600 text-[10px]">{selectedOrderForReceipt.customerPhone}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block text-[10px]">Manufacturing Store:</span>
+                  <span className="font-bold text-amber-900 block">AMEENA Distributors, Solapur</span>
+                  <span className="text-slate-500 text-[10px]">Tracking ID: {selectedOrderForReceipt.trackingNumber || "N/A"}</span>
+                </div>
+              </div>
+
+              {/* Delivery Destination in Receipt */}
+              <div className="bg-amber-50/60 p-3 rounded-2xl border border-amber-200/80">
+                <span className="text-slate-500 block text-[10px]">Delivery Destination (Where Ordered From):</span>
+                <span className="font-semibold text-slate-800 block">{selectedOrderForReceipt.shippingAddress}</span>
+                <span className="text-slate-500 text-[10px]">{selectedOrderForReceipt.city} {selectedOrderForReceipt.postalCode ? `- ${selectedOrderForReceipt.postalCode}` : ""}</span>
+              </div>
+
+              <div>
+                <span className="font-bold text-slate-800 block mb-2">Order Line Items ({selectedOrderForReceipt.OrderItem?.length || 0}):</span>
+                <div className="divide-y divide-amber-100 bg-amber-50/40 rounded-2xl border border-amber-200/80 p-3 space-y-2">
+                  {(selectedOrderForReceipt.OrderItem || []).map((item, idx) => (
+                    <div key={idx} className="flex justify-between items-center pt-2 first:pt-0">
+                      <div>
+                        <span className="font-bold text-slate-900 block">
+                          {idx + 1}. {item.title}
+                        </span>
+                        <span className="text-slate-600 text-[10px]">
+                          Qty: {item.quantity || 1} • {item.woodType || item.Product?.woodType || "Grade-A Sagwan Teak"} • {item.finishType || item.Product?.finishType || "Honey Polish"}
+                        </span>
+                      </div>
+                      <span className="font-bold text-amber-900 font-mono">
+                        ₹{((item.price || 0) * (item.quantity || 1)).toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-3 bg-amber-50/60 rounded-2xl border border-amber-200/80 space-y-1.5 text-right">
+                <div className="flex justify-between text-slate-600">
+                  <span>Subtotal:</span>
+                  <span>₹{(selectedOrderForReceipt.totalAmount / 1.18).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                </div>
+                <div className="flex justify-between text-slate-600">
+                  <span>GST (18% Hardwood Furnishing):</span>
+                  <span>₹{(selectedOrderForReceipt.totalAmount - selectedOrderForReceipt.totalAmount / 1.18).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                </div>
+                <div className="flex justify-between font-bold text-slate-900 text-sm pt-2 border-t border-amber-200">
+                  <span>Total Amount Paid / Payable:</span>
+                  <span className="text-amber-900 font-mono">₹{Number(selectedOrderForReceipt.totalAmount).toLocaleString("en-IN")}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="flex-1 py-3 rounded-xl bg-amber-900 hover:bg-amber-800 text-amber-50 font-bold flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                >
+                  <Printer className="w-4 h-4" />
+                  <span>Print Receipt</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowReceiptModal(false)}
+                  className="py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* 🔍 MODAL 6: FULL ORDER DOSSIER & MULTI-ITEM INSPECTION MODAL   */}
+      {/* ============================================================== */}
+      {selectedOrderForInspect && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-5 shadow-2xl border border-amber-200 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-amber-100 pb-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded-full font-bold uppercase">
+                    Showroom Dossier
+                  </span>
+                  <span className="text-xs text-slate-500">
+                    {new Date(selectedOrderForInspect.createdAt).toLocaleDateString("en-IN", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold font-serif text-slate-900 mt-1">
+                  Order #{selectedOrderForInspect.orderNumber}
+                </h3>
+              </div>
+              <button
+                onClick={() => setSelectedOrderForInspect(null)}
+                className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Status & Milestone Strip */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-amber-50/60 p-3 rounded-2xl border border-amber-200/80 text-xs">
+              <div>
+                <span className="text-slate-500 block text-[10px] uppercase">Status</span>
+                <span className="font-bold text-emerald-800">{selectedOrderForInspect.status}</span>
+              </div>
+              <div>
+                <span className="text-slate-500 block text-[10px] uppercase">Crafting Milestone</span>
+                <span className="font-bold text-amber-900 capitalize">
+                  {(selectedOrderForInspect.productionStage || "Inquiry").replace(/_/g, " ").toLowerCase()}
+                </span>
+              </div>
+              <div>
+                <span className="text-slate-500 block text-[10px] uppercase">Tracking Number</span>
+                <span className="font-mono text-slate-800">{selectedOrderForInspect.trackingNumber || "N/A"}</span>
+              </div>
+              <div>
+                <span className="text-slate-500 block text-[10px] uppercase">Total Value</span>
+                <span className="font-bold text-slate-900 font-mono">₹{Number(selectedOrderForInspect.totalAmount).toLocaleString("en-IN")}</span>
+              </div>
+            </div>
+
+            {/* Customer Profile & White-Glove Destination */}
+            <div className="bg-amber-50/60 p-4 rounded-2xl border border-amber-200/80 space-y-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-amber-900 flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-amber-800" />
+                <span>Customer Profile & White-Glove Destination (Where Ordered From)</span>
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div>
+                  <span className="text-slate-500 block text-[10px]">Client Name & Contact:</span>
+                  <span className="font-bold text-slate-900 block text-sm">{selectedOrderForInspect.customerName}</span>
+                  <a
+                    href={`tel:${selectedOrderForInspect.customerPhone}`}
+                    className="text-amber-800 hover:underline inline-block mt-0.5 font-semibold"
+                  >
+                    📞 {selectedOrderForInspect.customerPhone}
+                  </a>
+                  {selectedOrderForInspect.customerEmail && (
+                    <span className="text-slate-500 block text-[11px] mt-0.5">
+                      ✉️ {selectedOrderForInspect.customerEmail}
+                    </span>
+                  )}
+                </div>
+                <div>
+                  <span className="text-slate-500 block text-[10px]">White-Glove Shipping Address:</span>
+                  <span className="font-medium text-slate-800 block">
+                    {selectedOrderForInspect.shippingAddress}
+                  </span>
+                  <span className="text-slate-500 block text-[11px] mt-0.5">
+                    City / Pin: {selectedOrderForInspect.city || "Solapur"} {selectedOrderForInspect.postalCode ? `- ${selectedOrderForInspect.postalCode}` : ""}
+                  </span>
+                </div>
+              </div>
+              {selectedOrderForInspect.customerNotes && (
+                <div className="pt-2 border-t border-amber-200/60 text-xs">
+                  <span className="text-slate-500 block text-[10px]">Special Instructions / Notes:</span>
+                  <span className="text-amber-900 italic">{selectedOrderForInspect.customerNotes}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Ordered Items Breakdown */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-amber-900 flex items-center gap-1.5">
+                  <Package className="w-3.5 h-3.5 text-amber-800" />
+                  <span>All Ordered Furniture Pieces ({selectedOrderForInspect.OrderItem?.length || 0})</span>
+                </h4>
+              </div>
+
+              <div className="divide-y divide-amber-100 bg-amber-50/40 rounded-2xl border border-amber-200/80 overflow-hidden">
+                {(selectedOrderForInspect.OrderItem || []).map((item, idx) => (
+                  <div key={idx} className="p-3.5 flex items-start justify-between gap-3 text-xs">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-amber-900 font-mono text-sm">#{idx + 1}</span>
+                        <span className="font-bold text-slate-900 text-sm">{item.title}</span>
+                        {item.productId ? (
+                          <span className="text-[9px] bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded font-mono">
+                            Catalog: {item.productId.slice(0, 8)}
+                          </span>
+                        ) : (
+                          <span className="text-[9px] bg-purple-100 text-purple-900 border border-purple-200 px-1.5 py-0.5 rounded">
+                            Bespoke Custom
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-[11px] text-slate-600 flex flex-wrap gap-x-3 gap-y-1">
+                        <span>🪵 <strong>Timber:</strong> {item.woodType || "Grade-A Sagwan Teak"}</span>
+                        <span>✨ <strong>Finish:</strong> {item.finishType || "Natural Teak Honey Polish"}</span>
+                        <span>🔢 <strong>Quantity:</strong> {item.quantity || 1}</span>
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <span className="text-slate-400 text-[10px] block">
+                        ₹{Number(item.price || 0).toLocaleString("en-IN")} × {item.quantity || 1}
+                      </span>
+                      <span className="font-bold text-amber-900 font-mono text-sm">
+                        ₹{(Number(item.price || 0) * (item.quantity || 1)).toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Financial Ledger */}
+            <div className="p-3.5 bg-amber-50/60 rounded-2xl border border-amber-200/80 space-y-1.5 text-xs text-right">
+              <div className="flex justify-between text-slate-600">
+                <span>Subtotal (Base Value):</span>
+                <span>₹{(selectedOrderForInspect.totalAmount / 1.18).toLocaleString("en-IN", { maximumFractionDigits: 0 })}</span>
+              </div>
+              <div className="flex justify-between text-slate-600">
+                <span>GST (18% Teakwood Manufacturing):</span>
+                <span>₹{(selectedOrderForInspect.totalAmount - selectedOrderForInspect.totalAmount / 1.18).toLocaleString("en-IN", { maximumFractionDigits: 0 })}</span>
+              </div>
+              <div className="flex justify-between font-bold text-slate-900 text-sm pt-2 border-t border-amber-200">
+                <span>Total Amount Paid / Payable:</span>
+                <span className="text-amber-900 font-mono">₹{Number(selectedOrderForInspect.totalAmount).toLocaleString("en-IN")}</span>
+              </div>
+            </div>
+
+            {/* Modal Quick Actions */}
+            <div className="flex items-center gap-2 pt-2 flex-wrap">
+              <button
+                type="button"
+                onClick={() => {
+                  openNotifyModal(selectedOrderForInspect);
+                }}
+                className="flex-1 min-w-[140px] py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
+              >
+                <MessageSquare className="w-3.5 h-3.5" />
+                <span>WhatsApp Client</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedOrderForReceipt(selectedOrderForInspect);
+                  setShowReceiptModal(true);
+                }}
+                className="flex-1 min-w-[140px] py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>Invoice / Receipt</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  openEditModal(selectedOrderForInspect);
+                  setSelectedOrderForInspect(null);
+                }}
+                className="py-2.5 px-3 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <Edit className="w-3.5 h-3.5" />
+                <span>Edit</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectedOrderForInspect(null)}
+                className="py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

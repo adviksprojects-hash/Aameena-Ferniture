@@ -234,14 +234,14 @@ export async function applyForJob(data) {
     }
 
     // Generate HR WhatsApp notification link
-    const hrPhone = "919876500001";
+    const hrPhone = "918600570542";
     const msg = `Hello Aameena Furniture HR, I have applied for the position "${application.job?.title}" via your Careers Portal.
 - Applicant Name: ${fullName}
 - Phone: ${phone}
 - Experience: ${experience || "Experienced"}
 Looking forward to discussing this opportunity.`;
 
-    const whatsappUrl = `https://wa.me/${hrPhone}?text=${encodeURIComponent(msg)}`;
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${hrPhone}&text=${encodeURIComponent(msg)}`;
 
     revalidatePath("/admin/employees");
     revalidatePath("/careers");
@@ -390,6 +390,178 @@ export async function deleteJobApplication(applicationId) {
     return { success: true };
   } catch (error) {
     console.error("Error deleting application:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Update an employee's details (Admin Only)
+ */
+export async function updateEmployee(id, data) {
+  try {
+    const { name, email, phone, department, roleTitle, status } = data;
+    const updatePayload = {};
+    if (name) updatePayload.name = name.trim();
+    if (email) updatePayload.email = email.trim();
+    if (phone !== undefined) updatePayload.phone = phone ? phone.trim() : null;
+    if (department) updatePayload.department = department.trim();
+    if (roleTitle) updatePayload.roleTitle = roleTitle.trim();
+    if (status) updatePayload.status = status;
+
+    const updated = await db.employee.update({
+      where: { id },
+      data: updatePayload,
+    });
+
+    revalidatePath("/admin/employees");
+    revalidatePath("/manager/employees");
+    return { success: true, data: updated };
+  } catch (error) {
+    console.error("Error updating employee:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Delete an employee from the workforce (Admin Only)
+ */
+export async function deleteEmployee(id) {
+  try {
+    await db.employee.delete({
+      where: { id },
+    });
+
+    revalidatePath("/admin/employees");
+    revalidatePath("/manager/employees");
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting employee:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Update a job opening details anytime (Admin Only)
+ */
+export async function updateJobPosting(jobId, data) {
+  try {
+    const {
+      title,
+      department,
+      location,
+      type,
+      experience,
+      salaryRange,
+      description,
+      expiresAt,
+      maxApplications,
+      hiredTarget,
+      isActive,
+    } = data;
+
+    const updatePayload = {};
+    if (title !== undefined) updatePayload.title = title.trim();
+    if (department !== undefined) updatePayload.department = department.trim();
+    if (location !== undefined) updatePayload.location = location.trim();
+    if (type !== undefined) updatePayload.type = type;
+    if (experience !== undefined) updatePayload.experience = experience.trim();
+    if (salaryRange !== undefined) updatePayload.salaryRange = salaryRange ? salaryRange.trim() : null;
+    if (description !== undefined) updatePayload.description = description.trim();
+    if (expiresAt !== undefined) {
+      updatePayload.expiresAt = expiresAt ? new Date(expiresAt) : null;
+    }
+    if (maxApplications !== undefined) {
+      updatePayload.maxApplications = maxApplications ? parseInt(maxApplications, 10) : null;
+    }
+    if (hiredTarget !== undefined) {
+      updatePayload.hiredTarget = hiredTarget ? parseInt(hiredTarget, 10) : 1;
+    }
+    if (isActive !== undefined) updatePayload.isActive = Boolean(isActive);
+
+    const updated = await db.jobPosting.update({
+      where: { id: jobId },
+      data: updatePayload,
+    });
+
+    revalidatePath("/careers");
+    revalidatePath("/admin/employees");
+    revalidatePath("/manager/employees");
+
+    return { success: true, data: updated };
+  } catch (error) {
+    console.error("Error updating job posting:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Hire a candidate directly from the pipeline into the Active Staff workforce directory (Admin Only)
+ */
+export async function hireCandidateAsEmployee(applicationId, employeeData = {}) {
+  try {
+    const application = await db.jobApplication.findUnique({
+      where: { id: applicationId },
+      include: { job: true },
+    });
+
+    if (!application) {
+      return { success: false, error: "Candidate application not found." };
+    }
+
+    const name = (employeeData.name || application.fullName).trim();
+    const rawEmail = (employeeData.email || application.email).trim();
+    const phone = employeeData.phone || application.phone || null;
+    const department = (employeeData.department || application.job?.department || "Carpentry & Joinery").trim();
+    const roleTitle = (employeeData.roleTitle || application.job?.title || "Staff Member").trim();
+
+    // Check if email already exists in employees table
+    let finalEmail = rawEmail;
+    const existing = await db.employee.findUnique({ where: { email: finalEmail } });
+    if (existing) {
+      const parts = rawEmail.split("@");
+      finalEmail = `${parts[0]}.${Date.now().toString().slice(-4)}@${parts[1] || "aameenafurniture.com"}`;
+    }
+
+    const newEmployee = await db.employee.create({
+      data: {
+        name,
+        email: finalEmail,
+        phone: phone ? phone.trim() : null,
+        department,
+        roleTitle,
+        status: "ACTIVE",
+      },
+    });
+
+    // Mark candidate application as SELECTED
+    await db.jobApplication.update({
+      where: { id: applicationId },
+      data: { status: "SELECTED" },
+    });
+
+    // Increment hired count on job posting if attached
+    if (application.jobId) {
+      const job = await db.jobPosting.findUnique({ where: { id: application.jobId } });
+      if (job) {
+        const nextHired = (job.hiredCount || 0) + 1;
+        const autoClose = job.hiredTarget && nextHired >= job.hiredTarget;
+        await db.jobPosting.update({
+          where: { id: application.jobId },
+          data: {
+            hiredCount: nextHired,
+            isActive: autoClose ? false : job.isActive,
+          },
+        });
+      }
+    }
+
+    revalidatePath("/admin/employees");
+    revalidatePath("/manager/employees");
+    revalidatePath("/careers");
+
+    return { success: true, data: newEmployee };
+  } catch (error) {
+    console.error("Error hiring candidate as employee:", error);
     return { success: false, error: error.message };
   }
 }

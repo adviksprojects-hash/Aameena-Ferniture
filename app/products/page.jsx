@@ -7,9 +7,11 @@ export const metadata = {
   description: "Browse bespoke Sagwan Teak, Indian Sheesham, and Rosewood living room, bedroom, and dining furniture.",
 };
 
-const getCachedCatalogProducts = unstable_cache(
-  async () => {
-    return db.product.findMany({
+export const dynamic = "force-dynamic";
+
+async function getCatalogProducts() {
+  try {
+    const products = await db.product.findMany({
       where: {
         isArchived: false,
       },
@@ -18,19 +20,18 @@ const getCachedCatalogProducts = unstable_cache(
       },
       orderBy: { createdAt: "desc" },
     });
-  },
-  ["active-storefront-products"],
-  {
-    revalidate: 60,
-    tags: ["products"],
+    return JSON.parse(JSON.stringify(products || []));
+  } catch (error) {
+    console.error("Error fetching catalog products:", error?.message || error);
+    return [];
   }
-);
+}
 
 export default async function ProductsPage({ searchParams }) {
   const params = await searchParams;
   const initialCategory = params?.cat || params?.category || "all";
 
-  const products = await getCachedCatalogProducts();
+  const products = await getCatalogProducts();
 
   return (
     <div className="container mx-auto px-4 md:px-8 py-12">

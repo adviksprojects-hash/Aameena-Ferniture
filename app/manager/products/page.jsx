@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   Package,
   Plus,
@@ -20,6 +21,7 @@ import {
   EyeOff,
   Minus,
   MessageSquare,
+  ExternalLink,
 } from "lucide-react";
 import {
   getProducts,
@@ -41,6 +43,8 @@ const CATEGORY_OPTIONS = [
   { value: "dining", label: "Dining Room" },
   { value: "office", label: "Office & Study" },
   { value: "outdoor", label: "Outdoor & Garden" },
+  { value: "fabrics", label: "Loose Cloth & Fabrics" },
+  { value: "custom", label: "Custom Artisanal Pieces" },
 ];
 
 const WOOD_OPTIONS = [
@@ -49,6 +53,10 @@ const WOOD_OPTIONS = [
   { value: "Royal Rosewood (Shisham)", label: "Royal Rosewood (Shisham)" },
   { value: "American Walnut", label: "American Walnut" },
   { value: "African Mahogany", label: "African Mahogany" },
+  { value: "100% Pure Breathable Cotton", label: "100% Pure Breathable Cotton" },
+  { value: "Textured Chenille-Cotton", label: "Textured Chenille-Cotton" },
+  { value: "Royal Velvet Upholstery Cloth", label: "Royal Velvet Upholstery Cloth" },
+  { value: "Turkish Floral Jacquard Fabric", label: "Turkish Floral Jacquard Fabric" },
 ];
 
 const FINISH_OPTIONS = [
@@ -57,9 +65,13 @@ const FINISH_OPTIONS = [
   { value: "Royal Espresso High Gloss", label: "Royal Espresso High Gloss" },
   { value: "Raw Vintage Distressed", label: "Raw Vintage Distressed" },
   { value: "Melamine Silk Matt", label: "Melamine Silk Matt" },
+  { value: "Natural Soft Matte Weave", label: "Natural Soft Matte Weave" },
+  { value: "Water-Repellent Velvet Sheen", label: "Water-Repellent Velvet Sheen" },
+  { value: "Heritage Jacquard Woven Texture", label: "Heritage Jacquard Woven Texture" },
 ];
 
 export default function ManagerProductsPage() {
+  const [mounted, setMounted] = useState(false);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
@@ -81,6 +93,7 @@ export default function ManagerProductsPage() {
     title: "",
     categorySlug: "living",
     woodType: "Grade-A Sagwan Teak",
+    materialPurity: "",
     price: "",
     compareAtPrice: "",
     stock: "",
@@ -96,6 +109,7 @@ export default function ManagerProductsPage() {
   const [editProductData, setEditProductData] = useState({
     title: "",
     woodType: "Grade-A Sagwan Teak",
+    materialPurity: "",
     price: "",
     compareAtPrice: "",
     stock: "",
@@ -116,7 +130,19 @@ export default function ManagerProductsPage() {
   };
 
   useEffect(() => {
+    setMounted(true);
     loadProducts();
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const searchParam = params.get("search");
+      const tabParam = params.get("tab");
+      if (searchParam) {
+        setSearchQuery(searchParam);
+      }
+      if (tabParam) {
+        setActiveTab(tabParam);
+      }
+    }
   }, []);
 
   const handleToggleStock = async (product) => {
@@ -231,6 +257,7 @@ export default function ManagerProductsPage() {
     setEditProductData({
       title: product.title || "",
       woodType: product.woodType || "Grade-A Sagwan Teak",
+      materialPurity: product.materialPurity || "",
       price: product.price || "",
       compareAtPrice: product.compareAtPrice || "",
       stock: product.stock !== undefined ? product.stock : "",
@@ -329,6 +356,7 @@ export default function ManagerProductsPage() {
         title: "",
         categorySlug: "living",
         woodType: "Grade-A Sagwan Teak",
+        materialPurity: "",
         price: "",
         compareAtPrice: "",
         stock: "",
@@ -359,10 +387,41 @@ export default function ManagerProductsPage() {
   const activeCount = products.filter((p) => !p.isArchived).length;
   const archivedCount = products.filter((p) => p.isArchived).length;
 
+  if (!mounted) {
+    return (
+      <div className="space-y-8" suppressHydrationWarning>
+        <div className="bg-white p-6 lg:p-8 rounded-3xl border border-amber-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4" suppressHydrationWarning>
+          <div className="space-y-2">
+            <span className="text-xs uppercase font-bold tracking-widest text-amber-800">
+              Furniture Manufacturer Inventory Control • Solapur Facility
+            </span>
+            <h1 className="text-2xl font-bold font-serif text-slate-900 mt-1">
+              Manufacturer Product & Catalog Management
+            </h1>
+            <p className="text-xs text-slate-600 mt-1">
+              Upload device photos (1-3 images), manage storefront inquiry/details buttons, archive out-of-production models, and toggle facility stock.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 w-10 h-10" />
+            <div className="px-5 py-2.5 rounded-xl bg-amber-900/60 w-48 h-10" />
+          </div>
+        </div>
+
+        <div className="min-h-[420px] flex flex-col items-center justify-center space-y-4 rounded-3xl bg-white border border-amber-200 p-8 shadow-sm" suppressHydrationWarning>
+          <RefreshCw className="w-8 h-8 animate-spin text-amber-800" />
+          <p className="text-xs text-slate-600 font-semibold tracking-wider uppercase">
+            Loading Catalog Inventory & Specifications...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-8" suppressHydrationWarning>
       {/* Header */}
-      <div className="bg-white p-6 lg:p-8 rounded-3xl border border-amber-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="bg-white p-6 lg:p-8 rounded-3xl border border-amber-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4" suppressHydrationWarning>
         <div>
           <span className="text-xs uppercase font-bold tracking-widest text-amber-800">
             Furniture Manufacturer Inventory Control • Solapur Facility
@@ -376,6 +435,7 @@ export default function ManagerProductsPage() {
         </div>
         <div className="flex items-center gap-3">
           <button
+            suppressHydrationWarning
             onClick={loadProducts}
             className="p-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 transition-colors"
             title="Refresh database records"
@@ -383,6 +443,7 @@ export default function ManagerProductsPage() {
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
           </button>
           <button
+            suppressHydrationWarning
             onClick={() => {
               setNewProductImages([]);
               setShowAddModal(true);
@@ -452,8 +513,8 @@ export default function ManagerProductsPage() {
 
       {/* Products Table */}
       <div className="bg-white rounded-3xl border border-amber-200/70 overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-700">
+        <div className="overflow-x-auto touch-pan-x overscroll-x-contain scrollbar-thin scrollbar-thumb-amber-500/30 scrollbar-track-amber-100">
+          <table className="w-full text-left text-xs text-slate-700 min-w-[900px]">
             <thead className="bg-amber-50 text-amber-900 uppercase text-[10px] tracking-wider border-b border-amber-200">
               <tr>
                 <th className="p-4">Furniture Piece (1-3 Photos)</th>
@@ -509,8 +570,8 @@ export default function ManagerProductsPage() {
                           </div>
                           <div>
                             <span className="font-bold text-slate-900 block text-xs">{p.title}</span>
-                            <span className="text-[10px] text-slate-400 font-mono">
-                              ID: {p.id.slice(0, 10)}... • {images.length} {images.length === 1 ? "photo" : "photos"}
+                            <span className="text-[10px] text-slate-500 font-medium">
+                              {images.length} {images.length === 1 ? "photo" : "photos"} • {p.dimensions || "Standard Dimensions"}
                             </span>
                           </div>
                         </div>
@@ -589,6 +650,16 @@ export default function ManagerProductsPage() {
                       {/* Action buttons */}
                       <td className="p-4 text-right">
                         <div className="inline-flex items-center gap-2">
+                          <Link
+                            href={`/products/${p.slug || p.id}`}
+                            target="_blank"
+                            className="px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold text-xs inline-flex items-center gap-1 transition-colors border border-amber-200"
+                            title="View product storefront page"
+                          >
+                            <ExternalLink className="w-3 h-3 text-amber-800" />
+                            <span>View</span>
+                          </Link>
+
                           <button
                             onClick={() => openEditModal(p)}
                             className="px-2.5 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold text-xs inline-flex items-center gap-1 transition-colors"
@@ -742,12 +813,28 @@ export default function ManagerProductsPage() {
                 />
 
                 <SearchableSelect
-                  label="Timber Selection *"
+                  label="Timber / Material Selection *"
                   options={WOOD_OPTIONS}
                   value={newProduct.woodType}
                   onChange={(val) => setNewProduct({ ...newProduct, woodType: val })}
                   allowOther={true}
                 />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">
+                  Material / Timber Purity & Authenticity (%)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. 100% Pure Cotton, 100% Grade-A Sagwan Teak, 95% Organic Cotton"
+                  value={newProduct.materialPurity}
+                  onChange={(e) => setNewProduct({ ...newProduct, materialPurity: e.target.value })}
+                  className="w-full p-2.5 rounded-xl border border-amber-200"
+                />
+                <p className="text-[10px] text-slate-500 mt-1">
+                  Appears as product authenticity badge (e.g. "✓ 100% Pure Cotton" or "✓ 100% Genuine Sagwan"). Defaults to 100% Genuine Quality if left blank.
+                </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -967,7 +1054,7 @@ export default function ManagerProductsPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <SearchableSelect
-                  label="Timber Selection:"
+                  label="Timber / Material Selection:"
                   options={WOOD_OPTIONS}
                   value={editProductData.woodType}
                   onChange={(val) => setEditProductData({ ...editProductData, woodType: val })}
@@ -975,12 +1062,28 @@ export default function ManagerProductsPage() {
                 />
 
                 <SearchableSelect
-                  label="Finishing Polish:"
+                  label="Finishing Polish / Weave:"
                   options={FINISH_OPTIONS}
                   value={editProductData.finishType}
                   onChange={(val) => setEditProductData({ ...editProductData, finishType: val })}
                   allowOther={true}
                 />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">
+                  Material / Timber Purity & Authenticity (%)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. 100% Pure Cotton, 100% Grade-A Sagwan Teak, 95% Organic Cotton"
+                  value={editProductData.materialPurity || ""}
+                  onChange={(e) => setEditProductData({ ...editProductData, materialPurity: e.target.value })}
+                  className="w-full p-2.5 rounded-xl border border-amber-200"
+                />
+                <p className="text-[10px] text-slate-500 mt-1">
+                  Appears as product authenticity badge (e.g. "✓ 100% Pure Cotton" or "✓ 100% Genuine Sagwan"). Defaults to 100% Genuine Quality if left blank.
+                </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">

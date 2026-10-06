@@ -1,16 +1,20 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import Header from "@/components/HeaderComponents/Header";
 import Footer from "@/components/Footer";
+import { CartProvider } from "@/context/CartContext";
+import { WishlistProvider } from "@/context/WishlistContext";
 
 const inter = Inter({
-  subsets: ['latin']
+  subsets: ["latin"],
 });
 
 export const metadata = {
   title: "Aameena Furniture & Furnishing | Luxury Custom Handwood Furniture",
-  description: "Discover handcrafted teak wood sofas, luxury dining sets, bedroom suites, and custom interior furnishings at Aameena Furniture Solapur.",
+  description:
+    "Discover handcrafted teak wood sofas, luxury dining sets, bedroom suites, and custom interior furnishings at Aameena Furniture Solapur.",
 };
 
 export default function RootLayout({ children }) {
@@ -19,11 +23,14 @@ export default function RootLayout({ children }) {
       <html
         lang="en"
         data-theme="warm"
+        data-scroll-behavior="smooth"
         suppressHydrationWarning
         className={inter.className}
       >
         <head>
-          <script
+          <Script
+            id="aameena-theme-init"
+            strategy="beforeInteractive"
             dangerouslySetInnerHTML={{
               __html: `
                 try {
@@ -35,12 +42,17 @@ export default function RootLayout({ children }) {
             }}
           />
         </head>
-        <body className="min-h-screen flex flex-col selection:bg-amber-500 selection:text-amber-950 transition-colors duration-200">
-          <Header />
-          <main className="flex-1">
-            {children}
-          </main>
-          <Footer />
+        <body
+          suppressHydrationWarning
+          className="min-h-screen flex flex-col selection:bg-amber-500 selection:text-amber-950 transition-colors duration-200"
+        >
+          <WishlistProvider>
+            <CartProvider>
+              <Header />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </CartProvider>
+          </WishlistProvider>
         </body>
       </html>
     </ClerkProvider>

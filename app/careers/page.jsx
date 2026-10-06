@@ -20,6 +20,7 @@ import { getJobPostings, applyForJob } from "@/actions/careerActions";
 import { validatePhone, validateName, validateEmail } from "@/lib/validation";
 
 export default function CareersPage() {
+  const [mounted, setMounted] = useState(false);
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedJob, setSelectedJob] = useState(null);
@@ -46,6 +47,7 @@ export default function CareersPage() {
   };
 
   useEffect(() => {
+    setMounted(true);
     loadJobs();
   }, []);
 
@@ -102,8 +104,21 @@ export default function CareersPage() {
     setSubmitting(false);
   };
 
+  if (!mounted) {
+    return (
+      <div className="container mx-auto px-4 md:px-8 py-12 space-y-12" suppressHydrationWarning>
+        <div className="min-h-[380px] flex flex-col items-center justify-center space-y-4 rounded-3xl bg-amber-950/20 border border-amber-900/30 p-8" suppressHydrationWarning>
+          <RefreshCw className="w-8 h-8 animate-spin text-amber-600" />
+          <p className="text-xs text-amber-900/70 font-semibold tracking-wider uppercase">
+            Loading Career Opportunities...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="container mx-auto px-4 md:px-8 py-12 space-y-12">
+    <div className="container mx-auto px-4 md:px-8 py-12 space-y-12" suppressHydrationWarning>
       {/* Header Banner */}
       <div className="bg-gradient-to-r from-amber-950 via-amber-900 to-amber-950 rounded-3xl p-8 lg:p-12 text-amber-50 shadow-xl space-y-4 text-center max-w-4xl mx-auto">
         <div className="inline-flex items-center gap-2 bg-amber-900/60 border border-amber-700/80 px-4 py-1.5 rounded-full text-xs uppercase font-bold tracking-widest text-amber-400">
@@ -125,8 +140,10 @@ export default function CareersPage() {
             <p className="text-xs text-slate-500 mt-0.5">Live positions published directly from our workshop recruitment desk.</p>
           </div>
           <button
+            type="button"
+            suppressHydrationWarning
             onClick={loadJobs}
-            className="p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 transition-colors"
+            className="p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 transition-colors cursor-pointer"
             title="Refresh positions"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />

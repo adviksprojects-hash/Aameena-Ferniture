@@ -76,7 +76,9 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <span className="font-bold text-slate-900 block">Phone / Sales Hotline:</span>
-                  <span>+91 98765 00001 / +91 98765 00002</span>
+                  <a href="tel:+918669233747" className="text-slate-800 hover:text-amber-900 font-semibold transition-colors">
+                    +91 86692 33747
+                  </a>
                 </div>
               </div>
 
@@ -113,13 +115,13 @@ export default function ContactPage() {
               </a>
 
               <a
-                href="https://wa.me/919876500001?text=Hello%20Ameena%20Distributors,%20I%20want%20to%20inquire%20about%20visiting%20your%20Solapur%20store."
+                href="https://api.whatsapp.com/send?phone=918600570542&text=Hello%20Ameena%20Distributors,%20I%20want%20to%20inquire%20about%20visiting%20your%20Solapur%20store."
                 target="_blank"
                 rel="noreferrer"
                 className="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-colors flex items-center justify-center gap-2 shadow-md"
               >
                 <MessageSquare className="w-4 h-4" />
-                <span>Instant WhatsApp Inquiry</span>
+                <span>Instant WhatsApp Inquiry (+91 86005 70542)</span>
               </a>
             </div>
           </div>

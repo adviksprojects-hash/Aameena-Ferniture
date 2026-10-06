@@ -2,13 +2,17 @@
 
 import { db } from "../lib/prisma.js";
 import { revalidatePath, revalidateTag } from "next/cache";
+import { seedTailoredProductReviews } from "@/lib/reviews/productReviewGenerator";
 
-function purgeProductCache() {
+function purgeProductCache(productId = null, slug = null) {
   try {
     revalidatePath("/products");
     revalidatePath("/admin/products");
     revalidatePath("/manager/products");
     revalidatePath("/manager");
+    revalidatePath("/");
+    if (productId) revalidatePath(`/products/${productId}`);
+    if (slug) revalidatePath(`/products/${slug}`);
     revalidateTag("products");
   } catch (e) {}
 }
@@ -75,6 +79,7 @@ export async function createProduct(productData) {
       description = "",
       images = [],
       finishType = "Natural Teak Honey Polish",
+      materialPurity = "",
       showInquiryBtn = true,
       showDetailsBtn = true,
     } = productData;
@@ -97,17 +102,20 @@ export async function createProduct(productData) {
       });
     }
 
-    const slug =
-      title
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)+/g, "") +
-      "-" +
-      Date.now().toString().slice(-4);
+    // Generate randomized 16-digit unique product ID
+    let random16Digits = Math.floor(1 + Math.random() * 9).toString();
+    for (let i = 0; i < 15; i++) {
+      random16Digits += Math.floor(Math.random() * 10).toString();
+    }
+    const slug = random16Digits;
 
     const safeImages = Array.isArray(images) && images.length > 0
       ? images.slice(0, 3)
       : ["https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80"];
+
+    const computedPurity = materialPurity && materialPurity.trim()
+      ? materialPurity.trim()
+      : "100% Pure Quality";
 
     const created = await db.product.create({
       data: {
@@ -115,6 +123,7 @@ export async function createProduct(productData) {
         slug,
         categoryId: category.id,
         woodType,
+        materialPurity: computedPurity,
         price: parseFloat(price),
         compareAtPrice: compareAtPrice ? parseFloat(compareAtPrice) : parseFloat(price) * 1.25,
         stock: parseInt(stock, 10),
@@ -129,6 +138,13 @@ export async function createProduct(productData) {
     });
 
     purgeProductCache();
+
+    // Auto-seed tailored customer reviews aligned with this product's timber and specs
+    try {
+      await seedTailoredProductReviews(created);
+    } catch (err) {
+      console.warn("Could not auto-seed reviews for newly created product:", err.message);
+    }
 
     return { success: true, data: created };
   } catch (error) {
@@ -148,6 +164,7 @@ export async function updateProduct(id, updateData) {
     if (dataToUpdate.stock !== undefined) dataToUpdate.stock = parseInt(dataToUpdate.stock, 10);
     if (dataToUpdate.showInquiryBtn !== undefined) dataToUpdate.showInquiryBtn = Boolean(dataToUpdate.showInquiryBtn);
     if (dataToUpdate.showDetailsBtn !== undefined) dataToUpdate.showDetailsBtn = Boolean(dataToUpdate.showDetailsBtn);
+    if (dataToUpdate.materialPurity !== undefined) dataToUpdate.materialPurity = String(dataToUpdate.materialPurity).trim();
     if (Array.isArray(dataToUpdate.images)) {
       dataToUpdate.images = dataToUpdate.images.slice(0, 3);
     }
@@ -157,7 +174,7 @@ export async function updateProduct(id, updateData) {
       data: dataToUpdate,
     });
 
-    purgeProductCache();
+    purgeProductCache(id, updated.slug);
 
     return { success: true, data: updated };
   } catch (error) {

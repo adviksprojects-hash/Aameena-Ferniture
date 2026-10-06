@@ -25,6 +25,7 @@ import {
   Ban,
   Printer,
   ArrowRightCircle,
+  Eye,
 } from "lucide-react";
 import {
   getOrders,
@@ -58,6 +59,7 @@ const FINISH_OPTIONS = [
 ];
 
 export default function AdminOrdersPage() {
+  const [mounted, setMounted] = useState(false);
   const [orders, setOrders] = useState([]);
   const [catalogProducts, setCatalogProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -82,6 +84,7 @@ export default function AdminOrdersPage() {
   const [selectedOrderForEdit, setSelectedOrderForEdit] = useState(null);
   const [selectedOrderForNotify, setSelectedOrderForNotify] = useState(null);
   const [selectedOrderForReceipt, setSelectedOrderForReceipt] = useState(null);
+  const [selectedOrderForInspect, setSelectedOrderForInspect] = useState(null);
   const [actionMessage, setActionMessage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -142,6 +145,7 @@ export default function AdminOrdersPage() {
   };
 
   useEffect(() => {
+    setMounted(true);
     loadData();
   }, []);
 
@@ -433,19 +437,21 @@ export default function AdminOrdersPage() {
     const cleanPhone = (selectedOrderForNotify.customerPhone || "").replace(/\D/g, "");
     const phoneWithCode = cleanPhone.startsWith("91") ? cleanPhone : `91${cleanPhone}`;
 
+    const items = selectedOrderForNotify.OrderItem || [];
+    const itemDetails = items
+      .map((item, idx) => {
+        const title = item.title || "Handcrafted Furniture";
+        const qty = item.quantity || 1;
+        const wood = item.woodType || item.Product?.woodType || "Grade-A Sagwan Teak";
+        const finish = item.finishType || item.Product?.finishType || "Natural Teak Honey Polish";
+        const price = Number(item.price || 0);
+        return `   ${idx + 1}. *${title}*\n      • Qty: ${qty} | Timber: ${wood}\n      • Polish: ${finish} | Price: ₹${(price * qty).toLocaleString("en-IN")}`;
+      })
+      .join("\n\n");
+
     const stageLabel =
       STAGE_OPTIONS.find((s) => s.value === selectedOrderForNotify.productionStage)?.label ||
       selectedOrderForNotify.productionStage;
-
-    const firstItem = selectedOrderForNotify.OrderItem?.[0];
-    const isCustom = !firstItem?.productId;
-
-    let productDetails = "";
-    if (isCustom) {
-      productDetails = `*Custom Crafting Specs:* ${firstItem?.title || "Bespoke Furniture"}\n*Manufacturing Facility:* Solapur Central Workshop\n*Notes:* ${selectedOrderForNotify.customerNotes || "Master handcrafted joinery"}`;
-    } else {
-      productDetails = `*Item:* ${firstItem?.title || "Handcrafted Furniture"}\n*Product ID:* ${firstItem?.productId || "CAT-PROD"}\n*Finish:* ${firstItem?.Product?.finishType || "Natural Teak Honey Polish"}`;
-    }
 
     const message = `Namaste ${selectedOrderForNotify.customerName}! 🪑
 
@@ -453,16 +459,17 @@ Update from *AMEENA Distributors’s Sofa Set Furniture Company, Solapur*:
 Your order *#${selectedOrderForNotify.orderNumber}* is currently at milestone:
 *➡️ ${stageLabel}*
 
-${productDetails}
+*Ordered Furniture Pieces (${items.length}):*
+${itemDetails || "   • Handcrafted Luxury Solid Wood Furniture"}
 
 *Tracking ID:* ${selectedOrderForNotify.trackingNumber || "AF-SOLAPUR-DISPATCH"}
-*Amount:* ₹${selectedOrderForNotify.totalAmount?.toLocaleString()}
+*Amount:* ₹${Number(selectedOrderForNotify.totalAmount || 0).toLocaleString("en-IN")}
 *Delivery Destination:* ${selectedOrderForNotify.shippingAddress}, ${selectedOrderForNotify.city}
 
 ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choosing AMEENA Distributors!
 📍 Location: Near Old Poona Naka, Ring Road, Solapur.`;
 
-    return `https://wa.me/${phoneWithCode}?text=${encodeURIComponent(message)}`;
+    return `https://api.whatsapp.com/send?phone=${phoneWithCode}&text=${encodeURIComponent(message)}`;
   };
 
   // Filtering
@@ -494,10 +501,39 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
     return matchesTab && matchesStage && matchesSearch;
   });
 
+  if (!mounted) {
+    return (
+      <div className="space-y-8" suppressHydrationWarning>
+        {/* Header Skeleton */}
+        <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4" suppressHydrationWarning>
+          <div>
+            <span className="text-xs uppercase font-bold tracking-widest text-amber-400">Order Dispatch & Logistics</span>
+            <h1 className="text-2xl font-bold font-serif text-white mt-1">Admin Order Management</h1>
+            <p className="text-xs text-slate-400 mt-1">
+              Create direct orders, track 7 production stages, trigger stock deduction on delivery, and dispatch WhatsApp alerts.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-700 w-10 h-10" />
+            <div className="px-5 py-2.5 rounded-xl bg-amber-500/70 w-36 h-10" />
+          </div>
+        </div>
+
+        {/* Loading Spinner Area */}
+        <div className="min-h-[420px] flex flex-col items-center justify-center space-y-4 rounded-3xl bg-slate-950 border border-slate-800 p-8" suppressHydrationWarning>
+          <RefreshCw className="w-8 h-8 animate-spin text-amber-500" />
+          <p className="text-xs text-slate-400 font-semibold tracking-wider uppercase">
+            Loading Live Orders & Production Pipeline...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-8" suppressHydrationWarning>
       {/* Header */}
-      <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4" suppressHydrationWarning>
         <div>
           <span className="text-xs uppercase font-bold tracking-widest text-amber-400">Order Dispatch & Logistics</span>
           <h1 className="text-2xl font-bold font-serif text-white mt-1">Admin Order Management</h1>
@@ -507,6 +543,7 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
         </div>
         <div className="flex items-center gap-3">
           <button
+            suppressHydrationWarning
             onClick={loadData}
             className="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 transition-colors"
             title="Refresh database records"
@@ -514,6 +551,7 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
           </button>
           <button
+            suppressHydrationWarning
             onClick={() => setShowCreateModal(true)}
             className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition-colors flex items-center gap-2 shadow-lg shadow-amber-500/10"
           >
@@ -524,10 +562,11 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
       </div>
 
       {/* Tabs and Filters */}
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-3">
+      <div className="space-y-4" suppressHydrationWarning>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-3" suppressHydrationWarning>
           <div className="flex items-center gap-2">
             <button
+              suppressHydrationWarning
               onClick={() => setActiveTab("active")}
               className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
                 activeTab === "active"
@@ -539,6 +578,7 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
               <span>Active Orders ({orders.filter((o) => !o.isArchived).length})</span>
             </button>
             <button
+              suppressHydrationWarning
               onClick={() => setActiveTab("archived")}
               className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
                 activeTab === "archived"
@@ -551,10 +591,11 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
             </button>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+          <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto" suppressHydrationWarning>
             <div className="relative flex-1 sm:w-64">
               <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
+                suppressHydrationWarning
                 type="text"
                 placeholder="Search by client, ID, phone..."
                 value={searchQuery}
@@ -565,6 +606,7 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
 
             <div className="flex items-center gap-2">
               <select
+                suppressHydrationWarning
                 value={stageFilter}
                 onChange={(e) => setStageFilter(e.target.value)}
                 className="px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 text-xs focus:outline-none"
@@ -579,6 +621,7 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
               </select>
               {stageFilter === "OTHER" && (
                 <input
+                  suppressHydrationWarning
                   type="text"
                   value={customStageFilter}
                   onChange={(e) => setCustomStageFilter(e.target.value)}
@@ -610,13 +653,13 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
 
       {/* Orders Table */}
       <div className="bg-slate-950 rounded-3xl border border-slate-800 overflow-hidden shadow-xl">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
+        <div className="overflow-x-auto touch-pan-x overscroll-x-contain scrollbar-thin scrollbar-thumb-amber-500/30 scrollbar-track-slate-900">
+          <table className="w-full text-left text-xs text-slate-300 min-w-[920px]">
             <thead className="bg-slate-900 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
               <tr>
-                <th className="p-4">Order # & Item</th>
-                <th className="p-4">Client Details</th>
-                <th className="p-4">Destination</th>
+                <th className="p-4">Order # & Items</th>
+                <th className="p-4">Client Contact</th>
+                <th className="p-4">Delivery Destination (Where From)</th>
                 <th className="p-4">Total Amount</th>
                 <th className="p-4">Crafting Stage</th>
                 <th className="p-4">Status</th>
@@ -644,40 +687,90 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
                   const canArchive = ord.status === "DELIVERED" || ord.status === "CANCELLED";
                   const firstItem = ord.OrderItem?.[0];
                   const isCustom = !firstItem?.productId;
+                  const itemsCount = ord.OrderItem?.length || 0;
 
                   return (
                     <tr key={ord.id} className="hover:bg-slate-900/50 transition-colors">
-                      <td className="p-4 font-bold text-white">
-                        <div className="flex items-center gap-2">
-                          <span>{ord.orderNumber}</span>
+                      {/* Order # and All Items */}
+                      <td className="p-4 font-bold text-white align-top">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-mono">{ord.orderNumber}</span>
                           {isCustom && (
                             <span className="text-[9px] bg-purple-950 text-purple-300 border border-purple-800 px-1.5 py-0.5 rounded">
                               Bespoke
                             </span>
                           )}
+                          {itemsCount > 1 && (
+                            <span className="text-[9px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-1.5 py-0.5 rounded-full font-bold">
+                              {itemsCount} Items Ordered
+                            </span>
+                          )}
                         </div>
-                        <div className="text-[10px] text-amber-400 font-normal mt-0.5 truncate max-w-[180px]">
-                          {firstItem?.title || "Handcrafted Furniture"}
+
+                        {/* All Items Itemized in Admin Table */}
+                        <div className="mt-2 space-y-1.5 max-w-[240px]">
+                          {(ord.OrderItem || []).map((item, idx) => (
+                            <div key={idx} className="bg-slate-950/80 border border-slate-800 rounded-lg p-1.5 text-[11px] leading-tight font-normal">
+                              <div className="font-bold text-amber-300 flex items-start gap-1">
+                                <span className="text-amber-400 font-mono shrink-0">{idx + 1}.</span>
+                                <span className="line-clamp-1">{item.title}</span>
+                              </div>
+                              <div className="text-[10px] text-slate-400 mt-0.5 flex items-center justify-between">
+                                <span>Qty: {item.quantity || 1} • {item.woodType ? item.woodType.split(" ")[0] : "Teak"}</span>
+                                <span className="text-slate-200 font-mono">₹{((item.price || 0) * (item.quantity || 1)).toLocaleString("en-IN")}</span>
+                              </div>
+                            </div>
+                          ))}
                         </div>
+
                         {ord.trackingNumber && (
-                          <div className="text-[9px] text-slate-500 font-mono">{ord.trackingNumber}</div>
+                          <div className="text-[9px] text-slate-500 font-mono mt-1">Track: {ord.trackingNumber}</div>
                         )}
                       </td>
-                      <td className="p-4">
+
+                      {/* Client Contact */}
+                      <td className="p-4 align-top">
                         <span className="font-bold text-white block">{ord.customerName}</span>
-                        <span className="text-slate-500 text-[10px]">{ord.customerPhone || ord.customerEmail}</span>
+                        <span className="text-slate-400 text-[11px] block">{ord.customerPhone}</span>
+                        {ord.customerEmail && (
+                          <span className="text-slate-500 text-[10px] block truncate max-w-[150px]">{ord.customerEmail}</span>
+                        )}
                       </td>
-                      <td className="p-4 text-slate-300">
-                        <div>{ord.city || "Solapur"}</div>
-                        <div className="text-[10px] text-slate-500 truncate max-w-[140px]">{ord.shippingAddress}</div>
+
+                      {/* Delivery Destination (Where From) */}
+                      <td className="p-4 text-slate-300 align-top">
+                        <div className="font-semibold text-white flex items-center gap-1">
+                          <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                          <span>{ord.city || "Solapur"}</span>
+                          {ord.postalCode && <span className="text-slate-400 text-xs font-normal">({ord.postalCode})</span>}
+                        </div>
+                        <div className="text-[11px] text-slate-400 mt-1 leading-snug max-w-[190px]" title={ord.shippingAddress}>
+                          {ord.shippingAddress}
+                        </div>
+                        {ord.customerNotes && (
+                          <div className="text-[10px] text-amber-300/80 italic mt-1 max-w-[190px] line-clamp-2" title={ord.customerNotes}>
+                            Note: {ord.customerNotes}
+                          </div>
+                        )}
                       </td>
-                      <td className="p-4 font-bold text-white">₹{ord.totalAmount.toLocaleString()}</td>
-                      <td className="p-4">
+
+                      {/* Total Amount */}
+                      <td className="p-4 font-bold text-white align-top">
+                        <span className="text-sm">₹{ord.totalAmount.toLocaleString("en-IN")}</span>
+                        <span className="text-[10px] text-slate-500 block font-normal">
+                          ({itemsCount} {itemsCount === 1 ? "item" : "items"})
+                        </span>
+                      </td>
+
+                      {/* Crafting Stage */}
+                      <td className="p-4 align-top">
                         <span className="text-amber-400 font-medium capitalize">
                           {currentStage.replace(/_/g, " ").toLowerCase()}
                         </span>
                       </td>
-                      <td className="p-4">
+
+                      {/* Status Badge */}
+                      <td className="p-4 align-top">
                         <span
                           className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
                             ord.status === "DELIVERED"
@@ -692,7 +785,9 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
                           {ord.status}
                         </span>
                       </td>
-                      <td className="p-4 text-right">
+
+                      {/* Actions */}
+                      <td className="p-4 text-right align-top">
                         <div className="flex items-center justify-end gap-1.5 flex-wrap">
                           {/* 1-Click Advance to Next Stage */}
                           {ord.status !== "DELIVERED" && ord.status !== "CANCELLED" && (() => {
@@ -736,6 +831,15 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
                                 : "+ Other (Custom Milestone)..."}
                             </option>
                           </select>
+
+                          {/* Inspect Full Order Dossier */}
+                          <button
+                            onClick={() => setSelectedOrderForInspect(ord)}
+                            className="p-1.5 rounded-lg bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 border border-indigo-800 transition-colors"
+                            title="Inspect full order dossier with all items, client details & delivery destination"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                          </button>
 
                           {/* Edit Details */}
                           <button
@@ -1237,18 +1341,29 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
                 </div>
               </div>
 
+              {/* Delivery Destination in Receipt */}
+              <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800">
+                <span className="text-slate-500 block text-[10px]">Delivery Destination (Where Ordered From):</span>
+                <span className="font-medium text-slate-200 block">{selectedOrderForReceipt.shippingAddress}</span>
+                <span className="text-slate-400 text-[10px]">{selectedOrderForReceipt.city} {selectedOrderForReceipt.postalCode ? `- ${selectedOrderForReceipt.postalCode}` : ""}</span>
+              </div>
+
               <div>
-                <span className="font-bold text-slate-300 block mb-2">Order Line Items:</span>
+                <span className="font-bold text-slate-300 block mb-2">Order Line Items ({selectedOrderForReceipt.OrderItem?.length || 0}):</span>
                 <div className="divide-y divide-slate-800 bg-slate-950 rounded-2xl border border-slate-800 p-3 space-y-2">
                   {(selectedOrderForReceipt.OrderItem || []).map((item, idx) => (
                     <div key={idx} className="flex justify-between items-center pt-2 first:pt-0">
                       <div>
-                        <span className="font-bold text-white block">{item.title}</span>
-                        <span className="text-slate-500 text-[10px]">
-                          {item.Product ? `${item.Product.woodType} | ${item.Product.finishType}` : "Bespoke Joinery"}
+                        <span className="font-bold text-white block">
+                          {idx + 1}. {item.title}
+                        </span>
+                        <span className="text-slate-400 text-[10px]">
+                          Qty: {item.quantity || 1} • {item.woodType || item.Product?.woodType || "Grade-A Sagwan Teak"} • {item.finishType || item.Product?.finishType || "Honey Polish"}
                         </span>
                       </div>
-                      <span className="font-bold text-white">₹{item.price.toLocaleString()}</span>
+                      <span className="font-bold text-amber-400">
+                        ₹{((item.price || 0) * (item.quantity || 1)).toLocaleString("en-IN")}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -1265,7 +1380,7 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
                 </div>
                 <div className="flex justify-between font-bold text-white text-sm pt-2 border-t border-slate-800">
                   <span>Total Amount Paid / Payable:</span>
-                  <span className="text-amber-400">₹{selectedOrderForReceipt.totalAmount.toLocaleString()}</span>
+                  <span className="text-amber-400">₹{Number(selectedOrderForReceipt.totalAmount).toLocaleString("en-IN")}</span>
                 </div>
               </div>
 
@@ -1273,7 +1388,7 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
                 <button
                   type="button"
                   onClick={() => window.print()}
-                  className="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold flex items-center justify-center gap-2"
+                  className="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Printer className="w-4 h-4" />
                   <span>Print Receipt</span>
@@ -1281,11 +1396,214 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
                 <button
                   type="button"
                   onClick={() => setShowReceiptModal(false)}
-                  className="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold"
+                  className="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold cursor-pointer"
                 >
                   Close
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal 5: Full Order Dossier & Multi-Item Breakdown */}
+      {selectedOrderForInspect && (
+        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 max-w-2xl w-full border border-slate-800 space-y-5 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full font-bold uppercase">
+                    Order Dossier
+                  </span>
+                  <span className="text-xs text-slate-400">
+                    {new Date(selectedOrderForInspect.createdAt).toLocaleDateString("en-IN", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold font-serif text-white mt-1">
+                  Order #{selectedOrderForInspect.orderNumber}
+                </h3>
+              </div>
+              <button
+                onClick={() => setSelectedOrderForInspect(null)}
+                className="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Status & Stage Strip */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-950 p-3 rounded-2xl border border-slate-800 text-xs">
+              <div>
+                <span className="text-slate-500 block text-[10px] uppercase">Status</span>
+                <span className="font-bold text-emerald-400">{selectedOrderForInspect.status}</span>
+              </div>
+              <div>
+                <span className="text-slate-500 block text-[10px] uppercase">Crafting Stage</span>
+                <span className="font-bold text-amber-400 capitalize">
+                  {(selectedOrderForInspect.productionStage || "Inquiry").replace(/_/g, " ").toLowerCase()}
+                </span>
+              </div>
+              <div>
+                <span className="text-slate-500 block text-[10px] uppercase">Tracking Number</span>
+                <span className="font-mono text-slate-200">{selectedOrderForInspect.trackingNumber || "N/A"}</span>
+              </div>
+              <div>
+                <span className="text-slate-500 block text-[10px] uppercase">Total Value</span>
+                <span className="font-bold text-white">₹{Number(selectedOrderForInspect.totalAmount).toLocaleString("en-IN")}</span>
+              </div>
+            </div>
+
+            {/* Customer & Destination: Where user ordered from */}
+            <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5" />
+                <span>Client Profile & Delivery Destination (Where User Ordered From)</span>
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div>
+                  <span className="text-slate-500 block text-[10px]">Client Name & Contact:</span>
+                  <span className="font-bold text-white block text-sm">{selectedOrderForInspect.customerName}</span>
+                  <a
+                    href={`tel:${selectedOrderForInspect.customerPhone}`}
+                    className="text-amber-400 hover:underline inline-block mt-0.5"
+                  >
+                    📞 {selectedOrderForInspect.customerPhone}
+                  </a>
+                  {selectedOrderForInspect.customerEmail && (
+                    <span className="text-slate-400 block text-[11px] mt-0.5">
+                      ✉️ {selectedOrderForInspect.customerEmail}
+                    </span>
+                  )}
+                </div>
+                <div>
+                  <span className="text-slate-500 block text-[10px]">White-Glove Shipping Address:</span>
+                  <span className="font-medium text-slate-200 block">
+                    {selectedOrderForInspect.shippingAddress}
+                  </span>
+                  <span className="text-slate-400 block text-[11px] mt-0.5">
+                    City / Pin: {selectedOrderForInspect.city || "Solapur"} {selectedOrderForInspect.postalCode ? `- ${selectedOrderForInspect.postalCode}` : ""}
+                  </span>
+                </div>
+              </div>
+              {selectedOrderForInspect.customerNotes && (
+                <div className="pt-2 border-t border-slate-800/80 text-xs">
+                  <span className="text-slate-500 block text-[10px]">Special Instructions / Notes:</span>
+                  <span className="text-amber-200 italic">{selectedOrderForInspect.customerNotes}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Ordered Items Breakdown */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                  <Package className="w-3.5 h-3.5" />
+                  <span>All Ordered Furniture Pieces ({selectedOrderForInspect.OrderItem?.length || 0})</span>
+                </h4>
+              </div>
+
+              <div className="divide-y divide-slate-800 bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden">
+                {(selectedOrderForInspect.OrderItem || []).map((item, idx) => (
+                  <div key={idx} className="p-3.5 flex items-start justify-between gap-3 text-xs">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-amber-400 font-mono text-sm">#{idx + 1}</span>
+                        <span className="font-bold text-white text-sm">{item.title}</span>
+                        {item.productId ? (
+                          <span className="text-[9px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-mono">
+                            Catalog: {item.productId.slice(0, 8)}
+                          </span>
+                        ) : (
+                          <span className="text-[9px] bg-purple-950 text-purple-300 border border-purple-800 px-1.5 py-0.5 rounded">
+                            Bespoke Custom
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-[11px] text-slate-400 flex flex-wrap gap-x-3 gap-y-1">
+                        <span>🪵 <strong>Timber:</strong> {item.woodType || "Grade-A Sagwan Teak"}</span>
+                        <span>✨ <strong>Finish:</strong> {item.finishType || "Natural Teak Honey Polish"}</span>
+                        <span>🔢 <strong>Quantity:</strong> {item.quantity || 1}</span>
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <span className="text-slate-400 text-[10px] block">
+                        ₹{Number(item.price || 0).toLocaleString("en-IN")} × {item.quantity || 1}
+                      </span>
+                      <span className="font-bold text-amber-300 text-sm">
+                        ₹{(Number(item.price || 0) * (item.quantity || 1)).toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Financial Ledger */}
+            <div className="p-3.5 bg-slate-950 rounded-2xl border border-slate-800 space-y-1.5 text-xs text-right">
+              <div className="flex justify-between text-slate-400">
+                <span>Subtotal (Base Value):</span>
+                <span>₹{(selectedOrderForInspect.totalAmount / 1.18).toLocaleString("en-IN", { maximumFractionDigits: 0 })}</span>
+              </div>
+              <div className="flex justify-between text-slate-400">
+                <span>GST (18% Teakwood Manufacturing):</span>
+                <span>₹{(selectedOrderForInspect.totalAmount - selectedOrderForInspect.totalAmount / 1.18).toLocaleString("en-IN", { maximumFractionDigits: 0 })}</span>
+              </div>
+              <div className="flex justify-between font-bold text-white text-sm pt-2 border-t border-slate-800">
+                <span>Total Amount Paid / Payable:</span>
+                <span className="text-amber-400">₹{Number(selectedOrderForInspect.totalAmount).toLocaleString("en-IN")}</span>
+              </div>
+            </div>
+
+            {/* Modal Quick Actions */}
+            <div className="flex items-center gap-2 pt-2 flex-wrap">
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedOrderForNotify(selectedOrderForInspect);
+                  setShowNotifyModal(true);
+                }}
+                className="flex-1 min-w-[140px] py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <MessageSquare className="w-3.5 h-3.5" />
+                <span>WhatsApp Client</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedOrderForReceipt(selectedOrderForInspect);
+                  setShowReceiptModal(true);
+                }}
+                className="flex-1 min-w-[140px] py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>Invoice / Receipt</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  handleOpenEdit(selectedOrderForInspect);
+                  setSelectedOrderForInspect(null);
+                }}
+                className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <Edit className="w-3.5 h-3.5" />
+                <span>Edit</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectedOrderForInspect(null)}
+                className="py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>

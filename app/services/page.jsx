@@ -260,13 +260,13 @@ export default function ServicesPage() {
             Book Free Design Consultation
           </button>
           <a
-            href="https://wa.me/919876500001?text=Hello%20Aameena%20Furniture,%20I%20would%20like%20to%20speak%20with%20a%20master%20craftsman%20about%20a%20custom%20order."
+            href="https://api.whatsapp.com/send?phone=918600570542&text=Hello%20Aameena%20Furniture,%20I%20would%20like%20to%20speak%20with%20a%20master%20craftsman%20about%20a%20custom%20order."
             target="_blank"
             rel="noopener noreferrer"
             className="px-6 py-3.5 rounded-full bg-amber-900/80 hover:bg-amber-800 text-amber-100 text-xs font-bold border border-amber-700/70 transition-colors flex items-center gap-2"
           >
             <MessageSquare className="w-4 h-4 text-emerald-400" />
-            <span>Chat with Master Craftsman</span>
+            <span>Chat with Master Craftsman (+91 86005 70542)</span>
           </a>
         </div>
       </div>
@@ -301,13 +301,13 @@ export default function ServicesPage() {
             Browse Loose Fabrics
           </Link>
           <a
-            href="https://wa.me/919876500001?text=Hello%20Aameena%20Furniture,%20I%20want%20to%20inquire%20about%20loose%20cloth%20and%20sofa%20materials%20at%20your%20factory."
+            href="https://api.whatsapp.com/send?phone=918600570542&text=Hello%20Aameena%20Furniture,%20I%20want%20to%20inquire%20about%20loose%20cloth%20and%20sofa%20materials%20at%20your%20factory."
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-3 rounded-2xl bg-white hover:bg-amber-50 text-amber-950 border border-amber-300 text-xs font-bold transition-all flex items-center gap-1.5"
           >
             <MessageSquare className="w-4 h-4 text-emerald-600" />
-            <span>Inquire Loose Cloth</span>
+            <span>Inquire Loose Cloth (+91 86005 70542)</span>
           </a>
         </div>
       </div>

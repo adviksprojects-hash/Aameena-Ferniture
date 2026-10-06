@@ -5,12 +5,16 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { navLinks } from '@/data/HeaderData/HeaderData';
 import { cn } from '@/lib/utils';
-import { Shield, Briefcase } from 'lucide-react';
+import { Shield, Briefcase, ShoppingCart, Heart } from 'lucide-react';
 import ThemeSwitcher from '@/components/ThemeSwitcher';
+import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
 
 export default function HeaderClient() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const pathname = usePathname();
+    const { totalItems } = useCart();
+    const { wishlistCount } = useWishlist();
 
     return (
         <>
@@ -39,8 +43,10 @@ export default function HeaderClient() {
 
             {/* Mobile / Tablet Menu Toggle */}
             <button
+                type="button"
+                suppressHydrationWarning
                 className={cn(
-                    "xl:hidden relative size-10 rounded-full text-amber-200 hover:text-white bg-amber-900/60 border border-amber-800/60 flex items-center justify-center outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+                    "xl:hidden relative size-10 rounded-full text-amber-200 hover:text-white bg-amber-900/60 border border-amber-800/60 flex items-center justify-center outline-none focus-visible:ring-2 focus-visible:ring-amber-400 cursor-pointer"
                 )}
                 onClick={() => setIsMobileMenuOpen((open) => !open)}
                 aria-label="Toggle navigation menu"
@@ -88,6 +94,50 @@ export default function HeaderClient() {
                                 </Link>
                             );
                         })}
+
+                        {/* Mobile Wishlist Link */}
+                        <Link
+                            href="/wishlist"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className={cn(
+                                "rounded-xl px-4 py-2.5 text-sm font-medium transition-colors duration-200 flex items-center justify-between",
+                                pathname === "/wishlist"
+                                    ? "bg-amber-500 text-amber-950 font-bold"
+                                    : "text-amber-100 hover:bg-amber-900/60"
+                            )}
+                        >
+                            <span className="flex items-center gap-2" suppressHydrationWarning>
+                                <Heart className="w-4 h-4 text-rose-400" />
+                                <span>Saved Wishlist</span>
+                            </span>
+                            {wishlistCount > 0 && (
+                                <span suppressHydrationWarning className="bg-rose-500 text-white font-black text-xs px-2 py-0.5 rounded-full">
+                                    {wishlistCount}
+                                </span>
+                            )}
+                        </Link>
+
+                        {/* Mobile Shopping Cart Link */}
+                        <Link
+                            href="/cart"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className={cn(
+                                "rounded-xl px-4 py-2.5 text-sm font-medium transition-colors duration-200 flex items-center justify-between",
+                                pathname === "/cart"
+                                    ? "bg-amber-500 text-amber-950 font-bold"
+                                    : "text-amber-100 hover:bg-amber-900/60"
+                            )}
+                        >
+                            <span className="flex items-center gap-2" suppressHydrationWarning>
+                                <ShoppingCart className="w-4 h-4 text-amber-400" />
+                                <span>Shopping Cart</span>
+                            </span>
+                            {totalItems > 0 && (
+                                <span suppressHydrationWarning className="bg-amber-400 text-amber-950 font-black text-xs px-2 py-0.5 rounded-full">
+                                    {totalItems}
+                                </span>
+                            )}
+                        </Link>
                     </nav>
 
                     <div className="pt-2 mt-2 border-t border-amber-900/60 flex flex-col gap-2">

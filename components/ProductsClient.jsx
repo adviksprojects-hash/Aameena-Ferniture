@@ -18,66 +18,17 @@ import {
   ChevronRight,
   ExternalLink,
   Share2,
+  Copy,
+  Check,
+  ShoppingCart,
+  ShoppingBag,
+  Heart,
 } from "lucide-react";
 import ProductShareModal from "@/components/ProductShareModal";
-
-const DEFAULT_FABRIC_PRODUCTS = [
-  {
-    id: "fabric-loose-velvet",
-    title: "Premium Royal Velvet Loose Sofa Cloth (By the Meter)",
-    slug: "factory-loose-velvet-sofa-cloth",
-    price: 850,
-    compareAtPrice: 1200,
-    woodType: "Heavy-Duty Velvet Cloth",
-    dimensions: "Width: 54 inches (Sold by Meter)",
-    finishType: "Water-Repellent Velvet Finish",
-    stock: 250,
-    showInquiryBtn: true,
-    showDetailsBtn: true,
-    Category: { id: "cat-fabrics", slug: "fabrics", name: "Loose Cloth & Fabrics" },
-    images: [
-      "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80",
-    ],
-    description: "Authentic raw loose velvet fabric stored in rolls directly at our Solapur manufacturing facility. 450 GSM, stain-resistant, and ideal for custom living room sofas and cushion covers.",
-  },
-  {
-    id: "fabric-loose-jacquard",
-    title: "Turkish Floral Jacquard Loose Furniture Cloth Roll",
-    slug: "turkish-jacquard-loose-furniture-cloth",
-    price: 1250,
-    compareAtPrice: 1750,
-    woodType: "Turkish Jacquard Fabric",
-    dimensions: "Width: 56 inches (Sold by Meter)",
-    finishType: "Heirloom Woven Texture",
-    stock: 180,
-    showInquiryBtn: true,
-    showDetailsBtn: true,
-    Category: { id: "cat-fabrics", slug: "fabrics", name: "Loose Cloth & Fabrics" },
-    images: [
-      "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80",
-    ],
-    description: "Heavy woven royal jacquard loose cloth from our factory textile stock. High Martindale rub count engineered for longevity and luxurious sofa upholstery.",
-  },
-  {
-    id: "fabric-loose-chenille",
-    title: "Textured Chenille & Breathable Cotton Sofa Material",
-    slug: "textured-chenille-cotton-sofa-material",
-    price: 950,
-    compareAtPrice: 1350,
-    woodType: "Chenille-Cotton Blend",
-    dimensions: "Width: 54 inches (Sold by Meter)",
-    finishType: "Soft Matte Texture",
-    stock: 320,
-    showInquiryBtn: true,
-    showDetailsBtn: true,
-    Category: { id: "cat-fabrics", slug: "fabrics", name: "Loose Cloth & Fabrics" },
-    images: [
-      "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=800&q=80",
-    ],
-    description: "Breathable textured chenille loose cloth stored at the factory. Highly durable, easy to wash, and perfect for daily-use sofa sets and accent armchairs.",
-  },
-];
+import { getProductRatingScore } from "@/utils/productRating";
+import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
+import { DEFAULT_FABRIC_PRODUCTS } from "@/lib/constants/fabricDefaults";
 
 export default function ProductsClient({ initialProducts = [], initialCategory = "all" }) {
   const [products] = useState(() => {
@@ -88,11 +39,34 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
   const [selectedMaterial, setSelectedMaterial] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFinishes, setSelectedFinishes] = useState({});
+  const { addToCart, isInCart } = useCart();
+  const { isInWishlist, toggleWishlist } = useWishlist();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Product Details Modal state
   const [detailsModalProduct, setDetailsModalProduct] = useState(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [sharingProduct, setSharingProduct] = useState(null);
+  const [copiedProductId, setCopiedProductId] = useState(null);
+
+  const handleCopyProductLink = async (productOrId, e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    try {
+      const identifier = typeof productOrId === "object" ? (productOrId?.slug || productOrId?.id) : productOrId;
+      const origin = typeof window !== "undefined" ? window.location.origin : "https://aameenafurniture.com";
+      const shareUrl = `${origin}/products/${identifier}`;
+      await navigator.clipboard.writeText(shareUrl);
+      setCopiedProductId(identifier);
+      setTimeout(() => setCopiedProductId(null), 2500);
+    } catch (err) {
+      console.error("Failed to copy link:", err);
+    }
+  };
 
   // Keyboard navigation (ESC to close, Left/Right for gallery) & body scroll lock
   useEffect(() => {
@@ -147,7 +121,7 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
       `• *Dimensions:* ${product.dimensions || "Standard"}\n\n` +
       `Please let me know availability, manufacturing lead time, and delivery to my location.`;
 
-    return `https://wa.me/919876500001?text=${encodeURIComponent(message)}`;
+    return `https://api.whatsapp.com/send?phone=918600570542&text=${encodeURIComponent(message)}`;
   };
 
   const openDetailsModal = (product) => {
@@ -173,7 +147,7 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
   });
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-10" suppressHydrationWarning>
       {/* Header Banner */}
       <div className="bg-gradient-to-r from-amber-950 via-amber-900 to-amber-950 rounded-3xl p-8 lg:p-12 text-amber-50 shadow-2xl space-y-4">
         <div className="flex items-center gap-2 text-xs uppercase font-bold tracking-widest text-amber-400">
@@ -194,6 +168,7 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
             placeholder="Search sofas, beds, dining tables, teak desks, loose cloth..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            suppressHydrationWarning
             className="w-full pl-12 pr-4 py-3.5 rounded-full bg-amber-900/80 border border-amber-700/80 text-amber-50 placeholder-amber-300/60 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
           />
         </div>
@@ -217,6 +192,7 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
 
         <button
           onClick={() => setSelectedCategory("fabrics")}
+          suppressHydrationWarning
           className="shrink-0 px-4 py-2 rounded-xl bg-amber-900 hover:bg-amber-800 text-amber-50 text-xs font-bold transition-colors whitespace-nowrap"
         >
           View Loose Fabrics
@@ -238,6 +214,7 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
+              suppressHydrationWarning
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 selectedCategory === cat.id
                   ? "bg-amber-900 text-amber-50 shadow-md scale-102"
@@ -257,6 +234,7 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
           <select
             value={selectedMaterial}
             onChange={(e) => setSelectedMaterial(e.target.value)}
+            suppressHydrationWarning
             className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-1.5 font-medium text-slate-800 focus:outline-none"
           >
             <option value="all">All Specs</option>
@@ -281,6 +259,7 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
               setSelectedMaterial("all");
               setSearchQuery("");
             }}
+            suppressHydrationWarning
             className="px-6 py-2.5 rounded-full bg-amber-800 text-white text-xs font-bold hover:bg-amber-900 transition-colors"
           >
             Reset Filters
@@ -303,12 +282,13 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
             return (
               <div
                 key={product.id}
-                className="bg-white rounded-3xl overflow-hidden border border-amber-200/70 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
+                className="bg-white rounded-3xl overflow-hidden border border-amber-200/80 hover:border-amber-400 shadow-sm hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between group"
+                suppressHydrationWarning
               >
                 <div>
                   {/* Photo & Tag with Photo Count Badge */}
                   <div className="relative h-64 overflow-hidden bg-amber-50">
-                    <Link href={`/products/${product.id}`} className="block w-full h-full">
+                    <Link href={`/products/${product.slug || product.id}`} className="block w-full h-full">
                       <img
                         src={primaryImg}
                         alt={product.title}
@@ -327,19 +307,42 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
                       </div>
                     )}
 
-                    {/* Share Button (Top Right) */}
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setSharingProduct(product);
-                      }}
-                      className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/90 hover:bg-white text-slate-800 shadow-md backdrop-blur-sm transition-all hover:scale-110 border border-slate-200"
-                      title="Share product"
-                    >
-                      <Share2 className="w-3.5 h-3.5 text-amber-900" />
-                    </button>
+                    {/* Top Right Action Buttons: Wishlist Heart & Share */}
+                    <div className="absolute top-4 right-4 z-10 flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          toggleWishlist(product);
+                        }}
+                        suppressHydrationWarning
+                        className="p-2 rounded-full bg-white/95 hover:bg-white text-slate-800 shadow-md backdrop-blur-xs transition-all hover:scale-110 active:scale-95 border border-slate-200 cursor-pointer"
+                        title={mounted && isInWishlist(product.id) ? "Remove from Wishlist" : "Save to Wishlist"}
+                      >
+                        <Heart
+                          className={`w-3.5 h-3.5 transition-colors ${
+                            mounted && isInWishlist(product.id)
+                              ? "fill-rose-500 text-rose-500"
+                              : "text-slate-600 hover:text-rose-500"
+                          }`}
+                        />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setSharingProduct(product);
+                        }}
+                        suppressHydrationWarning
+                        className="p-2 rounded-full bg-white/95 hover:bg-white text-slate-800 shadow-md backdrop-blur-xs transition-all hover:scale-110 border border-slate-200 cursor-pointer"
+                        title="Share product"
+                      >
+                        <Share2 className="w-3.5 h-3.5 text-amber-900" />
+                      </button>
+                    </div>
 
                     <div className="absolute bottom-3 left-4 pointer-events-none">
                       <span
@@ -360,20 +363,32 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
                       <span className="capitalize font-semibold text-amber-900 bg-amber-100/70 px-2.5 py-0.5 rounded-md">
                         {product.Category?.name || "Collection"}
                       </span>
-                      <div className="flex items-center gap-1 text-amber-600 font-bold">
-                        <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                        <span>5.0 (Artisan Verified)</span>
-                      </div>
                     </div>
 
                     <h3>
                       <Link
-                        href={`/products/${product.id}`}
+                        href={`/products/${product.slug || product.id}`}
                         className="text-lg font-bold font-serif text-slate-900 line-clamp-1 hover:text-amber-800 transition-colors block"
                       >
                         {product.title}
                       </Link>
                     </h3>
+
+                    {/* Ratings & Customer Reviews Quick Link */}
+                    <div className="flex items-center gap-2 text-xs">
+                      <div className="flex items-center gap-1 text-amber-600 font-bold">
+                        <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                        <span>{getProductRatingScore(product)}</span>
+                      </div>
+                      <span className="text-slate-300">•</span>
+                      <Link
+                        href={`/products/${product.slug || product.id}#product-reviews-section`}
+                        className="text-slate-500 hover:text-amber-900 font-medium hover:underline text-[11px]"
+                      >
+                        Customer Reviews & Ratings →
+                      </Link>
+                    </div>
+
                     <p className="text-xs text-slate-600 leading-relaxed line-clamp-2">
                       {product.description || "Bespoke solid wood construction, finished with eco-friendly polishes."}
                     </p>
@@ -390,6 +405,7 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
                             <button
                               key={finish.id}
                               onClick={() => handleFinishChange(product.id, finish.name)}
+                              suppressHydrationWarning
                               className={`w-6 h-6 rounded-full ${finish.color} border-2 transition-all ${
                                 isSelected ? "ring-2 ring-amber-600 scale-110" : "opacity-75 hover:opacity-100"
                               }`}
@@ -422,8 +438,8 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
                     {/* Button 1: See Details -> Navigates to Separate Page */}
                     {showDetails && (
                       <Link
-                        href={`/products/${product.id}`}
-                        className="w-full py-2.5 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-950 border border-amber-300 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                        href={`/products/${product.slug || product.id}`}
+                        className="w-full py-2.5 px-3 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-300 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-2xs hover:shadow-xs"
                       >
                         <Eye className="w-3.5 h-3.5 text-amber-800" />
                         <span>See Details</span>
@@ -436,25 +452,56 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
                         href={getWhatsAppLink(product)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-700 to-emerald-800 hover:from-emerald-600 hover:to-emerald-700 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-md ${
+                        className={`w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-800 via-amber-850 to-amber-900 hover:from-amber-700 hover:to-amber-850 text-amber-50 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-md hover:shadow-lg border border-amber-700/60 ${
                           !showDetails ? "sm:col-span-2 py-3" : ""
                         }`}
                       >
-                        <MessageSquare className="w-3.5 h-3.5 text-emerald-200" />
+                        <MessageSquare className="w-3.5 h-3.5 text-amber-200" />
                         <span>Direct Inquiry</span>
                       </a>
                     )}
                   </div>
 
-                  {/* Quick Share Link */}
-                  <button
-                    type="button"
-                    onClick={() => setSharingProduct(product)}
-                    className="w-full py-2 px-3 rounded-xl bg-slate-50 hover:bg-amber-50 text-slate-600 hover:text-amber-900 border border-slate-200 text-[11px] font-bold transition-all flex items-center justify-center gap-1.5"
-                  >
-                    <Share2 className="w-3 h-3 text-amber-700" />
-                    <span>Share Piece</span>
-                  </button>
+                  {/* Action Row 2: Add to Cart / View Cart & Share */}
+                  <div className="grid grid-cols-2 gap-2">
+                    {(mounted && isInCart(product.id)) ? (
+                      <Link
+                        href="/cart"
+                        onClick={(e) => e.stopPropagation()}
+                        suppressHydrationWarning
+                        className="w-full py-2 px-3 rounded-xl bg-amber-700 hover:bg-amber-800 text-white border border-amber-800 text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs hover:scale-102"
+                        title="View this product in your shopping cart"
+                      >
+                        <ShoppingBag className="w-3.5 h-3.5 text-white" />
+                        <span>View Cart →</span>
+                      </Link>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          addToCart(product, { finishType: currentFinish });
+                        }}
+                        suppressHydrationWarning
+                        className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 border border-amber-400/80 text-[11px] font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs hover:shadow-md hover:scale-102"
+                        title="Add handcrafted piece to shopping cart"
+                      >
+                        <ShoppingCart className="w-3.5 h-3.5 text-slate-950" />
+                        <span>Add to Cart</span>
+                      </button>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => setSharingProduct(product)}
+                      suppressHydrationWarning
+                      className="w-full py-2 px-3 rounded-xl bg-slate-50 hover:bg-amber-50 text-slate-700 hover:text-amber-950 border border-slate-200/90 hover:border-amber-300 text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 shadow-2xs"
+                    >
+                      <Share2 className="w-3 h-3 text-amber-800" />
+                      <span>Share Piece</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             );
@@ -478,7 +525,7 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
           >
             <div className="flex items-start justify-between border-b border-amber-100 pb-4 gap-3">
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-[10px] uppercase font-extrabold tracking-widest text-amber-800 bg-amber-100/80 px-2.5 py-0.5 rounded-full">
                     Solapur Heritage Craftsmanship
                   </span>
@@ -494,6 +541,7 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
                 <button
                   type="button"
                   onClick={() => setSharingProduct(detailsModalProduct)}
+                  suppressHydrationWarning
                   className="p-2 rounded-full hover:bg-amber-100/70 text-amber-900 transition-colors"
                   title="Share product"
                 >
@@ -502,6 +550,7 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
                 <button
                   type="button"
                   onClick={() => setDetailsModalProduct(null)}
+                  suppressHydrationWarning
                   className="p-2 rounded-full hover:bg-slate-100 text-slate-500 transition-colors"
                   title="Close (ESC)"
                 >
@@ -529,6 +578,7 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
                               prev === 0 ? detailsModalProduct.images.length - 1 : prev - 1
                             )
                           }
+                          suppressHydrationWarning
                           className="p-2 rounded-full bg-black/60 text-white hover:bg-black/80 shadow-md"
                         >
                           <ChevronLeft className="w-4 h-4" />
@@ -540,6 +590,7 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
                               prev === detailsModalProduct.images.length - 1 ? 0 : prev + 1
                             )
                           }
+                          suppressHydrationWarning
                           className="p-2 rounded-full bg-black/60 text-white hover:bg-black/80 shadow-md"
                         >
                           <ChevronRight className="w-4 h-4" />
@@ -576,7 +627,7 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
               <div className="p-3.5 bg-amber-50/60 rounded-2xl border border-amber-200">
                 <span className="text-slate-500 font-bold block text-[10px] uppercase">Timber Species</span>
                 <span className="font-bold text-slate-900 text-sm mt-0.5 block">{detailsModalProduct.woodType}</span>
-                <span className="text-[10px] text-amber-800">100% Seasoned Hardwood</span>
+                <span className="text-[10px] text-amber-800 font-semibold">{detailsModalProduct.materialPurity?.trim() || "100% Pure Quality"}</span>
               </div>
 
               <div className="p-3.5 bg-amber-50/60 rounded-2xl border border-amber-200">
@@ -616,29 +667,56 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
                 </span>
               </div>
 
-              <div className="flex items-center gap-3 w-full sm:w-auto">
+              <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
                 <button
                   type="button"
                   onClick={() => setDetailsModalProduct(null)}
-                  className="px-5 py-3 rounded-xl border border-slate-300 text-slate-700 font-bold text-xs hover:bg-slate-50"
+                  suppressHydrationWarning
+                  className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-bold text-xs hover:bg-slate-50"
                 >
                   Close
                 </button>
+                {(mounted && isInCart(detailsModalProduct.id)) ? (
+                  <Link
+                    href="/cart"
+                    suppressHydrationWarning
+                    className="px-4 py-2.5 rounded-xl bg-amber-700 hover:bg-amber-800 text-white border border-amber-800 text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all"
+                  >
+                    <ShoppingBag className="w-3.5 h-3.5 text-white" />
+                    <span>View Cart →</span>
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const currentFinish =
+                        selectedFinishes[detailsModalProduct.id] ||
+                        detailsModalProduct.finishType ||
+                        "Natural Honey Teak";
+                      addToCart(detailsModalProduct, { finishType: currentFinish });
+                    }}
+                    suppressHydrationWarning
+                    className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 border border-amber-400/80 text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer shadow-xs hover:scale-102"
+                  >
+                    <ShoppingCart className="w-3.5 h-3.5 text-slate-950" />
+                    <span>Add to Cart</span>
+                  </button>
+                )}
                 <Link
-                  href={`/products/${detailsModalProduct.id}`}
-                  className="px-5 py-3 rounded-xl bg-amber-900 hover:bg-amber-800 text-amber-50 font-bold text-xs flex items-center gap-1.5 transition-colors"
+                  href={`/products/${detailsModalProduct.slug || detailsModalProduct.id}`}
+                  className="px-4 py-2.5 rounded-xl bg-amber-900 hover:bg-amber-800 text-amber-50 font-bold text-xs flex items-center gap-1.5 transition-colors"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
-                  <span>Full Page View</span>
+                  <span>Full Page</span>
                 </Link>
                 <a
                   href={getWhatsAppLink(detailsModalProduct)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-bold text-xs flex items-center gap-2 shadow-lg hover:shadow-emerald-600/30"
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-800 to-amber-900 hover:from-amber-700 hover:to-amber-800 text-amber-50 font-bold text-xs flex items-center gap-2 shadow-md hover:shadow-lg border border-amber-700/60"
                 >
-                  <MessageSquare className="w-4 h-4" />
-                  <span>Direct Inquiry via WhatsApp</span>
+                  <MessageSquare className="w-4 h-4 text-amber-200" />
+                  <span>WhatsApp</span>
                 </a>
               </div>
             </div>

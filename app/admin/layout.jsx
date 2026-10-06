@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
@@ -13,20 +14,27 @@ import {
   MessageSquare, 
   Settings, 
   ArrowLeft,
-  Sofa,
-  Wrench,
   DollarSign,
   Star,
+  ExternalLink,
+  Menu,
+  X,
 } from "lucide-react";
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+
+  // Close mobile drawer on route navigation
+  useEffect(() => {
+    setIsMobileNavOpen(false);
+  }, [pathname]);
 
   const adminLinks = [
     { title: "Admin Dashboard", url: "/admin", icon: LayoutDashboard },
     { title: "Product Management", url: "/admin/products", icon: Package },
     { title: "Order Management", url: "/admin/orders", icon: ShoppingBag },
-    { title: "Service Management", url: "/admin/services", icon: Wrench },
+    { title: "Service Management", url: "/admin/services", icon: Settings },
     { title: "Pricing & PDF Catalog", url: "/admin/pricing", icon: DollarSign },
     { title: "Customer Reviews", url: "/admin/reviews", icon: Star },
     { title: "Manager Management", url: "/admin/managers", icon: UserCheck },
@@ -38,24 +46,26 @@ export default function AdminLayout({ children }) {
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col md:flex-row">
-      
-      {/* Admin Sidebar */}
-      <aside className="w-full md:w-64 bg-slate-950 border-r border-slate-800 p-6 flex flex-col justify-between shrink-0 space-y-6">
+      {/* 1. Desktop Sidebar (Persistent on md and above) */}
+      <aside className="hidden md:flex md:w-64 bg-slate-950 border-r border-slate-800 p-6 flex-col justify-between shrink-0 space-y-6">
         <div className="space-y-6">
-          
           {/* Brand Header */}
           <div className="flex items-center justify-between">
             <Link href="/admin" className="flex items-center gap-2 font-bold text-amber-400 font-serif text-lg">
               <div className="p-1.5 bg-amber-500 rounded-lg text-slate-950">
                 <Shield className="w-5 h-5" />
               </div>
-              <span>Admin <span className="text-white font-sans text-xs uppercase bg-amber-900/60 px-2 py-0.5 rounded border border-amber-700">Super</span></span>
+              <span>
+                Admin <span className="text-white font-sans text-xs uppercase bg-amber-900/60 px-2 py-0.5 rounded border border-amber-700">Super</span>
+              </span>
             </Link>
           </div>
 
           {/* Navigation Links */}
           <nav className="space-y-1">
-            <p className="text-[10px] uppercase font-bold tracking-widest text-slate-500 px-3 mb-2">Super Admin Controls</p>
+            <p className="text-[10px] uppercase font-bold tracking-widest text-slate-500 px-3 mb-2">
+              Super Admin Controls
+            </p>
             {adminLinks.map((link) => {
               const isActive = pathname === link.url;
               return (
@@ -77,7 +87,16 @@ export default function AdminLayout({ children }) {
         </div>
 
         {/* Back to Public Site */}
-        <div className="pt-4 border-t border-slate-800">
+        <div className="pt-4 border-t border-slate-800 space-y-2">
+          <Link
+            href="/ai-reviews"
+            target="_blank"
+            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-xs font-bold transition-colors border border-amber-500/30"
+          >
+            <Star className="w-3.5 h-3.5" />
+            <span>Live Reviews Page</span>
+            <ExternalLink className="w-3 h-3 ml-0.5" />
+          </Link>
           <Link
             href="/"
             className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-bold transition-colors border border-slate-800"
@@ -88,11 +107,122 @@ export default function AdminLayout({ children }) {
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <main className="flex-1 p-6 lg:p-10 overflow-y-auto">
-        {children}
-      </main>
+      {/* 2. Mobile Off-Canvas Drawer (When open on mobile/tablet) */}
+      {isMobileNavOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm md:hidden animate-in fade-in duration-200">
+          <div className="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-slate-950 border-r border-slate-800 p-5 flex flex-col justify-between shadow-2xl overflow-y-auto animate-in slide-in-from-left duration-200">
+            <div className="space-y-5">
+              {/* Drawer Header */}
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                <Link href="/admin" className="flex items-center gap-2 font-bold text-amber-400 font-serif text-base">
+                  <div className="p-1 bg-amber-500 rounded-lg text-slate-950">
+                    <Shield className="w-4 h-4" />
+                  </div>
+                  <span>Admin Panel</span>
+                </Link>
+                <button
+                  type="button"
+                  suppressHydrationWarning
+                  onClick={() => setIsMobileNavOpen(false)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-900 transition-colors cursor-pointer"
+                  aria-label="Close navigation"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
 
+              {/* Drawer Links */}
+              <nav className="space-y-1">
+                {adminLinks.map((link) => {
+                  const isActive = pathname === link.url;
+                  return (
+                    <Link
+                      key={link.url}
+                      href={link.url}
+                      onClick={() => setIsMobileNavOpen(false)}
+                      className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-colors ${
+                        isActive
+                          ? "bg-amber-500 text-slate-950 shadow-md font-semibold"
+                          : "text-slate-400 hover:text-white hover:bg-slate-900"
+                      }`}
+                    >
+                      <link.icon className={`w-4 h-4 ${isActive ? "text-slate-950" : "text-amber-500"}`} />
+                      <span>{link.title}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
+
+            {/* Bottom Actions */}
+            <div className="pt-4 border-t border-slate-800 space-y-2">
+              <Link
+                href="/ai-reviews"
+                target="_blank"
+                className="flex items-center justify-center gap-2 w-full py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-xs font-bold transition-colors border border-amber-500/30"
+              >
+                <Star className="w-3.5 h-3.5" />
+                <span>Live Reviews Page</span>
+              </Link>
+              <Link
+                href="/"
+                className="flex items-center justify-center gap-2 w-full py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-bold transition-colors border border-slate-800"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Return to Storefront</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 3. Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {/* Top Header Bar with Mobile Menu Toggle */}
+        <header className="h-14 sm:h-16 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 px-4 sm:px-6 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-3">
+            {/* Mobile Menu Toggle Button */}
+            <button
+              type="button"
+              suppressHydrationWarning
+              onClick={() => setIsMobileNavOpen(true)}
+              className="md:hidden p-2 rounded-xl border border-slate-800 bg-slate-900 text-slate-300 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+              aria-label="Open Admin Navigation"
+            >
+              <Menu className="w-4 h-4 text-amber-400" />
+            </button>
+
+            <div className="flex items-center gap-1.5 sm:gap-2 text-xs text-slate-400 truncate">
+              <span className="font-semibold text-white truncate">Aameena Furniture</span>
+              <span className="hidden sm:inline">/</span>
+              <span className="hidden sm:inline">Admin Management</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link
+              href="/ai-reviews"
+              target="_blank"
+              className="hidden sm:flex items-center gap-1.5 text-xs text-amber-400 hover:text-amber-300 transition-colors font-medium"
+            >
+              <Star className="w-3.5 h-3.5" />
+              <span>Live Reviews</span>
+            </Link>
+            <Link
+              href="/"
+              className="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 transition-colors"
+            >
+              <span className="hidden sm:inline">View Storefront</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </header>
+
+        {/* Content Body */}
+        <main className="flex-1 p-3 sm:p-6 lg:p-8 overflow-y-auto">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

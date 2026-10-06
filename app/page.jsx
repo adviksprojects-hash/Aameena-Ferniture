@@ -606,13 +606,13 @@ export default function Home() {
               <p className="text-slate-600 text-sm leading-relaxed">Step into our Solapur showroom and workshop to feel the premium Sagwan teak grains, test sofa comfort, inspect factory loose cloth rolls, and consult directly with our furniture designers.</p>
               <div className="space-y-3 text-sm text-slate-700">
                 <div className="flex items-center gap-3"><MapPin className="w-5 h-5 text-amber-800 shrink-0" /><span>AMEENA Distributors’s Sofa Set Furniture Company, Solapur Facility</span></div>
-                <div className="flex items-center gap-3"><PhoneCall className="w-5 h-5 text-amber-800 shrink-0" /><span>+91 98765 00001</span></div>
+                <div className="flex items-center gap-3"><PhoneCall className="w-5 h-5 text-amber-800 shrink-0" /><a href="tel:+918669233747" className="hover:text-amber-900 font-semibold transition-colors">+91 86692 33747</a></div>
               </div>
               <div className="flex flex-wrap gap-4 pt-2">
                 <Link href="/contact" className="px-6 py-3 rounded-full bg-amber-800 hover:bg-amber-900 text-amber-50 font-bold text-sm transition-all hover:scale-105">Book Appointment</Link>
-                <a href="https://wa.me/919876500001?text=Hello%20Aameena%20Furniture%20Solapur,%20I%20would%20like%20to%20visit%20your%20showroom%20and%20factory." target="_blank" rel="noreferrer" className="px-6 py-3 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition-all flex items-center gap-2 hover:scale-105">
+                <a href="https://api.whatsapp.com/send?phone=918600570542&text=Hello%20Aameena%20Furniture%20Solapur,%20I%20would%20like%20to%20visit%20your%20showroom%20and%20factory." target="_blank" rel="noreferrer" className="px-6 py-3 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition-all flex items-center gap-2 hover:scale-105">
                   <MessageSquare className="w-4 h-4" />
-                  <span>WhatsApp Consultation</span>
+                  <span>WhatsApp Consultation (+91 86005 70542)</span>
                 </a>
                 <a
                   href="https://www.google.com/maps/place/AMEENA+Distributors%E2%80%99s+Sofa+Set+Furniture+Company/@17.6578402,75.9362493,15z/data=!3m1!4b1!4m6!3m5!1s0x3bc5db34c23e5907:0x86af8fec8b37d0ed!8m2!3d17.6578402!4d75.9362493!16s%2Fg%2F11gypsrxj5"

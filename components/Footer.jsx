@@ -78,7 +78,9 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>+91 98765 00001</span>
+                <a href="tel:+918669233747" className="hover:text-amber-300 transition-colors">
+                  +91 86692 33747
+                </a>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-amber-400 shrink-0" />
@@ -86,13 +88,13 @@ export default function Footer() {
               </li>
               <li className="pt-2">
                 <a 
-                  href="https://wa.me/919876500001?text=Hello%20Ameena%20Distributors,%20I%20am%20inquiring%20about%20furniture%20from%20your%20website." 
+                  href="https://api.whatsapp.com/send?phone=918600570542&text=Hello%20Ameena%20Distributors,%20I%20am%20inquiring%20about%20furniture%20from%20your%20website." 
                   target="_blank" 
                   rel="noreferrer" 
                   className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs px-4 py-2 rounded-lg transition-colors shadow-md"
                 >
                   <MessageSquare className="w-4 h-4" />
-                  Chat on WhatsApp
+                  Chat on WhatsApp (+91 86005 70542)
                 </a>
               </li>
             </ul>

@@ -9,7 +9,8 @@ export default function ProductShareModal({ product, isOpen, onClose }) {
   if (!isOpen || !product) return null;
 
   const origin = typeof window !== "undefined" ? window.location.origin : "https://aameenafurniture.com";
-  const shareUrl = `${origin}/products/${product.id}`;
+  const shareIdentifier = product.slug || product.id;
+  const shareUrl = `${origin}/products/${shareIdentifier}`;
   const shareTitle = `${product.title} | Handcrafted Solid Wood Furniture`;
   const shareText = `Explore this artisanal ${product.woodType} piece: "${product.title}" from Aameena Furniture (Solapur Manufacturer). Listed at ₹${product.price?.toLocaleString("en-IN")}.`;
 
@@ -80,12 +81,12 @@ export default function ProductShareModal({ product, isOpen, onClose }) {
           <img
             src={product.images?.[0] || "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80"}
             alt={product.title}
-            className="w-14 h-14 object-cover rounded-xl border border-amber-200"
+            className="w-14 h-14 object-cover rounded-xl border border-amber-200 shrink-0"
           />
           <div className="flex-1 min-w-0">
             <span className="text-xs font-bold text-slate-900 block truncate">{product.title}</span>
-            <span className="text-[11px] text-amber-900 font-semibold block">{product.woodType}</span>
-            <span className="text-xs font-extrabold text-slate-900">₹{product.price?.toLocaleString("en-IN")}</span>
+            <span className="text-[11px] text-amber-900 font-semibold block mt-0.5">{product.woodType}</span>
+            <span className="text-xs font-extrabold text-slate-900 block mt-0.5">₹{product.price?.toLocaleString("en-IN")}</span>
           </div>
         </div>
 
@@ -114,7 +115,7 @@ export default function ProductShareModal({ product, isOpen, onClose }) {
 
         {/* Copy Link Input Bar */}
         <div className="space-y-1.5 pt-2 border-t border-amber-100">
-          <label className="text-[11px] font-bold text-slate-600 block">Product Page Link</label>
+          <label className="text-[11px] font-bold text-slate-600 block">Product Shareable URL</label>
           <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl p-1.5 pr-2">
             <input
               type="text"
@@ -138,7 +139,7 @@ export default function ProductShareModal({ product, isOpen, onClose }) {
               ) : (
                 <>
                   <Copy className="w-3.5 h-3.5" />
-                  <span>Copy</span>
+                  <span>Copy Link</span>
                 </>
               )}
             </button>

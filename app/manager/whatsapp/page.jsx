@@ -21,7 +21,7 @@ export default function ManagerWhatsAppPage() {
     {
       id: "solapur",
       name: "AMEENA Distributors’s Sofa Set Furniture Company - Solapur Facility",
-      phone: "+91 98765 00001",
+      phone: "+91 86692 33747",
       city: "Solapur",
     },
   ];
@@ -74,7 +74,7 @@ export default function ManagerWhatsAppPage() {
       `📍 *Location:* ${loc}\n` +
       (orderNumber ? `📦 *Order ID:* #${orderNumber}\n` : "") +
       `\n${customMessage}\n\n` +
-      `Official Helpline: +91 98765 00001\n` +
+      `Official Helpline (Calling): +91 86692 33747 | WhatsApp: +91 86005 70542\n` +
       `Visit: http://localhost:3000`
     );
   };
@@ -93,7 +93,7 @@ export default function ManagerWhatsAppPage() {
     const compiled = getCompiledMessage();
 
     // Properly redirect to WhatsApp Web / App
-    window.open(`https://wa.me/${formattedPhone}?text=${encodeURIComponent(compiled)}`, "_blank");
+    window.open(`https://api.whatsapp.com/send?phone=${formattedPhone}&text=${encodeURIComponent(compiled)}`, "_blank");
 
     setSentStatus(true);
     setTimeout(() => setSentStatus(false), 5000);

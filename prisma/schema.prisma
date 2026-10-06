@@ -69,6 +69,7 @@ model User {
   orders       Order[]
   QuoteRequest QuoteRequest[]
   manager      Manager?
+  customerProfile CustomerProfile?
 }
 
 model Branch {
@@ -90,6 +91,7 @@ model Manager {
   phone     String
   status    String   @default("ACTIVE")
   createdAt DateTime @default(now())
+  assignedCustomers CustomerProfile[]
 }
 
 model Category {
@@ -112,9 +114,13 @@ model Product {
   compareAtPrice Float?
   costPrice      Float?
   stock          Int         @default(10)
+  reservedStock  Int         @default(0)
+  reorderLevel   Int         @default(3)
+  warehouseLocation String?  @default("Solapur Central Facility")
   woodType       String
   dimensions     String?
   finishType     String?
+  materialPurity String?     @default("100% Genuine Quality")
   isFeatured     Boolean     @default(false)
   isArchived     Boolean     @default(false)
   showInquiryBtn Boolean     @default(true)
@@ -125,16 +131,23 @@ model Product {
   updatedAt      DateTime    @default(now()) @updatedAt
   OrderItem      OrderItem[]
   Category       Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  wishlists      CustomerWishlist[]
+  viewedBy       CustomerViewedProduct[]
+  stockMovements InventoryStockMovement[]
+  reviews        CustomerReviewSubmission[]
 
   @@index([categoryId])
   @@index([woodType])
   @@index([isArchived])
+  @@index([stock])
 }
 
 model Order {
   id              String      @id @default(dbgenerated("gen_random_uuid()"))
   orderNumber     String      @unique @default(uuid())
   userId          String?
+  customerId      String?
+  customer        CustomerProfile? @relation(fields: [customerId], references: [id], onDelete: SetNull)
   customerName    String
   customerEmail   String
   customerPhone   String?
@@ -151,9 +164,11 @@ model Order {
   updatedAt       DateTime    @default(now()) @updatedAt
   user            User?       @relation(fields: [userId], references: [id])
   OrderItem       OrderItem[]
+  reviews         CustomerReviewSubmission[]
 
   @@index([status])
   @@index([userId])
+  @@index([customerId])
   @@index([isArchived])
 }
 
@@ -368,4 +383,512 @@ model ReviewQuote {
   @@index([experienceType])
 }
 
+model CustomerReviewSubmission {
+  id                 String    @id @default(dbgenerated("gen_random_uuid()"))
+  reviewerName       String
+  rating             Int       @default(5)
+  reviewText         String
+  email              String?
+  phone              String?
+  city               String?
+  furniturePurchased String?
+  furnitureCategory  String?
+  productName        String?
+  orderNumber        String?
+  images             String[]  @default([])
+  language           String    @default("en")
+  wouldRecommend     Boolean   @default(true)
+  visitedShowroom    Boolean   @default(false)
+  purchaseDate       DateTime?
+  deliveryDate       DateTime?
+  customization      String?
+  woodType           String?
+  budget             String?
+  staffName          String?
+  additionalNotes    String?
+  status             String    @default("PENDING") // NEW, PENDING, APPROVED, HIDDEN, REPORTED, SPAM, ARCHIVED, DELETED, RESTORED
+  moderationStatus   String    @default("SAFE")    // SAFE, NEEDS_REVIEW, BLOCKED
+  moderationReasons  String[]  @default([])
+  moderationScore    Float     @default(1.0)
+  aiSummary          String?
+  aiSentiment        String    @default("POSITIVE")
+  slug               String?
+  textHash           String?
+  isDuplicate        Boolean   @default(false)
+  duplicateOfId      String?
+  ownerReply         String?
+  ownerReplyDate     DateTime?
+  ownerReplyBy       String?
+  ownerReplyRole     String?   @default("OWNER")
+  ownerReplyUpdatedAt DateTime?
+  isReplyPinned      Boolean   @default(false)
+  ownerReplyHistory  Json?
+
+  // Phase 8.5 Enterprise CXP Extensions: Verified Purchase System
+  customerId         String?
+  customer           CustomerProfile? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  productId          String?
+  product            Product?  @relation(fields: [productId], references: [id], onDelete: SetNull)
+  orderId            String?
+  order              Order?    @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  invoiceNumber      String?
+  deliveryStatus     String?   // PENDING, IN_TRANSIT, DELIVERED, RETURNED
+  isVerified         Boolean   @default(false)
+  verificationBadge  String?   // VERIFIED_PURCHASE, DELIVERED_CUSTOMER, SHOWROOM_VISIT, CUSTOM_ORDER, REPEAT_CUSTOMER
+  verificationType   String?   // ORDER_MATCH, INVOICE_MATCH, MANUAL_ADMIN, SHOWROOM_CONFIRMED
+  verifiedBy         String?
+  verifiedAt         DateTime?
+  verificationNotes  String?
+  verificationRequested Boolean @default(false)
+  verificationRequestReason String?
+  verificationRequestBy String?
+  verificationRequestAt DateTime?
+
+  // Phase 8.5 Enterprise CXP Extensions: Review Health Score & Feedback
+  healthScore        Int       @default(75) // 0 - 100
+  healthGrade        String    @default("GOOD") // EXCELLENT, GOOD, AVERAGE, POOR, CRITICAL
+  healthBreakdown    Json?
+  helpfulVotes       Int       @default(0)
+  unhelpfulVotes     Int       @default(0)
+  internalNotes      String?
+
+  publishedAt        DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @default(now()) @updatedAt
+
+  moderationHistory  ReviewModerationHistory[]
+
+  @@index([status])
+  @@index([rating])
+  @@index([moderationStatus])
+  @@index([textHash])
+  @@index([createdAt])
+  @@index([slug])
+  @@index([customerId])
+  @@index([productId])
+  @@index([orderId])
+  @@index([isVerified])
+  @@index([healthScore])
+  @@index([healthGrade])
+  @@index([verificationRequested])
+}
+
+model ReviewModerationHistory {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  reviewId  String
+  action    String?  // SUBMITTED, PENDING, APPROVED, REJECTED, OWNER_REPLIED, EDITED, REPORTED, HIDDEN, RESTORED, DELETED, VERIFIED, VERIFICATION_REQUESTED, HEALTH_EVALUATED
+  oldStatus String?
+  newStatus String
+  actionBy  String   @default("System")
+  role      String   @default("ADMIN")
+  reason    String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  review    CustomerReviewSubmission @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@index([reviewId])
+  @@index([action])
+  @@index([createdAt])
+  @@index([actionBy])
+}
+
+model ReviewNotification {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  type      String   // REVIEW_SUBMITTED, REVIEW_APPROVED, REVIEW_HIDDEN, REVIEW_DELETED, REPLY_ADDED, SPAM_DETECTED, MANAGER_ACTION, ADMIN_ACTION
+  title     String
+  message   String
+  reviewId  String?
+  actorName String   @default("System")
+  actorRole String   @default("ADMIN")
+  isRead    Boolean  @default(false)
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([type])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+model ReviewGenerationSession {
+  id               String   @id @default(dbgenerated("gen_random_uuid()"))
+  sessionId        String   @unique
+  rating           Int      @default(5)
+  category         String?
+  product          String?
+  language         String   @default("en")
+  prompt           String?
+  generatedReviews Json
+  selectedReview   Json?
+  aiMetadata       Json?
+  expiresAt        DateTime
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @default(now()) @updatedAt
+
+  @@index([sessionId])
+  @@index([expiresAt])
+  @@index([createdAt])
+}
+
+model CustomerProfile {
+  id                  String                  @id @default(dbgenerated("gen_random_uuid()"))
+  userId              String?                 @unique
+  user                User?                   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  fullName            String
+  email               String?
+  phone               String?
+  city                String?
+  state               String?                 @default("Maharashtra")
+  address             String?
+  addressHistory      String[]                @default([])
+  status              String                  @default("LEAD") // LEAD, PROSPECT, ACTIVE, VIP, CHURNED, INACTIVE
+  vipLevel            String                  @default("STANDARD") // STANDARD, SILVER, GOLD, PLATINUM
+  leadScore           Int                     @default(50) // 0 - 100
+  clv                 Float                   @default(0.0) // Customer Lifetime Value
+  totalOrders         Int                     @default(0)
+  totalSpent          Float                   @default(0.0)
+  averageOrderValue   Float                   @default(0.0)
+  favouriteCategories String[]                @default([])
+  preferredWoodTypes  String[]                @default([])
+  preferredBudget     String?
+  tags                String[]                @default([])
+  notes               String?
+  assignedManagerId   String?
+  assignedManager     Manager?                @relation(fields: [assignedManagerId], references: [id], onDelete: SetNull)
+  lastInteractionAt   DateTime?
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @default(now()) @updatedAt
+
+  orders              Order[]
+  timelineEvents      CustomerJourneyEvent[]
+  wishlist            CustomerWishlist[]
+  viewedProducts      CustomerViewedProduct[]
+  supportTickets      CustomerSupportTicket[]
+  reviews             CustomerReviewSubmission[]
+  loyalty             CustomerLoyalty?
+  referralsGiven      CustomerReferral[]          @relation("ReferrerCustomer")
+  rewardTransactions  RewardTransaction[]
+  achievements        CustomerAchievement[]
+  assignedTasks       EnterpriseTask[]
+
+  @@index([status])
+  @@index([vipLevel])
+  @@index([phone])
+  @@index([email])
+  @@index([city])
+  @@index([leadScore])
+  @@index([createdAt])
+}
+
+model CustomerJourneyEvent {
+  id          String          @id @default(dbgenerated("gen_random_uuid()"))
+  customerId  String
+  customer    CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  eventType   String          // WEBSITE_VISIT, PRODUCT_VIEWED, CATEGORY_VIEWED, PRODUCT_COMPARED, ADDED_WISHLIST, SUBMITTED_INQUIRY, GENERATED_AI_REVIEW, POSTED_REVIEW, PLACED_ORDER, CANCELLED_ORDER, COMPLETED_DELIVERY, MANAGER_FOLLOWUP, OWNER_CALL, COMPLAINT, SUPPORT_TICKET, STORE_VISIT
+  title       String
+  description String?
+  metadata    Json?
+  actorName   String?
+  actorRole   String?
+  createdAt   DateTime        @default(now())
+
+  @@index([customerId])
+  @@index([eventType])
+  @@index([createdAt])
+}
+
+model CustomerWishlist {
+  id         String          @id @default(dbgenerated("gen_random_uuid()"))
+  customerId String
+  customer   CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt  DateTime        @default(now())
+
+  @@unique([customerId, productId])
+  @@index([customerId])
+  @@index([productId])
+}
+
+model CustomerViewedProduct {
+  id           String          @id @default(dbgenerated("gen_random_uuid()"))
+  customerId   String
+  customer     CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  productId    String
+  product      Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  viewCount    Int             @default(1)
+  lastViewedAt DateTime        @default(now())
+  createdAt    DateTime        @default(now())
+
+  @@unique([customerId, productId])
+  @@index([customerId])
+  @@index([productId])
+  @@index([lastViewedAt])
+}
+
+model CustomerSupportTicket {
+  id           String          @id @default(dbgenerated("gen_random_uuid()"))
+  ticketNumber String          @unique @default(uuid())
+  customerId   String
+  customer     CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  subject      String
+  category     String          @default("GENERAL") // ORDER, QUALITY, DELIVERY, CUSTOMIZATION, GENERAL
+  priority     String          @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  status       String          @default("OPEN") // OPEN, IN_PROGRESS, RESOLVED, CLOSED
+  assignedTo   String?
+  description  String
+  resolution   String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @default(now()) @updatedAt
+
+  @@index([customerId])
+  @@index([status])
+  @@index([priority])
+  @@index([ticketNumber])
+  @@index([createdAt])
+}
+
+model InventoryStockMovement {
+  id            String   @id @default(dbgenerated("gen_random_uuid()"))
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  type          String   // RESTOCK, ORDER_RESERVED, DISPATCHED, ADJUSTMENT, RETURN
+  quantity      Int
+  previousStock Int
+  newStock      Int
+  reason        String?
+  performedBy   String?
+  createdAt     DateTime @default(now())
+
+  @@index([productId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model EnterpriseNotification {
+  id         String   @id @default(dbgenerated("gen_random_uuid()"))
+  type       String   // ORDER_CREATED, ORDER_STATUS_CHANGED, LOW_STOCK_ALERT, OUT_OF_STOCK, REVIEW_SUBMITTED, NEW_CUSTOMER_LEAD, VIP_ACTIVITY, SUPPORT_TICKET_OPENED, BROADCAST_ALERT
+  title      String
+  message    String
+  severity   String   @default("INFO") // INFO, SUCCESS, WARNING, CRITICAL
+  targetRole String?  @default("ALL")  // ALL, ADMIN, MANAGER, SALES_EXECUTIVE, STORE_MANAGER, WORKSHOP_MANAGER
+  entityId   String?  // Reference ID (orderId, productId, customerId, reviewId)
+  actorName  String?  @default("System")
+  isRead     Boolean  @default(false)
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([type])
+  @@index([severity])
+  @@index([isRead])
+  @@index([targetRole])
+  @@index([createdAt])
+}
+
+model ReviewReplyTemplate {
+  id           String   @id @default(dbgenerated("gen_random_uuid()"))
+  title        String
+  category     String   @default("GENERAL") // GRATITUDE, TIMBER_CARE, SHOWROOM, ISSUE_RESOLUTION, CUSTOM_ORDER
+  content      String
+  isQuickReply Boolean  @default(true)
+  usageCount   Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
+
+  @@index([category])
+  @@index([isQuickReply])
+}
+
+// ==========================================
+// PHASE 8.6 ENTERPRISE CXP V2 MODELS
+// ==========================================
+
+model CustomerLoyalty {
+  id                String                 @id @default(dbgenerated("gen_random_uuid()"))
+  customerId        String                 @unique
+  customer          CustomerProfile        @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  points            Int                    @default(0)
+  experienceScore   Int                    @default(0)
+  tier              String                 @default("BRONZE") // BRONZE, SILVER, GOLD, PLATINUM, DIAMOND
+  lifetimePoints    Int                    @default(0)
+  pointsRedeemed    Int                    @default(0)
+  walletBalance     Float                  @default(0.0) // Store credit in INR
+  referralCode      String                 @unique
+  lastTierUpdateAt  DateTime               @default(now())
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @default(now()) @updatedAt
+
+  transactions      RewardTransaction[]
+  achievements      CustomerAchievement[]
+
+  @@index([tier])
+  @@index([points])
+  @@index([referralCode])
+}
+
+model RewardTransaction {
+  id               String           @id @default(dbgenerated("gen_random_uuid()"))
+  loyaltyId        String
+  loyalty          CustomerLoyalty  @relation(fields: [loyaltyId], references: [id], onDelete: Cascade)
+  customerId       String
+  customer         CustomerProfile  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  actionType       String           // REVIEW_SUBMITTED, VERIFIED_REVIEW, HELPFUL_VOTE, IMAGE_UPLOAD, VIDEO_UPLOAD, REFERRAL_SUCCESS, REPEAT_PURCHASE, FESTIVAL_BONUS, REDEMPTION_COUPON
+  points           Int
+  experiencePoints Int              @default(0)
+  description      String
+  balanceAfter     Int
+  referenceId      String?          // reviewId, orderId, referralId
+  createdAt        DateTime         @default(now())
+
+  @@index([customerId])
+  @@index([loyaltyId])
+  @@index([actionType])
+  @@index([createdAt])
+}
+
+model CustomerAchievement {
+  id          String           @id @default(dbgenerated("gen_random_uuid()"))
+  loyaltyId   String?
+  loyalty     CustomerLoyalty? @relation(fields: [loyaltyId], references: [id], onDelete: Cascade)
+  customerId  String
+  customer    CustomerProfile  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  badgeKey    String           // FIRST_REVIEW, TEAK_CONNOISSEUR, PHOTO_MASTER, SHOWROOM_PATRON, VIP_ADVOCATE, REFERRAL_CHAMPION
+  title       String
+  description String
+  icon        String           @default("Award")
+  unlockedAt  DateTime         @default(now())
+
+  @@unique([customerId, badgeKey])
+  @@index([customerId])
+  @@index([badgeKey])
+}
+
+model CustomerReferral {
+  id                 String          @id @default(dbgenerated("gen_random_uuid()"))
+  referrerId         String
+  referrer           CustomerProfile @relation("ReferrerCustomer", fields: [referrerId], references: [id], onDelete: Cascade)
+  referralCode       String
+  referredName       String?
+  referredEmail      String?
+  referredPhone      String?
+  status             String          @default("PENDING") // PENDING, CONVERTED, REWARDED, REJECTED
+  rewardPoints       Int             @default(200)
+  rewardCouponCode   String?
+  convertedOrderId   String?
+  convertedAt        DateTime?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @default(now()) @updatedAt
+
+  @@index([referrerId])
+  @@index([referralCode])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model EnterpriseTask {
+  id              String           @id @default(dbgenerated("gen_random_uuid()"))
+  title           String
+  description     String?
+  taskType        String           // CALL_CUSTOMER, VERIFY_REVIEW, RESOLVE_COMPLAINT, SCHEDULE_VISIT, COLLECT_FEEDBACK, INSTALL_FURNITURE, SLA_ESCALATION
+  priority        String           @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  status          String           @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, CANCELLED, OVERDUE
+  assignedRole    String           @default("MANAGER") // ADMIN, MANAGER, SALES, DELIVERY, SUPPORT
+  assignedUserId  String?
+  customerId      String?
+  customer        CustomerProfile? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  entityId        String?          // reference ID (reviewId, orderId, ticketId)
+  dueAt           DateTime
+  slaMinutes      Int              @default(240) // 4 hours default
+  isOverdue       Boolean          @default(false)
+  completedAt     DateTime?
+  completedBy     String?
+  resolutionNotes String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @default(now()) @updatedAt
+
+  @@index([status])
+  @@index([priority])
+  @@index([assignedRole])
+  @@index([dueAt])
+  @@index([isOverdue])
+}
+
+model MarketingCampaign {
+  id              String    @id @default(dbgenerated("gen_random_uuid()"))
+  title           String
+  type            String    // BIRTHDAY, ANNIVERSARY, FESTIVAL, TIMBER_CARE, WARRANTY_REMINDER, SERVICE_REMINDER, REFERRAL, COUPON, REVIEW_REMINDER, DELIVERY_FOLLOWUP
+  channel         String    @default("OMNICHANNEL") // EMAIL, WHATSAPP, OMNICHANNEL
+  subject         String?
+  messageTemplate String
+  couponCode      String?
+  discountPercent Float?
+  targetAudience  String    @default("ALL") // ALL, VIP, NEW_LEADS, INACTIVE_180, HIGH_VALUE, VERIFIED_BUYERS
+  status          String    @default("DRAFT") // DRAFT, SCHEDULED, ACTIVE, COMPLETED, PAUSED
+  sentCount       Int       @default(0)
+  deliveredCount  Int       @default(0)
+  openedCount     Int       @default(0)
+  clickedCount    Int       @default(0)
+  convertedCount  Int       @default(0)
+  scheduledAt     DateTime?
+  executedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now()) @updatedAt
+
+  @@index([type])
+  @@index([status])
+  @@index([channel])
+}
+
+model EnterpriseAuditLog {
+  id         String   @id @default(dbgenerated("gen_random_uuid()"))
+  action     String   // DB_CREATE, DB_UPDATE, DB_DELETE, OWNER_REPLY, EXPORT_GENERATED, LOGIN_SUCCESS, ROLE_CHANGED, AUTOMATION_TRIGGERED, CAMPAIGN_SENT, SLA_BREACH
+  entityType String   // REVIEW, CUSTOMER, ORDER, LOYALTY, TASK, CAMPAIGN, SYSTEM
+  entityId   String?
+  actorName  String   @default("System")
+  actorRole  String   @default("SYSTEM") // SUPER_ADMIN, MANAGER, SYSTEM, USER
+  ipAddress  String?
+  userAgent  String?
+  oldValues  Json?
+  newValues  Json?
+  status     String   @default("SUCCESS") // SUCCESS, FAILED, WARNING
+  details    String?
+  createdAt  DateTime @default(now())
+
+  @@index([action])
+  @@index([entityType])
+  @@index([actorRole])
+  @@index([createdAt])
+}
+
+model AutomationRule {
+  id             String                   @id @default(dbgenerated("gen_random_uuid()"))
+  name           String
+  triggerEvent   String                   // FIVE_STAR_REVIEW, NEGATIVE_REVIEW, INACTIVE_180_DAYS, ORDER_DELIVERED, VIP_PROMOTION, REFERRAL_CONVERTED
+  conditions     Json?
+  actions        Json                     // Array of actions to execute
+  isActive       Boolean                  @default(true)
+  executionCount Int                      @default(0)
+  lastExecutedAt DateTime?
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @default(now()) @updatedAt
+  logs           AutomationExecutionLog[]
+
+  @@index([triggerEvent])
+  @@index([isActive])
+}
+
+model AutomationExecutionLog {
+  id           String         @id @default(dbgenerated("gen_random_uuid()"))
+  ruleId       String
+  rule         AutomationRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  triggerEvent String
+  entityId     String?
+  status       String         @default("SUCCESS") // SUCCESS, FAILED, SKIPPED
+  details      String?
+  executedAt   DateTime       @default(now())
+
+  @@index([ruleId])
+  @@index([status])
+  @@index([executedAt])
+}
 
