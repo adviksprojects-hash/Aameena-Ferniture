@@ -70,16 +70,16 @@ export async function createProduct(productData) {
   try {
     const {
       title,
-      categorySlug = "living",
-      woodType = "Grade-A Sagwan Teak",
+      categorySlug,
+      woodType,
       price,
       compareAtPrice,
       stock = 5,
       dimensions,
       description = "",
       images = [],
-      finishType = "Natural Teak Honey Polish",
-      materialPurity = "",
+      finishType,
+      materialPurity,
       showInquiryBtn = true,
       showDetailsBtn = true,
     } = productData;
@@ -88,16 +88,25 @@ export async function createProduct(productData) {
       return { success: false, error: "Title and price are required." };
     }
 
+    if (!categorySlug || !categorySlug.trim()) {
+      return { success: false, error: "Please select a product category." };
+    }
+
+    if (!woodType || !woodType.trim()) {
+      return { success: false, error: "Please select a wood or material type." };
+    }
+
     // Ensure category exists
     let category = await db.category.findUnique({
-      where: { slug: categorySlug },
+      where: { slug: categorySlug.trim() },
     });
 
     if (!category) {
+      const cleanSlug = categorySlug.trim();
       category = await db.category.create({
         data: {
-          name: categorySlug.charAt(0).toUpperCase() + categorySlug.slice(1) + " Room",
-          slug: categorySlug,
+          name: cleanSlug.charAt(0).toUpperCase() + cleanSlug.slice(1) + " Room",
+          slug: cleanSlug,
         },
       });
     }
@@ -113,23 +122,39 @@ export async function createProduct(productData) {
       ? images.slice(0, 3)
       : ["https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80"];
 
-    const computedPurity = materialPurity && materialPurity.trim()
+    const cleanPurity = materialPurity && typeof materialPurity === "string" && materialPurity.trim()
       ? materialPurity.trim()
-      : "100% Pure Quality";
+      : null;
+
+    const cleanFinish = finishType && typeof finishType === "string" && finishType.trim()
+      ? finishType.trim()
+      : null;
+
+    const cleanDimensions = dimensions && typeof dimensions === "string" && dimensions.trim()
+      ? dimensions.trim()
+      : null;
+
+    const cleanDesc = description && typeof description === "string"
+      ? description.trim()
+      : "";
+
+    const cleanCompareAt = compareAtPrice !== undefined && compareAtPrice !== null && String(compareAtPrice).trim() !== ""
+      ? parseFloat(compareAtPrice)
+      : null;
 
     const created = await db.product.create({
       data: {
-        title,
+        title: title.trim(),
         slug,
         categoryId: category.id,
-        woodType,
-        materialPurity: computedPurity,
+        woodType: woodType.trim(),
+        materialPurity: cleanPurity,
         price: parseFloat(price),
-        compareAtPrice: compareAtPrice ? parseFloat(compareAtPrice) : parseFloat(price) * 1.25,
-        stock: parseInt(stock, 10),
-        dimensions: dimensions || "Standard Dimensions",
-        description,
-        finishType,
+        compareAtPrice: cleanCompareAt,
+        stock: parseInt(stock, 10) || 0,
+        dimensions: cleanDimensions,
+        description: cleanDesc,
+        finishType: cleanFinish,
         images: safeImages,
         showInquiryBtn: Boolean(showInquiryBtn),
         showDetailsBtn: Boolean(showDetailsBtn),
@@ -160,11 +185,29 @@ export async function updateProduct(id, updateData) {
   try {
     const dataToUpdate = { ...updateData };
     if (dataToUpdate.price !== undefined) dataToUpdate.price = parseFloat(dataToUpdate.price);
-    if (dataToUpdate.compareAtPrice !== undefined) dataToUpdate.compareAtPrice = parseFloat(dataToUpdate.compareAtPrice);
+    if (dataToUpdate.compareAtPrice !== undefined) {
+      dataToUpdate.compareAtPrice = dataToUpdate.compareAtPrice !== null && String(dataToUpdate.compareAtPrice).trim() !== ""
+        ? parseFloat(dataToUpdate.compareAtPrice)
+        : null;
+    }
     if (dataToUpdate.stock !== undefined) dataToUpdate.stock = parseInt(dataToUpdate.stock, 10);
     if (dataToUpdate.showInquiryBtn !== undefined) dataToUpdate.showInquiryBtn = Boolean(dataToUpdate.showInquiryBtn);
     if (dataToUpdate.showDetailsBtn !== undefined) dataToUpdate.showDetailsBtn = Boolean(dataToUpdate.showDetailsBtn);
-    if (dataToUpdate.materialPurity !== undefined) dataToUpdate.materialPurity = String(dataToUpdate.materialPurity).trim();
+    if (dataToUpdate.materialPurity !== undefined) {
+      dataToUpdate.materialPurity = dataToUpdate.materialPurity && String(dataToUpdate.materialPurity).trim()
+        ? String(dataToUpdate.materialPurity).trim()
+        : null;
+    }
+    if (dataToUpdate.finishType !== undefined) {
+      dataToUpdate.finishType = dataToUpdate.finishType && String(dataToUpdate.finishType).trim()
+        ? String(dataToUpdate.finishType).trim()
+        : null;
+    }
+    if (dataToUpdate.dimensions !== undefined) {
+      dataToUpdate.dimensions = dataToUpdate.dimensions && String(dataToUpdate.dimensions).trim()
+        ? String(dataToUpdate.dimensions).trim()
+        : null;
+    }
     if (Array.isArray(dataToUpdate.images)) {
       dataToUpdate.images = dataToUpdate.images.slice(0, 3);
     }

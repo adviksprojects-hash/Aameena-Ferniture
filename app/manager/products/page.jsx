@@ -91,15 +91,15 @@ export default function ManagerProductsPage() {
   const [newProductImages, setNewProductImages] = useState([]);
   const [newProduct, setNewProduct] = useState({
     title: "",
-    categorySlug: "living",
-    woodType: "Grade-A Sagwan Teak",
+    categorySlug: "",
+    woodType: "",
     materialPurity: "",
     price: "",
     compareAtPrice: "",
     stock: "",
     dimensions: "",
     description: "",
-    finishType: "Natural Teak Honey Polish",
+    finishType: "",
     showInquiryBtn: true,
     showDetailsBtn: true,
   });
@@ -323,6 +323,14 @@ export default function ManagerProductsPage() {
     const nameCheck = validateName(newProduct.title, "Product title", 3);
     if (!nameCheck.valid) errors.title = nameCheck.error;
 
+    if (!newProduct.categorySlug || !newProduct.categorySlug.trim()) {
+      errors.categorySlug = "Please select a room category.";
+    }
+
+    if (!newProduct.woodType || !newProduct.woodType.trim()) {
+      errors.woodType = "Please select a timber or fabric material.";
+    }
+
     const priceCheck = validateAmount(newProduct.price, "Price");
     if (!priceCheck.valid) errors.price = priceCheck.error;
 
@@ -354,15 +362,15 @@ export default function ManagerProductsPage() {
       setNewProductImages([]);
       setNewProduct({
         title: "",
-        categorySlug: "living",
-        woodType: "Grade-A Sagwan Teak",
+        categorySlug: "",
+        woodType: "",
         materialPurity: "",
         price: "",
         compareAtPrice: "",
         stock: "",
         dimensions: "",
         description: "",
-        finishType: "Natural Teak Honey Polish",
+        finishType: "",
         showInquiryBtn: true,
         showDetailsBtn: true,
       });
@@ -804,21 +812,39 @@ export default function ManagerProductsPage() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <SearchableSelect
-                  label="Room Category *"
-                  options={CATEGORY_OPTIONS}
-                  value={newProduct.categorySlug}
-                  onChange={(val) => setNewProduct({ ...newProduct, categorySlug: val })}
-                  allowOther={true}
-                />
+                <div>
+                  <SearchableSelect
+                    label="Room Category *"
+                    options={CATEGORY_OPTIONS}
+                    value={newProduct.categorySlug}
+                    onChange={(val) => {
+                      setNewProduct({ ...newProduct, categorySlug: val });
+                      if (addErrors.categorySlug) setAddErrors((prev) => ({ ...prev, categorySlug: null }));
+                    }}
+                    placeholder="-- Select Category (Required) --"
+                    error={addErrors.categorySlug}
+                    allowOther={true}
+                    required={true}
+                  />
+                  {addErrors.categorySlug && <p className="text-red-600 text-[10px] mt-1 font-semibold">{addErrors.categorySlug}</p>}
+                </div>
 
-                <SearchableSelect
-                  label="Timber / Material Selection *"
-                  options={WOOD_OPTIONS}
-                  value={newProduct.woodType}
-                  onChange={(val) => setNewProduct({ ...newProduct, woodType: val })}
-                  allowOther={true}
-                />
+                <div>
+                  <SearchableSelect
+                    label="Timber / Material Selection *"
+                    options={WOOD_OPTIONS}
+                    value={newProduct.woodType}
+                    onChange={(val) => {
+                      setNewProduct({ ...newProduct, woodType: val });
+                      if (addErrors.woodType) setAddErrors((prev) => ({ ...prev, woodType: null }));
+                    }}
+                    placeholder="-- Select Material (Required) --"
+                    error={addErrors.woodType}
+                    allowOther={true}
+                    required={true}
+                  />
+                  {addErrors.woodType && <p className="text-red-600 text-[10px] mt-1 font-semibold">{addErrors.woodType}</p>}
+                </div>
               </div>
 
               <div>
@@ -833,21 +859,25 @@ export default function ManagerProductsPage() {
                   className="w-full p-2.5 rounded-xl border border-amber-200"
                 />
                 <p className="text-[10px] text-slate-500 mt-1">
-                  Appears as product authenticity badge (e.g. "✓ 100% Pure Cotton" or "✓ 100% Genuine Sagwan"). Defaults to 100% Genuine Quality if left blank.
+                  Optional authenticity badge (e.g. "✓ 100% Pure Cotton" or "✓ 100% Genuine Sagwan"). Left blank if unspecified.
                 </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <SearchableSelect
-                  label="Finish Type"
-                  options={FINISH_OPTIONS}
+                  label="Finish Type (Optional)"
+                  options={[
+                    { value: "", label: "-- None / Natural Unfinished --" },
+                    ...FINISH_OPTIONS,
+                  ]}
                   value={newProduct.finishType}
                   onChange={(val) => setNewProduct({ ...newProduct, finishType: val })}
+                  placeholder="-- Select Finish Type (Optional) --"
                   allowOther={true}
                 />
 
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Dimensions</label>
+                  <label className="font-bold text-slate-700 block mb-1">Dimensions (Optional)</label>
                   <input
                     type="text"
                     placeholder='e.g. 78" W x 34" D x 32" H'

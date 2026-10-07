@@ -66,7 +66,7 @@ export default function ProductDetailView({ product, relatedProducts = [] }) {
   const purityBadgeText =
     product.materialPurity && product.materialPurity.trim()
       ? product.materialPurity.trim()
-      : "100% Pure Quality";
+      : "Authentic Craftsmanship";
 
   const FINISH_OPTIONS = [
     { id: "natural", name: "Natural Honey Teak", color: "bg-amber-600", border: "border-amber-500", desc: `Golden honey sheen highlighting natural ${product.woodType || "timber"} grain` },
@@ -487,7 +487,7 @@ export default function ProductDetailView({ product, relatedProducts = [] }) {
               </div>
               <div className="flex justify-between py-1.5 border-b border-slate-100">
                 <span className="text-slate-500">Dimensions</span>
-                <span className="font-bold text-slate-800 text-right">{product.dimensions || (isFabric ? "Width: 54 in (Sold Per Meter)" : "78 x 36 x 32 in")}</span>
+                <span className="font-bold text-slate-800 text-right">{product.dimensions || (isFabric ? "Width: 54 in (Sold Per Meter)" : "Custom Built / As Per Room Plan")}</span>
               </div>
               <div className="flex justify-between py-1.5 border-b border-slate-100">
                 <span className="text-slate-500">{isFabric ? "Weave Technique" : "Joinery Technique"}</span>

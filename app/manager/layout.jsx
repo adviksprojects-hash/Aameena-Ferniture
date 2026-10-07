@@ -18,6 +18,7 @@ import {
   DollarSign,
   Users,
 } from "lucide-react";
+import ThemeSwitcher from "@/components/ThemeSwitcher";
 
 export default function ManagerLayout({ children }) {
   const pathname = usePathname();
@@ -150,6 +151,10 @@ export default function ManagerLayout({ children }) {
 
             {/* Bottom Actions */}
             <div className="pt-4 border-t border-amber-900/60 space-y-2">
+              <div className="flex items-center justify-between px-1 py-1">
+                <span className="text-[11px] font-bold text-amber-300">Theme</span>
+                <ThemeSwitcher />
+              </div>
               <Link
                 href="/ai-reviews"
                 target="_blank"
@@ -194,10 +199,13 @@ export default function ManagerLayout({ children }) {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Theme Switcher in Manager Topbar */}
+            <ThemeSwitcher />
+
             <Link
               href="/ai-reviews"
               target="_blank"
-              className="hidden sm:flex items-center gap-1.5 text-xs text-amber-300 hover:text-white transition-colors font-medium"
+              className="hidden sm:flex items-center gap-1.5 text-xs text-amber-300 hover:text-white transition-colors font-medium ml-1"
             >
               <Star className="w-3.5 h-3.5" />
               <span>Live Reviews</span>

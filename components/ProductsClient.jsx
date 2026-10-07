@@ -625,15 +625,15 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
             {/* Specifications Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
               <div className="p-3.5 bg-amber-50/60 rounded-2xl border border-amber-200">
-                <span className="text-slate-500 font-bold block text-[10px] uppercase">Timber Species</span>
+                <span className="text-slate-500 font-bold block text-[10px] uppercase">Timber / Fabric</span>
                 <span className="font-bold text-slate-900 text-sm mt-0.5 block">{detailsModalProduct.woodType}</span>
-                <span className="text-[10px] text-amber-800 font-semibold">{detailsModalProduct.materialPurity?.trim() || "100% Pure Quality"}</span>
+                <span className="text-[10px] text-amber-800 font-semibold">{detailsModalProduct.materialPurity?.trim() || "Authentic Craftsmanship"}</span>
               </div>
 
               <div className="p-3.5 bg-amber-50/60 rounded-2xl border border-amber-200">
                 <span className="text-slate-500 font-bold block text-[10px] uppercase">Dimensions / Form</span>
                 <span className="font-bold text-slate-900 text-sm mt-0.5 block">
-                  {detailsModalProduct.dimensions || '78" W x 34" D x 32" H'}
+                  {detailsModalProduct.dimensions || "Customized / Made to Order"}
                 </span>
                 <span className="text-[10px] text-slate-500">Custom sizing available</span>
               </div>
@@ -641,15 +641,15 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
               <div className="p-3.5 bg-amber-50/60 rounded-2xl border border-amber-200">
                 <span className="text-slate-500 font-bold block text-[10px] uppercase">Polish & Coating</span>
                 <span className="font-bold text-slate-900 text-sm mt-0.5 block">
-                  {detailsModalProduct.finishType || "Natural Teak Honey Polish"}
+                  {detailsModalProduct.finishType || "Natural Unfinished / Custom"}
                 </span>
-                <span className="text-[10px] text-emerald-700 font-medium">Eco-friendly PU coat</span>
+                <span className="text-[10px] text-emerald-700 font-medium">Eco-friendly coating</span>
               </div>
             </div>
 
             {/* Description & Store Location */}
             <div className="space-y-2 text-xs text-slate-700 leading-relaxed">
-              <p>{detailsModalProduct.description}</p>
+              <p>{detailsModalProduct.description || "Handcrafted solid wood furniture built with seasoned timber and traditional joinery at our Solapur manufacturing facility."}</p>
               <div className="p-3 bg-amber-100/50 rounded-xl border border-amber-200 flex items-center gap-2 text-amber-950 font-semibold">
                 <MapPin className="w-4 h-4 text-amber-800 shrink-0" />
                 <span>
@@ -658,8 +658,8 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
               </div>
             </div>
 
-            {/* Modal Actions */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-amber-100">
+            {/* Modal Actions — Sticky on mobile for quick access */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-amber-100 sticky sm:static bottom-0 bg-white/95 backdrop-blur-md -mx-5 -mb-5 sm:mx-0 sm:mb-0 p-4 sm:p-0 z-20">
               <div>
                 <span className="text-xs text-slate-400 block">Manufacturer Direct Price:</span>
                 <span className="text-2xl font-extrabold text-slate-900">

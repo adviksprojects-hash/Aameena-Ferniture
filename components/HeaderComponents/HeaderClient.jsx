@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { navLinks } from '@/data/HeaderData/HeaderData';
@@ -15,6 +15,31 @@ export default function HeaderClient() {
     const pathname = usePathname();
     const { totalItems } = useCart();
     const { wishlistCount } = useWishlist();
+
+    // Close mobile menu on route navigation
+    useEffect(() => {
+        setIsMobileMenuOpen(false);
+    }, [pathname]);
+
+    // Handle scroll-lock & Escape key dismissal
+    useEffect(() => {
+        if (!isMobileMenuOpen) return;
+
+        const originalOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+
+        const handleKeyDown = (e) => {
+            if (e.key === "Escape") {
+                setIsMobileMenuOpen(false);
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => {
+            document.body.style.overflow = originalOverflow;
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [isMobileMenuOpen]);
 
     return (
         <>

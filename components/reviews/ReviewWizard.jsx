@@ -32,6 +32,7 @@ import ReviewLoading from "./ReviewLoading";
 import ReviewEmptyState from "./ReviewEmptyState";
 import ReviewErrorState from "./ReviewErrorState";
 import ReviewPreview from "./ReviewPreview";
+import QuickReviewCard from "./QuickReviewCard";
 import {
   BUSINESS_NAME,
   openGoogleReview,
@@ -42,6 +43,9 @@ import { getRandomFivePrompts, submitVerifiedReview } from "@/actions/reviewActi
 import { validatePhone } from "@/lib/validation";
 
 export default function ReviewWizard() {
+  // Review Mode: 'quick' (mobile-first 1-click submit) vs 'detailed' (4-step custom furniture wizard)
+  const [reviewMode, setReviewMode] = useState("quick");
+
   // Wizard Navigation
   const [currentStep, setCurrentStep] = useState(1);
   const [highestStepReached, setHighestStepReached] = useState(1);
@@ -157,6 +161,7 @@ export default function ReviewWizard() {
           localStorage.getItem("aameena_wizard_state");
         if (saved) {
           const parsed = JSON.parse(saved);
+          if (parsed.reviewMode) setReviewMode(parsed.reviewMode);
           if (parsed.currentStep) setCurrentStep(parsed.currentStep);
           if (parsed.highestStepReached) setHighestStepReached(parsed.highestStepReached);
           if (parsed.rating) setRating(parsed.rating);
@@ -187,6 +192,7 @@ export default function ReviewWizard() {
     if (!isHydrated || typeof window === "undefined") return;
     try {
       const stateToSave = {
+        reviewMode,
         currentStep,
         highestStepReached,
         rating,
@@ -227,6 +233,7 @@ export default function ReviewWizard() {
     reviewText,
     authorName,
     phone,
+    reviewMode,
   ]);
 
   // Derived effective product name for display
@@ -441,6 +448,7 @@ export default function ReviewWizard() {
     } catch (e) {
       console.warn("Storage reset notice:", e);
     }
+    setReviewMode("quick");
     setCurrentStep(1);
     setHighestStepReached(1);
     setRating(5);
@@ -576,18 +584,44 @@ export default function ReviewWizard() {
 
   return (
     <div className="space-y-8" ref={formTopRef}>
-      {/* 4-Step Progress Navigation */}
-      <ReviewProgress
-        currentStep={currentStep}
-        onStepClick={goToStep}
-        highestStepReached={highestStepReached}
-      />
+      {reviewMode === "quick" ? (
+        <QuickReviewCard
+          initialRating={rating}
+          onRatingChange={(newRating) => setRating(newRating)}
+          onOpenDetailed={() => {
+            setReviewMode("detailed");
+            goToStep(1);
+          }}
+        />
+      ) : (
+        <div className="space-y-6">
+          {/* Detailed Mode Header with switch back button */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-amber-50/90 dark:bg-stone-900 border border-amber-200 dark:border-amber-900/60 shadow-2xs">
+            <button
+              type="button"
+              onClick={() => setReviewMode("quick")}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-900 hover:bg-amber-800 text-amber-50 text-xs font-bold transition-all shadow-xs cursor-pointer w-fit"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>← Switch back to 1-Click Quick Review</span>
+            </button>
 
+            <span className="text-[11px] font-extrabold text-amber-900 dark:text-amber-300 uppercase tracking-wider">
+              Detailed 4-Step Furniture Review
+            </span>
+          </div>
 
-      {/* ============================================================ */}
-      {/* STEP 1: STAR RATING (STEP 2 OF REQUIREMENTS)                 */}
-      {/* ============================================================ */}
-      {currentStep === 1 && (
+          {/* 4-Step Progress Navigation */}
+          <ReviewProgress
+            currentStep={currentStep}
+            onStepClick={goToStep}
+            highestStepReached={highestStepReached}
+          />
+
+          {/* ============================================================ */}
+          {/* STEP 1: STAR RATING (STEP 2 OF REQUIREMENTS)                 */}
+          {/* ============================================================ */}
+          {currentStep === 1 && (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-200">
           <RatingSelector
             value={rating}
@@ -1015,6 +1049,8 @@ export default function ReviewWizard() {
               </div>
             </>
           )}
+        </div>
+      )}
         </div>
       )}
     </div>

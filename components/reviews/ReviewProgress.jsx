@@ -12,7 +12,7 @@ export default function ReviewProgress({ currentStep, onStepClick, highestStepRe
 
   return (
     <nav aria-label="Review wizard progress" className="w-full">
-      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-amber-200/80 shadow-sm">
+      <div className="bg-white dark:bg-stone-900 rounded-2xl p-4 sm:p-5 border border-amber-200/80 dark:border-stone-800 shadow-sm">
         <ol className="flex items-center justify-between gap-2 sm:gap-4 relative">
           {steps.map((step, idx) => {
             const isCompleted = step.number < currentStep;
@@ -28,7 +28,7 @@ export default function ReviewProgress({ currentStep, onStepClick, highestStepRe
                   disabled={!isClickable}
                   aria-current={isCurrent ? "step" : undefined}
                   className={`w-full flex items-center gap-2 sm:gap-3 text-left transition-all p-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 ${
-                    isClickable ? "cursor-pointer hover:bg-amber-50/70" : "cursor-not-allowed opacity-60"
+                    isClickable ? "cursor-pointer hover:bg-amber-50/70 dark:hover:bg-stone-800" : "cursor-not-allowed opacity-60"
                   }`}
                 >
                   {/* Step circle / icon */}
@@ -38,7 +38,7 @@ export default function ReviewProgress({ currentStep, onStepClick, highestStepRe
                         ? "bg-emerald-600 text-white shadow-sm"
                         : isCurrent
                         ? "bg-amber-950 text-amber-100 ring-2 ring-amber-400 shadow-md scale-105"
-                        : "bg-amber-100/70 text-amber-800 border border-amber-200"
+                        : "bg-amber-100/70 dark:bg-stone-800 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-stone-700"
                     }`}
                   >
                     {isCompleted ? (
@@ -50,16 +50,16 @@ export default function ReviewProgress({ currentStep, onStepClick, highestStepRe
 
                   {/* Step label text */}
                   <div className="hidden sm:block min-w-0">
-                    <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-stone-500">
                       Step {step.number}
                     </span>
                     <span
                       className={`block text-xs font-bold truncate ${
                         isCurrent
-                          ? "text-amber-950 font-serif"
+                          ? "text-amber-950 dark:text-amber-300 font-serif"
                           : isCompleted
-                          ? "text-slate-800"
-                          : "text-slate-500"
+                          ? "text-slate-800 dark:text-stone-200"
+                          : "text-slate-500 dark:text-stone-400"
                       }`}
                     >
                       {step.label}

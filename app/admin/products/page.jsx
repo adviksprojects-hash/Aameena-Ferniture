@@ -81,12 +81,12 @@ export default function AdminProductsPage() {
   const [addErrors, setAddErrors] = useState({});
   const [editErrors, setEditErrors] = useState({});
 
-  // Add Product State (Clean initial state without demo text)
+  // Add Product State (Clean initial state without pre-selected defaults)
   const [showAddModal, setShowAddModal] = useState(false);
   const [newProduct, setNewProduct] = useState({
     title: "",
-    categorySlug: "living",
-    woodType: "Grade-A Sagwan Teak",
+    categorySlug: "",
+    woodType: "",
     materialPurity: "",
     price: "",
     compareAtPrice: "",
@@ -94,7 +94,7 @@ export default function AdminProductsPage() {
     dimensions: "",
     description: "",
     images: [],
-    finishType: "Natural Teak Honey Polish",
+    finishType: "",
     showInquiryBtn: true,
     showDetailsBtn: true,
   });
@@ -152,6 +152,14 @@ export default function AdminProductsPage() {
     const nameCheck = validateName(newProduct.title, "Product title", 3);
     if (!nameCheck.valid) errors.title = nameCheck.error;
 
+    if (!newProduct.categorySlug || !newProduct.categorySlug.trim()) {
+      errors.categorySlug = "Please select a product category.";
+    }
+
+    if (!newProduct.woodType || !newProduct.woodType.trim()) {
+      errors.woodType = "Please select a wood or fabric material type.";
+    }
+
     const priceCheck = validateAmount(newProduct.price, "Price");
     if (!priceCheck.valid) errors.price = priceCheck.error;
 
@@ -181,8 +189,8 @@ export default function AdminProductsPage() {
       setShowAddModal(false);
       setNewProduct({
         title: "",
-        categorySlug: "living",
-        woodType: "Grade-A Sagwan Teak",
+        categorySlug: "",
+        woodType: "",
         materialPurity: "",
         price: "",
         compareAtPrice: "",
@@ -190,7 +198,7 @@ export default function AdminProductsPage() {
         dimensions: "",
         description: "",
         images: [],
-        finishType: "Natural Teak Honey Polish",
+        finishType: "",
         showInquiryBtn: true,
         showDetailsBtn: true,
       });
@@ -373,7 +381,7 @@ export default function AdminProductsPage() {
             <span className="text-xs uppercase font-bold tracking-widest text-amber-400">Inventory Management</span>
             <h1 className="text-2xl font-bold font-serif text-white mt-1">Admin Product Management</h1>
             <p className="text-xs text-slate-400 mt-1">
-              Add & edit furniture specifications, upload 1-3 device photos, configure inquiry/detail buttons, and manage archives.
+              Add & edit furniture specifications, Device Photo Upload (1-3 camera images), configure inquiry/detail buttons, and Archive management.
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -400,7 +408,7 @@ export default function AdminProductsPage() {
           <span className="text-xs uppercase font-bold tracking-widest text-amber-400">Inventory Management</span>
           <h1 className="text-2xl font-bold font-serif text-white mt-1">Admin Product Management</h1>
           <p className="text-xs text-slate-400 mt-1">
-            Add & edit furniture specifications, upload 1-3 device photos, configure inquiry/detail buttons, and manage archives.
+            Add & edit furniture specifications, Device Photo Upload (1-3 camera images), configure inquiry/detail buttons, and Archive management.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -705,23 +713,41 @@ export default function AdminProductsPage() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <SearchableSelect
-                  label="Category *"
-                  options={CATEGORY_OPTIONS}
-                  value={newProduct.categorySlug}
-                  onChange={(val) => setNewProduct({ ...newProduct, categorySlug: val })}
-                  allowOther={true}
-                  dark={true}
-                />
+                <div>
+                  <SearchableSelect
+                    label="Category *"
+                    options={CATEGORY_OPTIONS}
+                    value={newProduct.categorySlug}
+                    onChange={(val) => {
+                      setNewProduct({ ...newProduct, categorySlug: val });
+                      if (addErrors.categorySlug) setAddErrors((prev) => ({ ...prev, categorySlug: null }));
+                    }}
+                    placeholder="-- Select Category (Required) --"
+                    error={addErrors.categorySlug}
+                    allowOther={true}
+                    dark={true}
+                    required={true}
+                  />
+                  {addErrors.categorySlug && <p className="text-red-400 text-[10px] mt-1">{addErrors.categorySlug}</p>}
+                </div>
 
-                <SearchableSelect
-                  label="Wood Material *"
-                  options={WOOD_OPTIONS}
-                  value={newProduct.woodType}
-                  onChange={(val) => setNewProduct({ ...newProduct, woodType: val })}
-                  allowOther={true}
-                  dark={true}
-                />
+                <div>
+                  <SearchableSelect
+                    label="Wood / Fabric Material *"
+                    options={WOOD_OPTIONS}
+                    value={newProduct.woodType}
+                    onChange={(val) => {
+                      setNewProduct({ ...newProduct, woodType: val });
+                      if (addErrors.woodType) setAddErrors((prev) => ({ ...prev, woodType: null }));
+                    }}
+                    placeholder="-- Select Material (Required) --"
+                    error={addErrors.woodType}
+                    allowOther={true}
+                    dark={true}
+                    required={true}
+                  />
+                  {addErrors.woodType && <p className="text-red-400 text-[10px] mt-1">{addErrors.woodType}</p>}
+                </div>
               </div>
 
               <div>
@@ -736,7 +762,7 @@ export default function AdminProductsPage() {
                   className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:ring-1 focus:ring-amber-500"
                 />
                 <p className="text-[10px] text-slate-500 mt-1">
-                  Appears on product badge (e.g. "✓ 100% Pure Cotton" or "✓ 100% Genuine Sagwan"). Defaults to 100% Genuine Quality if left blank.
+                  Optional badge (e.g. "✓ 100% Pure Cotton" or "✓ 100% Genuine Sagwan"). Left blank if unspecified.
                 </p>
               </div>
 
@@ -760,10 +786,10 @@ export default function AdminProductsPage() {
                 </div>
 
                 <div>
-                  <label className="text-slate-300 font-bold block mb-1">Original Price (₹)</label>
+                  <label className="text-slate-300 font-bold block mb-1">Original Price (₹) (Optional)</label>
                   <input
                     type="number"
-                    placeholder="e.g. 110000"
+                    placeholder="e.g. 110000 (Optional)"
                     value={newProduct.compareAtPrice}
                     onChange={(e) => setNewProduct({ ...newProduct, compareAtPrice: e.target.value })}
                     className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none"
@@ -791,7 +817,7 @@ export default function AdminProductsPage() {
                 </div>
 
                 <div>
-                  <label className="text-slate-300 font-bold block mb-1">Dimensions</label>
+                  <label className="text-slate-300 font-bold block mb-1">Dimensions (Optional)</label>
                   <input
                     type="text"
                     placeholder="e.g. 78L x 36W x 34H inches"
@@ -804,10 +830,14 @@ export default function AdminProductsPage() {
 
               <div>
                 <SearchableSelect
-                  label="Polish / Finish Type"
-                  options={FINISH_OPTIONS}
+                  label="Polish / Finish Type (Optional)"
+                  options={[
+                    { value: "", label: "-- None / Natural Unfinished --" },
+                    ...FINISH_OPTIONS,
+                  ]}
                   value={newProduct.finishType}
                   onChange={(val) => setNewProduct({ ...newProduct, finishType: val })}
+                  placeholder="-- Select Polish / Finish (Optional) --"
                   allowOther={true}
                   dark={true}
                 />

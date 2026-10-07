@@ -75,10 +75,15 @@ export default function ContactPage() {
                   <Phone className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="font-bold text-slate-900 block">Phone / Sales Hotline:</span>
-                  <a href="tel:+918669233747" className="text-slate-800 hover:text-amber-900 font-semibold transition-colors">
-                    +91 86692 33747
-                  </a>
+                  <span className="font-bold text-slate-900 block">Customer Helpline & Sales Hotline:</span>
+                  <div className="flex flex-col gap-0.5">
+                    <a href="tel:+919876500001" className="text-slate-800 hover:text-amber-900 font-semibold transition-colors">
+                      +91 98765 00001 (Helpline)
+                    </a>
+                    <a href="tel:+918669233747" className="text-slate-600 hover:text-amber-900 text-xs transition-colors">
+                      +91 86692 33747 (Showroom Desk)
+                    </a>
+                  </div>
                 </div>
               </div>
 

@@ -14,6 +14,9 @@ import {
 } from "lucide-react";
 import { db } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function AdminDashboard() {
   // Query real operational data directly from PostgreSQL
   const [

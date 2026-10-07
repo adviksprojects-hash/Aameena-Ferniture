@@ -118,6 +118,29 @@
   --radius: 0.5rem;
 }
 
+/* 4. ROYAL HERITAGE (Imperial Forest Emerald & Brushed Champagne Brass) */
+[data-theme="royal"] {
+  --background: oklch(0.14 0.04 155);
+  --foreground: oklch(0.98 0.015 150);
+  --card: oklch(0.18 0.045 155);
+  --card-foreground: oklch(0.98 0.015 150);
+  --popover: oklch(0.18 0.045 155);
+  --popover-foreground: oklch(0.98 0.015 150);
+  --primary: oklch(0.78 0.16 85);
+  --primary-foreground: oklch(0.12 0.03 155);
+  --secondary: oklch(0.24 0.05 155);
+  --secondary-foreground: oklch(0.98 0.015 150);
+  --muted: oklch(0.22 0.035 155);
+  --muted-foreground: oklch(0.75 0.03 150);
+  --accent: oklch(0.28 0.06 155);
+  --accent-foreground: oklch(0.98 0.015 150);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(0.32 0.06 155);
+  --input: oklch(0.22 0.04 155);
+  --ring: oklch(0.78 0.16 85);
+  --radius: 0.5rem;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -350,6 +373,86 @@
   color: #94a3b8 !important;
 }
 
+/* Light Mode: Admin & Manager Portal Integration */
+[data-theme="light"] aside,
+[data-theme="light"] aside.bg-slate-950,
+[data-theme="light"] aside.bg-amber-950 {
+  background-color: #ffffff !important;
+  border-right-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .bg-slate-900,
+[data-theme="light"] .bg-stone-900 {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .bg-slate-950,
+[data-theme="light"] .bg-amber-950,
+[data-theme="light"] .bg-stone-950 {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .bg-slate-800,
+[data-theme="light"] .bg-stone-800 {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .border-slate-800,
+[data-theme="light"] .border-slate-700,
+[data-theme="light"] .border-amber-900,
+[data-theme="light"] .border-amber-900\/60,
+[data-theme="light"] .border-amber-900\/40,
+[data-theme="light"] .border-stone-800 {
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] header.bg-slate-950\/90,
+[data-theme="light"] header.bg-amber-950 {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+  border-bottom-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] aside nav a:not([class*="bg-amber-500"]) {
+  color: #475569 !important;
+}
+[data-theme="light"] aside nav a:not([class*="bg-amber-500"]):hover {
+  color: #0f172a !important;
+  background-color: #f1f5f9 !important;
+}
+
+[data-theme="light"] h1.text-white,
+[data-theme="light"] h2.text-white,
+[data-theme="light"] h3.text-white,
+[data-theme="light"] p.text-white,
+[data-theme="light"] span.text-white,
+[data-theme="light"] td.text-white,
+[data-theme="light"] div.text-white {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] table thead,
+[data-theme="light"] table thead tr {
+  background-color: #f8fafc !important;
+  border-bottom: 1.5px solid #e2e8f0 !important;
+}
+[data-theme="light"] table thead th {
+  color: #334155 !important;
+  font-weight: 700 !important;
+}
+[data-theme="light"] table tbody tr {
+  border-color: #f1f5f9 !important;
+}
+[data-theme="light"] table tbody tr:hover {
+  background-color: #f8fafc !important;
+}
+
 /* 3. WARM ROYAL TEAK THEME */
 [data-theme="warm"] {
   color-scheme: light;
@@ -416,6 +519,340 @@
   color: #b49377 !important;
 }
 
+/* Warm Mode: Admin Portal Integration */
+[data-theme="warm"] aside.bg-slate-950 {
+  background-color: #17110b !important;
+  border-right-color: rgba(180, 83, 9, 0.35) !important;
+}
+
+[data-theme="warm"] header.bg-slate-950\/90 {
+  background-color: rgba(23, 17, 11, 0.95) !important;
+  border-bottom-color: rgba(180, 83, 9, 0.35) !important;
+}
+
+[data-theme="warm"] .bg-slate-950 {
+  background-color: #17110b !important;
+  border-color: rgba(180, 83, 9, 0.35) !important;
+}
+
+[data-theme="warm"] .bg-slate-900 {
+  background-color: #211912 !important;
+  border-color: rgba(180, 83, 9, 0.3) !important;
+}
+
+[data-theme="warm"] .bg-slate-800 {
+  background-color: #2d2118 !important;
+  border-color: rgba(180, 83, 9, 0.35) !important;
+}
+
+[data-theme="warm"] .border-slate-800,
+[data-theme="warm"] .border-slate-700 {
+  border-color: rgba(180, 83, 9, 0.35) !important;
+}
+
+/* ===================================================================
+   👑 4. ROYAL EMERALD THEME (Imperial British Racing Green & Champagne Gold)
+   The Ultimate High-End Furniture Luxury Aesthetic
+   =================================================================== */
+[data-theme="royal"] {
+  color-scheme: dark;
+}
+
+[data-theme="royal"] body {
+  background: radial-gradient(circle at 50% -15%, #0e4435 0%, #08281e 35%, #03140e 100%) !important;
+  background-color: #03140e !important;
+  color: #f0fdf4 !important;
+  min-height: 100vh;
+}
+
+/* Luxury Royal Emerald Cards */
+[data-theme="royal"] .bg-white,
+[data-theme="royal"] .dark\:bg-stone-900,
+[data-theme="royal"] .bg-white\/95,
+[data-theme="royal"] .bg-white\/90 {
+  background: linear-gradient(165deg, rgba(14, 46, 36, 0.94) 0%, rgba(8, 28, 22, 0.98) 100%) !important;
+  backdrop-filter: blur(16px) !important;
+  color: #f0fdf4 !important;
+  border: 1px solid rgba(234, 179, 8, 0.32) !important;
+  box-shadow: 0 16px 45px -12px rgba(0, 0, 0, 0.8), 0 0 24px rgba(16, 185, 129, 0.14), inset 0 1px 0 rgba(254, 240, 138, 0.22) !important;
+}
+
+/* Secondary cards, review cards, and subtle panels */
+[data-theme="royal"] .bg-amber-50,
+[data-theme="royal"] .bg-amber-50\/20,
+[data-theme="royal"] .bg-amber-50\/30,
+[data-theme="royal"] .bg-amber-50\/40,
+[data-theme="royal"] .bg-amber-50\/50,
+[data-theme="royal"] .bg-amber-50\/60,
+[data-theme="royal"] .bg-amber-50\/70,
+[data-theme="royal"] .bg-amber-50\/80,
+[data-theme="royal"] .bg-stone-50,
+[data-theme="royal"] .bg-slate-50,
+[data-theme="royal"] .bg-stone-100,
+[data-theme="royal"] .bg-slate-100,
+[data-theme="royal"] .dark\:bg-stone-800,
+[data-theme="royal"] .dark\:bg-stone-800\/60,
+[data-theme="royal"] .dark\:bg-stone-800\/80 {
+  background: linear-gradient(145deg, rgba(16, 54, 42, 0.9) 0%, rgba(10, 36, 28, 0.95) 100%) !important;
+  border-color: rgba(234, 179, 8, 0.25) !important;
+  color: #e2f4ea !important;
+}
+
+/* Selected prompt cards in Royal theme: Glowing Emerald Velvet & Gold Rim */
+[data-theme="royal"] .bg-amber-50\/90,
+[data-theme="royal"] .dark\:bg-amber-950\/40 {
+  background: linear-gradient(135deg, rgba(19, 75, 58, 0.96) 0%, rgba(13, 58, 44, 0.98) 100%) !important;
+  border: 1.5px solid #eab308 !important;
+  box-shadow: 0 0 22px rgba(234, 179, 8, 0.35), inset 0 0 16px rgba(16, 185, 129, 0.2) !important;
+}
+
+/* Badges & Chips */
+[data-theme="royal"] .bg-amber-100,
+[data-theme="royal"] .bg-amber-200,
+[data-theme="royal"] .dark\:bg-amber-950\/80 {
+  background: linear-gradient(135deg, #0f4031 0%, #175e47 100%) !important;
+  color: #fef08a !important;
+  border: 1px solid rgba(234, 179, 8, 0.5) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* High-contrast headings and body in Royal theme */
+[data-theme="royal"] .text-slate-900,
+[data-theme="royal"] .text-stone-900,
+[data-theme="royal"] .text-slate-800,
+[data-theme="royal"] .text-stone-800 {
+  color: #ffffff !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="royal"] .text-slate-700,
+[data-theme="royal"] .text-stone-700,
+[data-theme="royal"] .text-slate-600,
+[data-theme="royal"] .text-stone-600 {
+  color: #d1fae5 !important;
+}
+
+[data-theme="royal"] .text-slate-500,
+[data-theme="royal"] .text-stone-500,
+[data-theme="royal"] .text-slate-400,
+[data-theme="royal"] .text-stone-400 {
+  color: #a7f3d0 !important;
+}
+
+/* Luminous Champagne Gold for accents and icons */
+[data-theme="royal"] .text-amber-950,
+[data-theme="royal"] .text-amber-900,
+[data-theme="royal"] .text-amber-800,
+[data-theme="royal"] .text-amber-700,
+[data-theme="royal"] .text-amber-600 {
+  color: #fde047 !important;
+}
+
+/* Primary Action button: Radiant 24K Gold & Burnished Brass */
+[data-theme="royal"] .btn-tactile,
+[data-theme="royal"] .bg-gradient-to-r.from-amber-600,
+[data-theme="royal"] button.bg-gradient-to-r {
+  background: linear-gradient(135deg, #d97706 0%, #facc15 50%, #ca8a04 100%) !important;
+  color: #03140e !important;
+  font-weight: 900 !important;
+  box-shadow: 0 12px 30px -5px rgba(234, 179, 8, 0.45), 0 0 20px rgba(250, 204, 21, 0.35) !important;
+  border: 1px solid rgba(254, 240, 138, 0.6) !important;
+}
+
+/* Secondary Button in Royal mode */
+[data-theme="royal"] .border-amber-300.bg-amber-50\/60,
+[data-theme="royal"] button[class*="border-amber-300"] {
+  background: linear-gradient(135deg, #0f3d30 0%, #155442 100%) !important;
+  border: 1.5px solid rgba(234, 179, 8, 0.5) !important;
+  color: #fef08a !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* Royal theme inputs */
+[data-theme="royal"] input:not([type="checkbox"]):not([type="radio"]),
+[data-theme="royal"] textarea,
+[data-theme="royal"] select {
+  background-color: #08261d !important;
+  color: #f0fdf4 !important;
+  border: 1.5px solid rgba(234, 179, 8, 0.35) !important;
+}
+
+[data-theme="royal"] input:focus,
+[data-theme="royal"] textarea:focus,
+[data-theme="royal"] select:focus {
+  border-color: #facc15 !important;
+  box-shadow: 0 0 14px rgba(250, 204, 21, 0.3) !important;
+}
+
+[data-theme="royal"] input::placeholder,
+[data-theme="royal"] textarea::placeholder {
+  color: #79a691 !important;
+}
+
+/* Royal Mode: Admin & Manager Portal Integration */
+[data-theme="royal"] aside,
+[data-theme="royal"] aside.bg-slate-950,
+[data-theme="royal"] aside.bg-amber-950 {
+  background: linear-gradient(180deg, #02120d 0%, #051b14 50%, #03140e 100%) !important;
+  border-right: 1px solid rgba(234, 179, 8, 0.28) !important;
+}
+
+[data-theme="royal"] .bg-slate-950,
+[data-theme="royal"] .bg-amber-950,
+[data-theme="royal"] .bg-stone-950 {
+  background-color: #03140e !important;
+  border-color: rgba(234, 179, 8, 0.28) !important;
+}
+
+[data-theme="royal"] .bg-slate-900,
+[data-theme="royal"] .bg-stone-900,
+[data-theme="royal"] .bg-amber-900\/60,
+[data-theme="royal"] .bg-amber-900\/40 {
+  background: linear-gradient(165deg, rgba(14, 46, 36, 0.95) 0%, rgba(8, 28, 22, 0.98) 100%) !important;
+  border-color: rgba(234, 179, 8, 0.24) !important;
+}
+
+[data-theme="royal"] .bg-slate-800,
+[data-theme="royal"] .bg-stone-800 {
+  background-color: #0e382c !important;
+  border-color: rgba(234, 179, 8, 0.25) !important;
+}
+
+[data-theme="royal"] .border-slate-800,
+[data-theme="royal"] .border-slate-700,
+[data-theme="royal"] .border-amber-900,
+[data-theme="royal"] .border-amber-900\/60,
+[data-theme="royal"] .border-amber-900\/40,
+[data-theme="royal"] .border-stone-800 {
+  border-color: rgba(234, 179, 8, 0.25) !important;
+}
+
+/* Royal Emerald Table Styling */
+[data-theme="royal"] table thead,
+[data-theme="royal"] table thead tr {
+  background: #052017 !important;
+  border-bottom: 1.5px solid rgba(234, 179, 8, 0.3) !important;
+}
+[data-theme="royal"] table thead th {
+  color: #fde047 !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.05em;
+}
+[data-theme="royal"] table tbody tr {
+  border-color: rgba(234, 179, 8, 0.16) !important;
+}
+[data-theme="royal"] table tbody tr:hover {
+  background-color: rgba(16, 54, 42, 0.45) !important;
+}
+
+/* Dark Mode: Admin & Manager Portal Integration */
+[data-theme="dark"] aside.bg-slate-950,
+.dark aside.bg-slate-950,
+[data-theme="dark"] aside.bg-amber-950,
+.dark aside.bg-amber-950 {
+  background-color: #09090b !important;
+  border-right-color: #27272a !important;
+}
+
+[data-theme="dark"] header.bg-slate-950\/90,
+.dark header.bg-slate-950\/90,
+[data-theme="dark"] header.bg-amber-950,
+.dark header.bg-amber-950 {
+  background-color: rgba(9, 9, 11, 0.95) !important;
+  border-bottom-color: #27272a !important;
+}
+
+[data-theme="dark"] .bg-slate-950,
+.dark .bg-slate-950,
+[data-theme="dark"] .bg-amber-950,
+.dark .bg-amber-950 {
+  background-color: #09090b !important;
+  border-color: #27272a !important;
+}
+
+[data-theme="dark"] .bg-slate-900,
+.dark .bg-slate-900,
+[data-theme="dark"] .bg-stone-900,
+.dark .bg-stone-900 {
+  background-color: #121215 !important;
+  border-color: #27272a !important;
+}
+
+[data-theme="dark"] .bg-slate-800,
+.dark .bg-slate-800,
+[data-theme="dark"] .bg-stone-800,
+.dark .bg-stone-800 {
+  background-color: #1c1917 !important;
+  border-color: #27272a !important;
+}
+
+[data-theme="dark"] .border-slate-800,
+[data-theme="dark"] .border-slate-700,
+[data-theme="dark"] .border-amber-900,
+[data-theme="dark"] .border-amber-900\/60,
+[data-theme="dark"] .border-stone-800,
+.dark .border-slate-800,
+.dark .border-amber-900 {
+  border-color: #27272a !important;
+}
+
+/* ===================================================================
+   🛡️ UNIVERSAL CONTRAST SAFEGUARDS ACROSS ALL THEMES
+   Guarantees dark, high-contrast text on bright amber/gold actions
+   =================================================================== */
+button[class*="from-amber"],
+button[class*="bg-amber-400"],
+button[class*="bg-amber-500"],
+a[class*="from-amber"],
+a[class*="bg-amber-400"],
+a[class*="bg-amber-500"],
+[data-theme="dark"] button[class*="from-amber"],
+[data-theme="dark"] button[class*="bg-amber-400"],
+[data-theme="dark"] button[class*="bg-amber-500"],
+[data-theme="dark"] a[class*="bg-amber-400"],
+[data-theme="dark"] a[class*="bg-amber-500"],
+[data-theme="royal"] button[class*="from-amber"],
+[data-theme="royal"] button[class*="bg-amber-400"],
+[data-theme="royal"] button[class*="bg-amber-500"],
+[data-theme="royal"] a[class*="bg-amber-400"],
+[data-theme="royal"] a[class*="bg-amber-500"] {
+  color: #09090b !important;
+}
+
+button[class*="from-amber"] *,
+button[class*="bg-amber-400"] *,
+button[class*="bg-amber-500"] *,
+a[class*="from-amber"] *,
+a[class*="bg-amber-400"] *,
+a[class*="bg-amber-500"] *,
+[data-theme="dark"] button[class*="from-amber"] *,
+[data-theme="dark"] button[class*="bg-amber-400"] *,
+[data-theme="dark"] button[class*="bg-amber-500"] *,
+[data-theme="dark"] a[class*="bg-amber-400"] *,
+[data-theme="dark"] a[class*="bg-amber-500"] *,
+[data-theme="royal"] button[class*="from-amber"] *,
+[data-theme="royal"] button[class*="bg-amber-400"] *,
+[data-theme="royal"] button[class*="bg-amber-500"] *,
+[data-theme="royal"] a[class*="bg-amber-400"] *,
+[data-theme="royal"] a[class*="bg-amber-500"] * {
+  color: #09090b !important;
+}
+
+/* Header theme styling */
+[data-theme="royal"] header {
+  background-color: rgba(6, 22, 17, 0.95) !important;
+  border-bottom-color: rgba(217, 180, 114, 0.25) !important;
+}
+[data-theme="royal"] header .bg-amber-900\/50 {
+  background-color: rgba(16, 51, 41, 0.6) !important;
+  border-color: rgba(217, 180, 114, 0.25) !important;
+}
+
+[data-theme="dark"] header {
+  background-color: rgba(18, 14, 10, 0.95) !important;
+  border-bottom-color: rgba(245, 158, 11, 0.2) !important;
+}
+
 /* ===================================================================
    📐 50% BORDER RADIUS REDUCTION (Tailored Modern Luxury)
    =================================================================== */
@@ -430,13 +867,42 @@
 }
 
 /* ===================================================================
-   📱 MOBILE & TABLET FLUID RESPONSIVENESS
+   📱 MOBILE & TABLET FLUID RESPONSIVENESS & TOUCH UTILITIES
    =================================================================== */
 @media (max-width: 640px) {
   .container {
     padding-left: 1rem !important;
     padding-right: 1rem !important;
   }
+  
+  /* Ensure comfortable tap target spacing on mobile */
+  button, a {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Custom sleek scrollbar for responsive containers and tables */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(180, 83, 9, 0.22);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(180, 83, 9, 0.45);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: rgba(245, 158, 11, 0.25);
+}
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 158, 11, 0.5);
 }
 
 /* ===================================================================
@@ -445,7 +911,7 @@
 @keyframes popupEntrance {
   0% {
     opacity: 0;
-    transform: scale(0.95) translateY(8px);
+    transform: scale(0.95) translateY(10px);
   }
   100% {
     opacity: 1;
@@ -454,7 +920,28 @@
 }
 
 .popup-animate {
-  animation: popupEntrance 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: popupEntrance 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Tactile button interaction */
+.btn-tactile {
+  transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.12s ease;
+}
+.btn-tactile:active {
+  transform: scale(0.97) !important;
+}
+
+/* Elegant card hover elevation */
+.card-lift {
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 28px -10px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="dark"] .card-lift:hover {
+  box-shadow: 0 14px 28px -10px rgba(0, 0, 0, 0.5), 0 0 12px rgba(245, 158, 11, 0.1);
 }
 
 @keyframes shimmer {

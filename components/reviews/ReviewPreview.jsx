@@ -48,7 +48,7 @@ export default function ReviewPreview({
             placeholder="e.g. Rahul Deshmukh"
             value={author || ""}
             onChange={(e) => onAuthorChange(e.target.value)}
-            className="w-full p-3 rounded-xl bg-amber-900/30 border border-amber-800 text-amber-50 text-xs placeholder:text-amber-300/40 focus:outline-none focus:ring-1 focus:ring-amber-400 font-medium"
+            className="w-full p-3 rounded-xl bg-amber-900/30 border border-amber-800 text-amber-50 text-xs placeholder:text-amber-200/70 focus:outline-none focus:ring-1 focus:ring-amber-400 font-medium"
           />
         </div>
 
@@ -66,7 +66,7 @@ export default function ReviewPreview({
             placeholder="e.g. 9820112345"
             value={phone || ""}
             onChange={(e) => onPhoneChange(e.target.value)}
-            className={`w-full p-3 rounded-xl bg-amber-900/30 border text-amber-50 text-xs placeholder:text-amber-300/40 focus:outline-none focus:ring-1 font-medium ${
+            className={`w-full p-3 rounded-xl bg-amber-900/30 border text-amber-50 text-xs placeholder:text-amber-200/70 focus:outline-none focus:ring-1 font-medium ${
               phoneError ? "border-red-500 focus:ring-red-400" : "border-amber-800 focus:ring-amber-400"
             }`}
           />

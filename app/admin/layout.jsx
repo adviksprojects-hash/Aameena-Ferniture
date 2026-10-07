@@ -20,6 +20,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
+import ThemeSwitcher from "@/components/ThemeSwitcher";
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
@@ -156,6 +157,10 @@ export default function AdminLayout({ children }) {
 
             {/* Bottom Actions */}
             <div className="pt-4 border-t border-slate-800 space-y-2">
+              <div className="flex items-center justify-between px-1 py-1">
+                <span className="text-[11px] font-bold text-slate-400">Theme</span>
+                <ThemeSwitcher />
+              </div>
               <Link
                 href="/ai-reviews"
                 target="_blank"
@@ -200,10 +205,13 @@ export default function AdminLayout({ children }) {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Theme Switcher in Admin Topbar */}
+            <ThemeSwitcher />
+
             <Link
               href="/ai-reviews"
               target="_blank"
-              className="hidden sm:flex items-center gap-1.5 text-xs text-amber-400 hover:text-amber-300 transition-colors font-medium"
+              className="hidden sm:flex items-center gap-1.5 text-xs text-amber-400 hover:text-amber-300 transition-colors font-medium ml-1"
             >
               <Star className="w-3.5 h-3.5" />
               <span>Live Reviews</span>
