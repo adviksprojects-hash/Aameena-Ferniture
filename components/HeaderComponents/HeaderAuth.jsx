@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useUser, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import { getCurrentUserRole } from "@/actions/authActions";
 
 export default function HeaderAuth() {
   const [mounted, setMounted] = useState(false);
@@ -9,7 +10,11 @@ export default function HeaderAuth() {
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    if (isSignedIn) {
+      // Trigger background sync to ensure user record is created/updated in DB
+      getCurrentUserRole().catch(() => {});
+    }
+  }, [isSignedIn]);
 
   if (!mounted || !isLoaded) {
     return (

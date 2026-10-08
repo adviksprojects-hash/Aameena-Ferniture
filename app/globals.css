@@ -50,7 +50,7 @@
    =================================================================== */
 
 /* 1. WARM ROYAL TEAK (Current Signature Default) */
-:root, [data-theme="warm"] {
+:root, [data-theme="warm"], [data-theme="teak"] {
   --background: oklch(0.985 0.012 75);
   --foreground: oklch(0.18 0.03 55);
   --card: oklch(1 0 0);
@@ -119,7 +119,7 @@
 }
 
 /* 4. ROYAL HERITAGE (Imperial Forest Emerald & Brushed Champagne Brass) */
-[data-theme="royal"] {
+[data-theme="royal"], [data-theme="emerald"] {
   --background: oklch(0.14 0.04 155);
   --foreground: oklch(0.98 0.015 150);
   --card: oklch(0.18 0.045 155);

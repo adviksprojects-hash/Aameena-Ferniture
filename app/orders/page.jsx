@@ -210,7 +210,7 @@ export default function OrdersPage() {
   const displayedOrders = searchedOrder ? [searchedOrder] : orders;
 
   return (
-    <div className="container mx-auto px-4 md:px-8 py-10 space-y-10" suppressHydrationWarning>
+    <div className="container mx-auto px-4 md:px-8 pt-4 sm:pt-6 pb-12 space-y-10" suppressHydrationWarning>
       {/* Hero Header */}
       <div className="bg-gradient-to-r from-amber-950 via-amber-900 to-amber-950 rounded-3xl p-8 lg:p-12 text-amber-50 shadow-xl space-y-4 relative overflow-hidden" suppressHydrationWarning>
         <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-amber-600/10 rounded-full blur-3xl pointer-events-none" />

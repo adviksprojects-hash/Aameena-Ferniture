@@ -121,7 +121,7 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
       `• *Dimensions:* ${product.dimensions || "Standard"}\n\n` +
       `Please let me know availability, manufacturing lead time, and delivery to my location.`;
 
-    return `https://api.whatsapp.com/send?phone=918600570542&text=${encodeURIComponent(message)}`;
+    return `https://api.whatsapp.com/send?phone=919730392917&text=${encodeURIComponent(message)}`;
   };
 
   const openDetailsModal = (product) => {

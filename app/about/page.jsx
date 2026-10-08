@@ -3,7 +3,7 @@ import { Sofa, ShieldCheck, Award, HeartHandshake, Sparkles, MapPin, Users } fro
 
 export default function AboutPage() {
   return (
-    <div className="container mx-auto px-4 md:px-8 py-12 space-y-16">
+    <div className="container mx-auto px-4 md:px-8 pt-4 sm:pt-6 pb-12 space-y-16">
       
       {/* Header */}
       <div className="bg-gradient-to-r from-amber-950 via-amber-900 to-amber-950 rounded-3xl p-8 lg:p-16 text-amber-50 shadow-xl space-y-4 text-center max-w-4xl mx-auto">

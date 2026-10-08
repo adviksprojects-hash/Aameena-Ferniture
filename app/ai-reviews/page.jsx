@@ -21,7 +21,7 @@ export default async function AiReviewsPage() {
   ]);
 
   return (
-    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 py-10 px-4 sm:px-6 lg:px-8 transition-colors">
+    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 pt-4 sm:pt-6 pb-12 px-4 sm:px-6 lg:px-8 transition-colors">
       <div className="max-w-6xl mx-auto space-y-12">
         {/* 1. Header & AI Review Generator Wizard */}
         <div className="space-y-8">

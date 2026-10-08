@@ -34,7 +34,7 @@ export default async function ProductsPage({ searchParams }) {
   const products = await getCatalogProducts();
 
   return (
-    <div className="container mx-auto px-4 md:px-8 py-12">
+    <div className="container mx-auto px-4 md:px-8 pt-4 sm:pt-6 pb-12">
       <ProductsClient initialProducts={products} initialCategory={initialCategory} />
     </div>
   );

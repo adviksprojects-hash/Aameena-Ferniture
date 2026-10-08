@@ -152,7 +152,7 @@ export default async function ProductDetailPage({ params }) {
   const sanitizedRelated = JSON.parse(JSON.stringify(relatedProducts || []));
 
   return (
-    <div className="container mx-auto px-4 md:px-8 py-8 lg:py-12 space-y-12">
+    <div className="container mx-auto px-4 md:px-8 pt-4 sm:pt-6 pb-12 space-y-12">
       <ProductDetailView product={sanitizedProduct} relatedProducts={sanitizedRelated} />
     </div>
   );

@@ -19,6 +19,7 @@ import {
   Users,
 } from "lucide-react";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
+import RoleGuard from "@/components/RoleGuard";
 
 export default function ManagerLayout({ children }) {
   const pathname = usePathname();
@@ -41,8 +42,9 @@ export default function ManagerLayout({ children }) {
   ];
 
   return (
-    <div className="min-h-screen bg-stone-900 text-stone-100 flex flex-col md:flex-row">
-      {/* 1. Desktop Sidebar (Persistent on md and above) */}
+    <RoleGuard requiredRole="MANAGER">
+      <div className="min-h-screen bg-stone-900 text-stone-100 flex flex-col md:flex-row">
+        {/* 1. Desktop Sidebar (Persistent on md and above) */}
       <aside className="hidden md:flex md:w-64 bg-amber-950 text-amber-50 border-r border-amber-900/40 p-6 flex-col justify-between shrink-0 space-y-6">
         <div className="space-y-6">
           {/* Brand Header */}
@@ -226,5 +228,6 @@ export default function ManagerLayout({ children }) {
         </main>
       </div>
     </div>
+  </RoleGuard>
   );
 }

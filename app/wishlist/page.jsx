@@ -48,7 +48,7 @@ export default function WishlistPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 md:px-8 py-8 lg:py-12 space-y-8">
+    <div className="container mx-auto px-4 md:px-8 pt-4 sm:pt-6 pb-12 space-y-8">
       {/* Page Header */}
       <div className="bg-gradient-to-r from-amber-950 via-amber-900 to-amber-950 rounded-3xl p-8 lg:p-10 text-amber-50 shadow-xl space-y-3 relative overflow-hidden">
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">

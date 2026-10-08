@@ -118,7 +118,7 @@ export default function CareersPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 md:px-8 py-12 space-y-12" suppressHydrationWarning>
+    <div className="container mx-auto px-4 md:px-8 pt-4 sm:pt-6 pb-12 space-y-12" suppressHydrationWarning>
       {/* Header Banner */}
       <div className="bg-gradient-to-r from-amber-950 via-amber-900 to-amber-950 rounded-3xl p-8 lg:p-12 text-amber-50 shadow-xl space-y-4 text-center max-w-4xl mx-auto">
         <div className="inline-flex items-center gap-2 bg-amber-900/60 border border-amber-700/80 px-4 py-1.5 rounded-full text-xs uppercase font-bold tracking-widest text-amber-400">

@@ -40,7 +40,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 md:px-8 py-12 space-y-12">
+    <div className="container mx-auto px-4 md:px-8 pt-4 sm:pt-6 pb-12 space-y-12">
       
       {/* Header */}
       <div className="bg-gradient-to-r from-amber-950 via-amber-900 to-amber-950 rounded-3xl p-8 lg:p-12 text-amber-50 shadow-xl space-y-4 text-center max-w-4xl mx-auto">
@@ -77,11 +77,8 @@ export default function ContactPage() {
                 <div>
                   <span className="font-bold text-slate-900 block">Customer Helpline & Sales Hotline:</span>
                   <div className="flex flex-col gap-0.5">
-                    <a href="tel:+919876500001" className="text-slate-800 hover:text-amber-900 font-semibold transition-colors">
-                      +91 98765 00001 (Helpline)
-                    </a>
-                    <a href="tel:+918669233747" className="text-slate-600 hover:text-amber-900 text-xs transition-colors">
-                      +91 86692 33747 (Showroom Desk)
+                    <a href="tel:+919730392917" className="text-slate-800 hover:text-amber-900 font-semibold transition-colors">
+                      +91 97303 92917 (Helpline & Showroom Desk)
                     </a>
                   </div>
                 </div>
@@ -120,13 +117,13 @@ export default function ContactPage() {
               </a>
 
               <a
-                href="https://api.whatsapp.com/send?phone=918600570542&text=Hello%20Ameena%20Distributors,%20I%20want%20to%20inquire%20about%20visiting%20your%20Solapur%20store."
+                href="https://api.whatsapp.com/send?phone=919730392917&text=Hello%20Ameena%20Distributors,%20I%20want%20to%20inquire%20about%20visiting%20your%20Solapur%20store."
                 target="_blank"
                 rel="noreferrer"
                 className="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-colors flex items-center justify-center gap-2 shadow-md"
               >
                 <MessageSquare className="w-4 h-4" />
-                <span>Instant WhatsApp Inquiry (+91 86005 70542)</span>
+                <span>Instant WhatsApp Inquiry (+91 97303 92917)</span>
               </a>
             </div>
           </div>

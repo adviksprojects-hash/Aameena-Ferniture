@@ -13,7 +13,10 @@ export default function Footer() {
               <div className="bg-amber-500 p-2 rounded-xl text-amber-950">
                 <Sofa className="w-6 h-6" />
               </div>
-              <span>Aameena <span className="text-amber-400 font-serif italic">Furniture</span></span>
+              <div className="flex flex-col">
+                <span className="leading-tight">Aameena <span className="text-amber-400 font-serif italic">Ferniture</span></span>
+                <span className="text-xs text-amber-300/80 font-normal tracking-wide">and Fernishing</span>
+              </div>
             </Link>
             <p className="text-amber-200/80 text-sm leading-relaxed">
               Crafting premium hardwood furniture, bespoke living sets, dining masterpieces, and custom interior solutions with generations of artisanal excellence.
@@ -78,8 +81,8 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-4 h-4 text-amber-400 shrink-0" />
-                <a href="tel:+918669233747" className="hover:text-amber-300 transition-colors">
-                  +91 86692 33747
+                <a href="tel:+919730392917" className="hover:text-amber-300 transition-colors">
+                  +91 97303 92917
                 </a>
               </li>
               <li className="flex items-center gap-3">
@@ -88,13 +91,13 @@ export default function Footer() {
               </li>
               <li className="pt-2">
                 <a 
-                  href="https://api.whatsapp.com/send?phone=918600570542&text=Hello%20Ameena%20Distributors,%20I%20am%20inquiring%20about%20furniture%20from%20your%20website." 
+                  href="https://api.whatsapp.com/send?phone=919730392917&text=Hello%20Ameena%20Distributors,%20I%20am%20inquiring%20about%20furniture%20from%20your%20website." 
                   target="_blank" 
                   rel="noreferrer" 
                   className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs px-4 py-2 rounded-lg transition-colors shadow-md"
                 >
                   <MessageSquare className="w-4 h-4" />
-                  Chat on WhatsApp (+91 86005 70542)
+                  Chat on WhatsApp (+91 97303 92917)
                 </a>
               </li>
             </ul>
@@ -104,7 +107,13 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="border-t border-amber-900/50 pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-amber-300/60 gap-4">
-          <p>© {new Date().getFullYear()} Aameena Furniture & Furnishing. All rights reserved.</p>
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
+            <p>© {new Date().getFullYear()} Aameena Furniture & Furnishing. All rights reserved.</p>
+            <span className="hidden sm:inline text-amber-700">•</span>
+            <p className="text-amber-400 font-medium">
+              Developed by <span className="font-bold text-amber-300">ADVIKS Softech</span>
+            </p>
+          </div>
           <div className="flex items-center gap-6">
             <Link href="/about" className="hover:text-amber-300">Privacy Policy</Link>
             <Link href="/about" className="hover:text-amber-300">Terms of Service</Link>

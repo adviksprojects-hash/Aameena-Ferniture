@@ -237,7 +237,7 @@ export default function ServicesPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 md:px-8 py-12 space-y-16">
+    <div className="container mx-auto px-4 md:px-8 pt-4 sm:pt-6 pb-12 space-y-16">
       {/* Hero Banner */}
       <div className="bg-gradient-to-r from-amber-950 via-amber-900 to-amber-950 rounded-3xl p-8 lg:p-14 text-amber-50 shadow-2xl space-y-5 text-center max-w-4xl mx-auto relative overflow-hidden">
         <div className="inline-flex items-center gap-2 bg-amber-900/60 border border-amber-700/80 px-4 py-1.5 rounded-full text-xs uppercase font-bold tracking-widest text-amber-400">
@@ -260,13 +260,13 @@ export default function ServicesPage() {
             Book Free Design Consultation
           </button>
           <a
-            href="https://api.whatsapp.com/send?phone=918600570542&text=Hello%20Aameena%20Furniture,%20I%20would%20like%20to%20speak%20with%20a%20master%20craftsman%20about%20a%20custom%20order."
+            href="https://api.whatsapp.com/send?phone=919730392917&text=Hello%20Aameena%20Furniture,%20I%20would%20like%20to%20speak%20with%20a%20master%20craftsman%20about%20a%20custom%20order."
             target="_blank"
             rel="noopener noreferrer"
             className="px-6 py-3.5 rounded-full bg-amber-900/80 hover:bg-amber-800 text-amber-100 text-xs font-bold border border-amber-700/70 transition-colors flex items-center gap-2"
           >
             <MessageSquare className="w-4 h-4 text-emerald-400" />
-            <span>Chat with Master Craftsman (+91 86005 70542)</span>
+            <span>Chat with Master Craftsman (+91 97303 92917)</span>
           </a>
         </div>
       </div>

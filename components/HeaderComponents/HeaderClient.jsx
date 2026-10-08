@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { navLinks } from '@/data/HeaderData/HeaderData';
 import { cn } from '@/lib/utils';
-import { Shield, Briefcase, ShoppingCart, Heart } from 'lucide-react';
+import { ShoppingCart, Heart } from 'lucide-react';
 import ThemeSwitcher from '@/components/ThemeSwitcher';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
@@ -166,28 +166,10 @@ export default function HeaderClient() {
                     </nav>
 
                     <div className="pt-2 mt-2 border-t border-amber-900/60 flex flex-col gap-2">
-                        <div className="flex items-center justify-between px-2 pt-1">
+                        <div className="flex items-center justify-between px-2 pt-1 pb-1">
                             <span className="text-xs uppercase font-semibold tracking-wider text-amber-400">Theme</span>
                             <ThemeSwitcher />
                         </div>
-
-                        <div className="text-xs uppercase font-semibold tracking-wider text-amber-400 px-2 pt-2">Dashboards</div>
-                        <Link 
-                            href="/manager" 
-                            onClick={() => setIsMobileMenuOpen(false)}
-                            className="rounded-xl px-4 py-2 text-xs font-semibold bg-amber-900/60 text-amber-200 flex items-center gap-2 hover:bg-amber-800"
-                        >
-                            <Briefcase className="w-4 h-4 text-amber-400" />
-                            Manager Dashboard
-                        </Link>
-                        <Link 
-                            href="/admin" 
-                            onClick={() => setIsMobileMenuOpen(false)}
-                            className="rounded-xl px-4 py-2 text-xs font-semibold bg-amber-600 text-amber-950 flex items-center gap-2 hover:bg-amber-500"
-                        >
-                            <Shield className="w-4 h-4" />
-                            Admin Dashboard
-                        </Link>
                     </div>
                 </div>
             )}

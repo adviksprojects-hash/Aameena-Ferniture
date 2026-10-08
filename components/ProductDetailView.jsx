@@ -119,7 +119,7 @@ export default function ProductDetailView({ product, relatedProducts = [] }) {
       `• *Product Link:* ${shareUrl}\n\n` +
       `Please confirm stock availability, delivery schedule for Pincode ${pincode}, and payment/workshop inspection details.`;
 
-    return `https://api.whatsapp.com/send?phone=918600570542&text=${encodeURIComponent(message)}`;
+    return `https://api.whatsapp.com/send?phone=919730392917&text=${encodeURIComponent(message)}`;
   };
 
   const handleMouseMove = (e) => {

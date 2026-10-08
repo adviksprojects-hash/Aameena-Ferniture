@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import Header from "@/components/HeaderComponents/Header";
-import Footer from "@/components/Footer";
+import LayoutShell from "@/components/LayoutShell";
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 
@@ -48,9 +48,9 @@ export default function RootLayout({ children }) {
         >
           <WishlistProvider>
             <CartProvider>
-              <Header />
-              <main className="flex-1">{children}</main>
-              <Footer />
+              <LayoutShell header={<Header />}>
+                {children}
+              </LayoutShell>
             </CartProvider>
           </WishlistProvider>
         </body>

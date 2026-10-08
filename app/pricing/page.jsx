@@ -101,7 +101,7 @@ export default function PricingPage() {
     ];
 
     const message = lines.join("\n");
-    const url = `https://api.whatsapp.com/send?phone=918600570542&text=${encodeURIComponent(message)}`;
+    const url = `https://api.whatsapp.com/send?phone=919730392917&text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");
   };
 
@@ -130,7 +130,7 @@ export default function PricingPage() {
         <div className="absolute inset-0 bg-[radial-gradient(#262626_1px,transparent_1px)] [background-size:24px_24px] opacity-25" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-24">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-20">
         {/* ============================================================== */}
         {/* HEADER SECTION                                                */}
         {/* ============================================================== */}
