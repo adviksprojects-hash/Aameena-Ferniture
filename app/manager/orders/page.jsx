@@ -469,7 +469,7 @@ export default function ManagerOrdersPage() {
 
   const dispatchWhatsApp = (order) => {
     const phone = (order.customerPhone || "").replace(/[^0-9]/g, "");
-    const formattedPhone = phone.startsWith("91") ? phone : (phone ? `91${phone}` : "918600570542");
+    const formattedPhone = phone.startsWith("91") ? phone : (phone ? `91${phone}` : "919730392917");
     const msg = generateWhatsAppMessage(order);
     window.open(`https://api.whatsapp.com/send?phone=${formattedPhone}&text=${encodeURIComponent(msg)}`, "_blank");
     setShowNotifyModal(false);

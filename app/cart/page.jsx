@@ -132,7 +132,7 @@ export default function CartPage() {
         setOrderSuccess(res);
         clearCart();
 
-        // 🚀 Automatically trigger WhatsApp order message to factory owner (+91 86005 70542)
+        // 🚀 Automatically trigger WhatsApp order message to factory owner (+91 97303 92917)
         const ownerWhatsAppUrl = getOwnerWhatsAppUrl(orderInfo);
         try {
           window.open(ownerWhatsAppUrl, "_blank");
@@ -311,7 +311,7 @@ export default function CartPage() {
               <div className="max-w-lg mx-auto bg-emerald-950/40 border border-emerald-500/30 rounded-xl p-3.5 space-y-2">
                 <div className="flex items-center justify-center gap-2 text-xs text-emerald-300 font-medium">
                   <MessageSquare className="w-4 h-4 text-emerald-400" />
-                  <span>WhatsApp details prepared for Factory Owner (+91 86005 70542)</span>
+                  <span>WhatsApp details prepared for Factory Owner (+91 97303 92917)</span>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <a
@@ -770,7 +770,7 @@ export default function CartPage() {
                       <MessageSquare className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                       <div>
                         <span className="font-bold text-white block">Automatic WhatsApp Owner Notification</span>
-                        Upon confirming your order, an itemized specification (Item 1, Item 2..., timber specs, and destination address) will automatically be sent to the factory owner (+91 86005 70542).
+                        Upon confirming your order, an itemized specification (Item 1, Item 2..., timber specs, and destination address) will automatically be sent to the factory owner (+91 97303 92917).
                       </div>
                     </div>
 

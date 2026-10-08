@@ -21,7 +21,7 @@ export default function ManagerWhatsAppPage() {
     {
       id: "solapur",
       name: "AMEENA Distributors’s Sofa Set Furniture Company - Solapur Facility",
-      phone: "+91 86692 33747",
+      phone: "+91 97303 92917",
       city: "Solapur",
     },
   ];
@@ -74,7 +74,7 @@ export default function ManagerWhatsAppPage() {
       `📍 *Location:* ${loc}\n` +
       (orderNumber ? `📦 *Order ID:* #${orderNumber}\n` : "") +
       `\n${customMessage}\n\n` +
-      `Official Helpline (Calling): +91 86692 33747 | WhatsApp: +91 86005 70542\n` +
+      `Official Helpline & WhatsApp: +91 97303 92917\n` +
       `Visit: http://localhost:3000`
     );
   };

@@ -26,9 +26,13 @@ import {
   ShoppingCart,
   ShoppingBag,
   Heart,
+  Box,
+  Smartphone,
+  Scan,
 } from "lucide-react";
 import ProductShareModal from "@/components/ProductShareModal";
 import ProductReviewsSection from "@/components/ProductReviewsSection";
+import Furniture3DViewer from "@/components/Furniture3DViewer";
 import { getProductRatingScore } from "@/utils/productRating";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
@@ -39,6 +43,7 @@ export default function ProductDetailView({ product, relatedProducts = [] }) {
     : ["https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1200&q=80"];
 
   const [activeImage, setActiveImage] = useState(images[0]);
+  const [viewMode, setViewMode] = useState("photo"); // "photo" | "3d"
   const [selectedFinish, setSelectedFinish] = useState(product.finishType || "Natural Honey Teak");
   const { addToCart, isInCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
@@ -159,16 +164,62 @@ export default function ProductDetailView({ product, relatedProducts = [] }) {
         {/* LEFT COLUMN: FLIPKART THUMBNAIL RAIL + ZOOM IMAGE + ACTION BTNS */}
         {/* ============================================================== */}
         <div className="lg:col-span-5 space-y-4 lg:sticky lg:top-24">
-          <div className="flex flex-col-reverse sm:flex-row gap-3">
-            {/* Vertical Thumbnail Rail (Left on desktop/tablet) */}
-            {images.length > 1 && (
+          {/* View Mode Switcher: Photo Gallery vs 3D & AR View */}
+          <div className="flex items-center justify-between bg-amber-100/70 p-1.5 rounded-2xl border border-amber-200/80 shadow-xs">
+            <button
+              type="button"
+              onClick={() => setViewMode("photo")}
+              className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                viewMode === "photo"
+                  ? "bg-white text-slate-900 shadow-md border border-amber-200/60"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              <span>📸 Photo Gallery ({images.length})</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setViewMode("3d")}
+              className={`flex-1 py-2 px-3 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 cursor-pointer relative ${
+                viewMode === "3d"
+                  ? "bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-slate-950 shadow-md border border-amber-400"
+                  : "text-amber-900 hover:text-amber-950 hover:bg-white/50"
+              }`}
+            >
+              <Box className="w-3.5 h-3.5 text-slate-950" />
+              <span>3D & AR View (360°)</span>
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+              </span>
+            </button>
+          </div>
+
+          {viewMode === "3d" ? (
+            <div className="space-y-2">
+              <Furniture3DViewer product={product} />
+              <button
+                type="button"
+                onClick={() => setViewMode("photo")}
+                className="w-full py-2 text-center text-xs font-bold text-amber-900 hover:text-amber-950 hover:underline cursor-pointer"
+              >
+                ← Return to Photo Gallery
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col-reverse sm:flex-row gap-3">
+              {/* Vertical Thumbnail Rail (Left on desktop/tablet) */}
               <div className="flex sm:flex-col gap-2.5 overflow-x-auto sm:overflow-y-auto sm:max-h-[500px] shrink-0 py-1">
                 {images.map((img, idx) => {
                   const isSelected = activeImage === img;
                   return (
                     <button
                       key={idx}
-                      onClick={() => setActiveImage(img)}
+                      onClick={() => {
+                        setActiveImage(img);
+                        setViewMode("photo");
+                      }}
                       onMouseEnter={() => setActiveImage(img)}
                       className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 transition-all shrink-0 ${
                         isSelected
@@ -183,68 +234,91 @@ export default function ProductDetailView({ product, relatedProducts = [] }) {
                     </button>
                   );
                 })}
+
+                {/* 3D Model Dedicated Thumbnail Trigger */}
+                <button
+                  type="button"
+                  onClick={() => setViewMode("3d")}
+                  className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 border-dashed border-amber-500 bg-amber-950 text-amber-300 flex flex-col items-center justify-center gap-1 shadow-sm hover:scale-105 transition-all shrink-0 cursor-pointer group"
+                  title="Open Interactive 3D & 360° Studio"
+                >
+                  <Box className="w-5 h-5 text-amber-400 group-hover:rotate-12 transition-transform" />
+                  <span className="text-[10px] font-extrabold uppercase tracking-tight text-amber-200">
+                    3D • AR
+                  </span>
+                </button>
               </div>
-            )}
 
-            {/* Main High-Resolution Preview Image with Hover-Zoom */}
-            <div className="relative flex-1 bg-white rounded-3xl border border-amber-200/80 p-3 shadow-md overflow-hidden">
-              <div
-                className="relative h-[380px] sm:h-[480px] w-full rounded-2xl overflow-hidden cursor-crosshair bg-slate-50 flex items-center justify-center"
-                onMouseMove={handleMouseMove}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-              >
-                <img
-                  src={activeImage}
-                  alt={product.title}
-                  style={zoomStyle}
-                  className="w-full h-full object-cover transition-transform duration-150 ease-out"
-                />
+              {/* Main High-Resolution Preview Image with Hover-Zoom */}
+              <div className="relative flex-1 bg-white rounded-3xl border border-amber-200/80 p-3 shadow-md overflow-hidden">
+                <div
+                  className="relative h-[380px] sm:h-[480px] w-full rounded-2xl overflow-hidden cursor-crosshair bg-slate-50 flex items-center justify-center"
+                  onMouseMove={handleMouseMove}
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <img
+                    src={activeImage}
+                    alt={product.title}
+                    style={zoomStyle}
+                    className="w-full h-full object-cover transition-transform duration-150 ease-out"
+                  />
 
-                {/* Badges on Main Image */}
-                <div className="absolute top-4 left-4 flex flex-col gap-2 pointer-events-none">
-                  <span className="bg-amber-950/90 text-amber-200 text-xs font-bold px-3 py-1 rounded-full backdrop-blur-sm shadow-md">
-                    {product.woodType}
-                  </span>
-                  <span className="bg-emerald-950/90 text-emerald-300 text-[11px] font-bold px-3 py-1 rounded-full backdrop-blur-sm shadow-md border border-emerald-700/60">
-                    {product.stock > 0 ? "Ready in Solapur" : "Handcrafted to Order"}
-                  </span>
-                </div>
-
-                {/* Floating Action Buttons on Image */}
-                <div className="absolute top-4 right-4 flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => toggleWishlist(product)}
-                    className={`p-2.5 rounded-full shadow-lg backdrop-blur-sm hover:scale-110 transition-all border cursor-pointer ${
-                      inWishlist
-                        ? "bg-rose-50 text-rose-600 border-rose-300"
-                        : "bg-white/90 hover:bg-white text-slate-700 border-slate-200"
-                    }`}
-                    title={inWishlist ? "Saved in your Wishlist" : "Save to Wishlist"}
-                  >
-                    <Heart className={`w-4 h-4 ${inWishlist ? "fill-rose-500 text-rose-500" : "text-slate-600"}`} />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setShareOpen(true)}
-                    className="p-2.5 rounded-full bg-white/90 hover:bg-white text-slate-800 shadow-lg backdrop-blur-sm hover:scale-110 transition-all border border-slate-200 cursor-pointer"
-                    title="Share this furniture"
-                  >
-                    <Share2 className="w-4 h-4 text-amber-900" />
-                  </button>
-                </div>
-
-                {/* Hover Lens Hint */}
-                {!isZooming && (
-                  <div className="absolute bottom-3 right-3 bg-black/60 text-white text-[10px] font-medium px-2.5 py-1 rounded-full backdrop-blur-sm pointer-events-none">
-                    Hover to zoom details
+                  {/* Badges on Main Image */}
+                  <div className="absolute top-4 left-4 flex flex-col gap-2 pointer-events-none">
+                    <span className="bg-amber-950/90 text-amber-200 text-xs font-bold px-3 py-1 rounded-full backdrop-blur-sm shadow-md">
+                      {product.woodType}
+                    </span>
+                    <span className="bg-emerald-950/90 text-emerald-300 text-[11px] font-bold px-3 py-1 rounded-full backdrop-blur-sm shadow-md border border-emerald-700/60">
+                      {product.stock > 0 ? "Ready in Solapur" : "Handcrafted to Order"}
+                    </span>
                   </div>
-                )}
+
+                  {/* Floating Action Buttons on Image */}
+                  <div className="absolute top-4 right-4 flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => toggleWishlist(product)}
+                      className={`p-2.5 rounded-full shadow-lg backdrop-blur-sm hover:scale-110 transition-all border cursor-pointer ${
+                        inWishlist
+                          ? "bg-rose-50 text-rose-600 border-rose-300"
+                          : "bg-white/90 hover:bg-white text-slate-700 border-slate-200"
+                      }`}
+                      title={inWishlist ? "Saved in your Wishlist" : "Save to Wishlist"}
+                    >
+                      <Heart className={`w-4 h-4 ${inWishlist ? "fill-rose-500 text-rose-500" : "text-slate-600"}`} />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setShareOpen(true)}
+                      className="p-2.5 rounded-full bg-white/90 hover:bg-white text-slate-800 shadow-lg backdrop-blur-sm hover:scale-110 transition-all border border-slate-200 cursor-pointer"
+                      title="Share this furniture"
+                    >
+                      <Share2 className="w-4 h-4 text-amber-900" />
+                    </button>
+                  </div>
+
+                  {/* Quick 3D View Overlay Pill */}
+                  <button
+                    type="button"
+                    onClick={() => setViewMode("3d")}
+                    className="absolute bottom-3 left-3 bg-amber-950/90 hover:bg-amber-900 text-amber-200 hover:text-amber-100 text-[11px] font-bold px-3 py-1.5 rounded-full backdrop-blur-md shadow-lg border border-amber-600/50 flex items-center gap-1.5 transition-all hover:scale-105 cursor-pointer"
+                  >
+                    <Box className="w-3.5 h-3.5 text-amber-400" />
+                    <span>View in 3D (360°) & AR</span>
+                  </button>
+
+                  {/* Hover Lens Hint */}
+                  {!isZooming && (
+                    <div className="absolute bottom-3 right-3 bg-black/60 text-white text-[10px] font-medium px-2.5 py-1 rounded-full backdrop-blur-sm pointer-events-none">
+                      Hover to zoom
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Action CTA Buttons */}
           <div className="space-y-3 pt-2">
@@ -317,11 +391,11 @@ export default function ProductDetailView({ product, relatedProducts = [] }) {
               </div>
 
               <a
-                href="tel:+918669233747"
+                href="tel:+919730392917"
                 className="text-slate-600 hover:text-amber-900 font-medium flex items-center gap-1 cursor-pointer"
               >
                 <Phone className="w-3.5 h-3.5 text-amber-800" />
-                <span>Call Factory: +91 86692 33747</span>
+                <span>Call Factory: +91 97303 92917</span>
               </a>
             </div>
           </div>

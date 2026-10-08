@@ -318,11 +318,11 @@ export default function PricingPage() {
               </a>
 
               <a
-                href="tel:+918669233747"
+                href="tel:+919730392917"
                 className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl bg-neutral-900/90 hover:bg-neutral-800 text-neutral-200 hover:text-white text-sm font-bold border border-neutral-700/80 hover:border-amber-500/40 transition-all duration-300 hover:scale-[1.02] cursor-pointer"
               >
                 <Phone className="w-4 h-4 text-amber-400" />
-                <span>Factory: +91 86692 33747</span>
+                <span>Factory: +91 97303 92917</span>
               </a>
             </div>
           </div>
@@ -704,13 +704,13 @@ export default function PricingPage() {
 
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
               <a
-                href="https://api.whatsapp.com/send?phone=918600570542&text=Hello%20Aameena%20Furniture,%20I%20would%20like%20to%20schedule%20a%20factory%20visit%20at%20Solapur."
+                href="https://api.whatsapp.com/send?phone=919730392917&text=Hello%20Aameena%20Furniture,%20I%20would%20like%20to%20schedule%20a%20factory%20visit%20at%20Solapur."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-xs shadow-lg shadow-amber-500/25 transition-all hover:scale-105 cursor-pointer"
               >
                 <MessageSquare className="w-4 h-4 text-emerald-950" />
-                <span>Schedule Free Factory Visit on WhatsApp (+91 86005 70542)</span>
+                <span>Schedule Free Factory Visit on WhatsApp (+91 97303 92917)</span>
               </a>
 
               {settings?.catalogPdfUrl && (

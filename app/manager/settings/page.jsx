@@ -8,7 +8,7 @@ export default function ManagerSettingsPage() {
   const [profile, setProfile] = useState({
     name: "Suresh Kumar",
     branch: "AMEENA Distributors’s Sofa Set Furniture Company - Solapur",
-    phone: "+91 86692 33747",
+    phone: "+91 97303 92917",
     notifications: true,
   });
 

@@ -301,13 +301,13 @@ export default function ServicesPage() {
             Browse Loose Fabrics
           </Link>
           <a
-            href="https://api.whatsapp.com/send?phone=918600570542&text=Hello%20Aameena%20Furniture,%20I%20want%20to%20inquire%20about%20loose%20cloth%20and%20sofa%20materials%20at%20your%20factory."
+            href="https://api.whatsapp.com/send?phone=919730392917&text=Hello%20Aameena%20Furniture,%20I%20want%20to%20inquire%20about%20loose%20cloth%20and%20sofa%20materials%20at%20your%20factory."
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-3 rounded-2xl bg-white hover:bg-amber-50 text-amber-950 border border-amber-300 text-xs font-bold transition-all flex items-center gap-1.5"
           >
             <MessageSquare className="w-4 h-4 text-emerald-600" />
-            <span>Inquire Loose Cloth (+91 86005 70542)</span>
+            <span>Inquire Loose Cloth (+91 97303 92917)</span>
           </a>
         </div>
       </div>

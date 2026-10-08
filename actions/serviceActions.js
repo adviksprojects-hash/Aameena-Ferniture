@@ -12,7 +12,7 @@ export async function generateWhatsAppLink({
   woodChoice = "Grade-A Sagwan Teak",
   dimensions = "Standard",
 }) {
-  const phone = "918600570542"; // Official showroom WhatsApp business number
+  const phone = "919730392917"; // Official showroom WhatsApp business number
   const message = `Hello Aameena Furniture, my name is ${clientName}. I would like to book a consultation for "${serviceType}". 
 Preferred Wood: ${woodChoice}
 Dimensions / Scope: ${dimensions}. 

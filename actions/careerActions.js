@@ -234,7 +234,7 @@ export async function applyForJob(data) {
     }
 
     // Generate HR WhatsApp notification link
-    const hrPhone = "918600570542";
+    const hrPhone = "919730392917";
     const msg = `Hello Aameena Furniture HR, I have applied for the position "${application.job?.title}" via your Careers Portal.
 - Applicant Name: ${fullName}
 - Phone: ${phone}

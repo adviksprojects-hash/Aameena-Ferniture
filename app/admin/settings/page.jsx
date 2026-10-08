@@ -8,7 +8,7 @@ export default function AdminSettingsPage() {
   const [settings, setSettings] = useState({
     storeName: "Aameena Furniture & Furnishing",
     supportEmail: "info@aameenafurniture.com",
-    phone: "+91 86692 33747",
+    phone: "+91 97303 92917",
     gstin: "07AAAAA0000A1Z5",
     currency: "INR (₹)",
   });

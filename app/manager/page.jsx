@@ -499,7 +499,7 @@ export default async function ManagerDashboard() {
                 WhatsApp Dispatch
               </span>
               <span className="text-[10px] text-slate-500 block mt-0.5">
-                +91 86005 70542
+                +91 97303 92917
               </span>
             </div>
           </Link>
