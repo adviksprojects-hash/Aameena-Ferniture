@@ -125,6 +125,7 @@ model Product {
   isArchived     Boolean     @default(false)
   showInquiryBtn Boolean     @default(true)
   showDetailsBtn Boolean     @default(true)
+  model3dUrl     String?
   images         String[]    @default([])
   categoryId     String
   createdAt      DateTime    @default(now())

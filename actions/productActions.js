@@ -80,6 +80,7 @@ export async function createProduct(productData) {
       images = [],
       finishType,
       materialPurity,
+      model3dUrl,
       showInquiryBtn = true,
       showDetailsBtn = true,
     } = productData;
@@ -138,6 +139,10 @@ export async function createProduct(productData) {
       ? description.trim()
       : "";
 
+    const cleanModel3d = model3dUrl && typeof model3dUrl === "string" && model3dUrl.trim()
+      ? model3dUrl.trim()
+      : null;
+
     const cleanCompareAt = compareAtPrice !== undefined && compareAtPrice !== null && String(compareAtPrice).trim() !== ""
       ? parseFloat(compareAtPrice)
       : null;
@@ -155,6 +160,7 @@ export async function createProduct(productData) {
         dimensions: cleanDimensions,
         description: cleanDesc,
         finishType: cleanFinish,
+        model3dUrl: cleanModel3d,
         images: safeImages,
         showInquiryBtn: Boolean(showInquiryBtn),
         showDetailsBtn: Boolean(showDetailsBtn),
@@ -183,38 +189,93 @@ export async function createProduct(productData) {
  */
 export async function updateProduct(id, updateData) {
   try {
-    const dataToUpdate = { ...updateData };
-    if (dataToUpdate.price !== undefined) dataToUpdate.price = parseFloat(dataToUpdate.price);
-    if (dataToUpdate.compareAtPrice !== undefined) {
-      dataToUpdate.compareAtPrice = dataToUpdate.compareAtPrice !== null && String(dataToUpdate.compareAtPrice).trim() !== ""
-        ? parseFloat(dataToUpdate.compareAtPrice)
+    if (!id) {
+      return { success: false, error: "Product ID is required for update." };
+    }
+
+    const cleanData = {};
+
+    if (updateData.title !== undefined) cleanData.title = String(updateData.title).trim();
+    if (updateData.description !== undefined) cleanData.description = String(updateData.description || "").trim();
+    if (updateData.woodType !== undefined) cleanData.woodType = String(updateData.woodType).trim();
+    
+    if (updateData.materialPurity !== undefined) {
+      cleanData.materialPurity = updateData.materialPurity && String(updateData.materialPurity).trim()
+        ? String(updateData.materialPurity).trim()
         : null;
     }
-    if (dataToUpdate.stock !== undefined) dataToUpdate.stock = parseInt(dataToUpdate.stock, 10);
-    if (dataToUpdate.showInquiryBtn !== undefined) dataToUpdate.showInquiryBtn = Boolean(dataToUpdate.showInquiryBtn);
-    if (dataToUpdate.showDetailsBtn !== undefined) dataToUpdate.showDetailsBtn = Boolean(dataToUpdate.showDetailsBtn);
-    if (dataToUpdate.materialPurity !== undefined) {
-      dataToUpdate.materialPurity = dataToUpdate.materialPurity && String(dataToUpdate.materialPurity).trim()
-        ? String(dataToUpdate.materialPurity).trim()
+    if (updateData.finishType !== undefined) {
+      cleanData.finishType = updateData.finishType && String(updateData.finishType).trim()
+        ? String(updateData.finishType).trim()
         : null;
     }
-    if (dataToUpdate.finishType !== undefined) {
-      dataToUpdate.finishType = dataToUpdate.finishType && String(dataToUpdate.finishType).trim()
-        ? String(dataToUpdate.finishType).trim()
+    if (updateData.dimensions !== undefined) {
+      cleanData.dimensions = updateData.dimensions && String(updateData.dimensions).trim()
+        ? String(updateData.dimensions).trim()
         : null;
     }
-    if (dataToUpdate.dimensions !== undefined) {
-      dataToUpdate.dimensions = dataToUpdate.dimensions && String(dataToUpdate.dimensions).trim()
-        ? String(dataToUpdate.dimensions).trim()
+    if (updateData.price !== undefined && updateData.price !== null && String(updateData.price).trim() !== "") {
+      cleanData.price = parseFloat(updateData.price);
+    }
+    if (updateData.compareAtPrice !== undefined) {
+      cleanData.compareAtPrice = updateData.compareAtPrice !== null && String(updateData.compareAtPrice).trim() !== ""
+        ? parseFloat(updateData.compareAtPrice)
         : null;
     }
-    if (Array.isArray(dataToUpdate.images)) {
-      dataToUpdate.images = dataToUpdate.images.slice(0, 3);
+    if (updateData.costPrice !== undefined) {
+      cleanData.costPrice = updateData.costPrice !== null && String(updateData.costPrice).trim() !== ""
+        ? parseFloat(updateData.costPrice)
+        : null;
+    }
+    if (updateData.stock !== undefined) {
+      cleanData.stock = parseInt(updateData.stock, 10) || 0;
+    }
+    if (updateData.warehouseLocation !== undefined) {
+      cleanData.warehouseLocation = String(updateData.warehouseLocation || "").trim() || "Solapur Central Facility";
+    }
+    if (updateData.showInquiryBtn !== undefined) {
+      cleanData.showInquiryBtn = Boolean(updateData.showInquiryBtn);
+    }
+    if (updateData.showDetailsBtn !== undefined) {
+      cleanData.showDetailsBtn = Boolean(updateData.showDetailsBtn);
+    }
+    if (updateData.isFeatured !== undefined) {
+      cleanData.isFeatured = Boolean(updateData.isFeatured);
+    }
+    if (updateData.isArchived !== undefined) {
+      cleanData.isArchived = Boolean(updateData.isArchived);
+    }
+    if (updateData.model3dUrl !== undefined) {
+      cleanData.model3dUrl = updateData.model3dUrl && String(updateData.model3dUrl).trim()
+        ? String(updateData.model3dUrl).trim()
+        : null;
+    }
+    if (Array.isArray(updateData.images)) {
+      cleanData.images = updateData.images.slice(0, 3);
+    }
+
+    // Resolve category if categorySlug is provided
+    if (updateData.categorySlug && typeof updateData.categorySlug === "string" && updateData.categorySlug.trim()) {
+      const cleanSlug = updateData.categorySlug.trim();
+      let category = await db.category.findUnique({
+        where: { slug: cleanSlug },
+      });
+      if (!category) {
+        category = await db.category.create({
+          data: {
+            name: cleanSlug.charAt(0).toUpperCase() + cleanSlug.slice(1) + " Room",
+            slug: cleanSlug,
+          },
+        });
+      }
+      cleanData.categoryId = category.id;
+    } else if (updateData.categoryId) {
+      cleanData.categoryId = updateData.categoryId;
     }
 
     const updated = await db.product.update({
       where: { id },
-      data: dataToUpdate,
+      data: cleanData,
     });
 
     purgeProductCache(id, updated.slug);

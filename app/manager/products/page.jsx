@@ -22,6 +22,7 @@ import {
   Minus,
   MessageSquare,
   ExternalLink,
+  Box,
 } from "lucide-react";
 import {
   getProducts,
@@ -100,6 +101,7 @@ export default function ManagerProductsPage() {
     dimensions: "",
     description: "",
     finishType: "",
+    model3dUrl: "",
     showInquiryBtn: true,
     showDetailsBtn: true,
   });
@@ -115,10 +117,49 @@ export default function ManagerProductsPage() {
     stock: "",
     dimensions: "",
     description: "",
+    model3dUrl: "",
     finishType: "Natural Teak Honey Polish",
     showInquiryBtn: true,
     showDetailsBtn: true,
   });
+
+  const [uploading3D, setUploading3D] = useState(false);
+
+  const handleUpload3DModel = async (file, isEdit = false) => {
+    if (!file) return;
+    const nameLower = file.name.toLowerCase();
+    if (!nameLower.endsWith(".glb") && !nameLower.endsWith(".gltf") && !nameLower.endsWith(".usdz")) {
+      alert("Please select a valid 3D model file (.glb, .gltf, or .usdz).");
+      return;
+    }
+
+    try {
+      setUploading3D(true);
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/upload-model3d", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        if (isEdit) {
+          setEditProductData((prev) => ({ ...prev, model3dUrl: data.url }));
+        } else {
+          setNewProduct((prev) => ({ ...prev, model3dUrl: data.url }));
+        }
+      } else {
+        alert(data.error || "Failed to upload 3D model.");
+      }
+    } catch (err) {
+      console.error("Upload 3D error:", err);
+      alert("Error uploading 3D model file from system.");
+    } finally {
+      setUploading3D(false);
+    }
+  };
 
   const loadProducts = async () => {
     setLoading(true);
@@ -256,6 +297,7 @@ export default function ManagerProductsPage() {
     setEditProductImages(product.images || []);
     setEditProductData({
       title: product.title || "",
+      categorySlug: product.Category?.slug || "living",
       woodType: product.woodType || "Grade-A Sagwan Teak",
       materialPurity: product.materialPurity || "",
       price: product.price || "",
@@ -263,6 +305,7 @@ export default function ManagerProductsPage() {
       stock: product.stock !== undefined ? product.stock : "",
       dimensions: product.dimensions || "",
       description: product.description || "",
+      model3dUrl: product.model3dUrl || "",
       finishType: product.finishType || "Natural Teak Honey Polish",
       showInquiryBtn: product.showInquiryBtn !== false,
       showDetailsBtn: product.showDetailsBtn !== false,
@@ -371,6 +414,7 @@ export default function ManagerProductsPage() {
         dimensions: "",
         description: "",
         finishType: "",
+        model3dUrl: "",
         showInquiryBtn: true,
         showDetailsBtn: true,
       });
@@ -935,6 +979,95 @@ export default function ManagerProductsPage() {
                 </div>
               </div>
 
+              {/* 3D & Augmented Reality Model (.glb file) */}
+              <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-300 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-amber-950 font-bold text-xs">
+                    <Box className="w-4 h-4 text-amber-800" />
+                    <span>3D Model & AR Asset (.glb / .gltf)</span>
+                  </div>
+                  <span className="text-[10px] text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded border border-amber-300 font-bold">
+                    Interactive 360° & AR
+                  </span>
+                </div>
+
+                {/* Upload Button from System */}
+                <div className="flex items-center gap-2">
+                  <label
+                    className={`flex-1 py-2.5 px-3 rounded-xl border border-dashed text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                      uploading3D
+                        ? "bg-amber-200/80 text-amber-950 border-amber-600 animate-pulse"
+                        : "bg-white hover:bg-amber-100 text-amber-900 border-amber-400"
+                    }`}
+                  >
+                    <Upload className="w-4 h-4 text-amber-800" />
+                    <span>{uploading3D ? "Uploading 3D Model from PC..." : "Upload .GLB from System / PC"}</span>
+                    <input
+                      type="file"
+                      accept=".glb,.gltf,.usdz"
+                      disabled={uploading3D}
+                      onChange={(e) => {
+                        if (e.target.files?.[0]) handleUpload3DModel(e.target.files[0], false);
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+
+                {/* URL or Local Path Input */}
+                <div>
+                  <label className="text-[10px] text-slate-600 font-semibold block mb-1">
+                    Or Enter 3D Model Path / Direct URL:
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. /models/sofa.glb or /uploads/models/custom.glb"
+                    value={newProduct.model3dUrl}
+                    onChange={(e) => setNewProduct({ ...newProduct, model3dUrl: e.target.value })}
+                    className="w-full p-2.5 rounded-xl bg-white border border-amber-300 text-slate-900 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  />
+                </div>
+
+                {/* Quick Presets & Clear */}
+                <div className="flex items-center gap-2 pt-0.5 flex-wrap">
+                  <span className="text-[10px] text-slate-600 font-medium">Quick Presets:</span>
+                  <button
+                    type="button"
+                    onClick={() => setNewProduct({ ...newProduct, model3dUrl: "/models/sofa.glb" })}
+                    className="px-2.5 py-1 rounded-lg bg-white hover:bg-amber-100 text-[10px] font-bold text-amber-900 border border-amber-300 transition cursor-pointer"
+                  >
+                    🛋️ Sofa Model
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNewProduct({ ...newProduct, model3dUrl: "/models/chair.glb" })}
+                    className="px-2.5 py-1 rounded-lg bg-white hover:bg-amber-100 text-[10px] font-bold text-amber-900 border border-amber-300 transition cursor-pointer"
+                  >
+                    🪑 Chair Model
+                  </button>
+                  {newProduct.model3dUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setNewProduct({ ...newProduct, model3dUrl: "" })}
+                      className="px-2.5 py-1 rounded-lg bg-red-100 hover:bg-red-200 text-[10px] font-bold text-red-800 border border-red-300 transition cursor-pointer"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+
+                {newProduct.model3dUrl && (
+                  <div className="p-2 rounded-lg bg-emerald-50 border border-emerald-300 text-[11px] text-emerald-900 flex items-center gap-1.5 font-medium">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                    <span className="truncate">3D Model Linked: {newProduct.model3dUrl}</span>
+                  </div>
+                )}
+
+                <p className="text-[10px] text-slate-500">
+                  Enables customers to inspect this exact product in 360° and test it on their room floor using phone AR.
+                </p>
+              </div>
+
               {/* 🎛️ Storefront Buttons Controls */}
               <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
                 <span className="font-bold text-slate-800 block text-[11px] uppercase">
@@ -1082,7 +1215,15 @@ export default function ManagerProductsPage() {
                 )}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <SearchableSelect
+                  label="Room Category:"
+                  options={CATEGORY_OPTIONS}
+                  value={editProductData.categorySlug}
+                  onChange={(val) => setEditProductData({ ...editProductData, categorySlug: val })}
+                  allowOther={true}
+                />
+
                 <SearchableSelect
                   label="Timber / Material Selection:"
                   options={WOOD_OPTIONS}
@@ -1158,6 +1299,95 @@ export default function ManagerProductsPage() {
                   />
                   {editErrors.stock && <p className="text-red-500 text-[10px] mt-1">{editErrors.stock}</p>}
                 </div>
+              </div>
+
+              {/* 3D & Augmented Reality Model (.glb file) */}
+              <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-300 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-amber-950 font-bold text-xs">
+                    <Box className="w-4 h-4 text-amber-800" />
+                    <span>3D Model & AR Asset (.glb / .gltf)</span>
+                  </div>
+                  <span className="text-[10px] text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded border border-amber-300 font-bold">
+                    Interactive 360° & AR
+                  </span>
+                </div>
+
+                {/* Upload Button from System */}
+                <div className="flex items-center gap-2">
+                  <label
+                    className={`flex-1 py-2.5 px-3 rounded-xl border border-dashed text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                      uploading3D
+                        ? "bg-amber-200/80 text-amber-950 border-amber-600 animate-pulse"
+                        : "bg-white hover:bg-amber-100 text-amber-900 border-amber-400"
+                    }`}
+                  >
+                    <Upload className="w-4 h-4 text-amber-800" />
+                    <span>{uploading3D ? "Uploading 3D Model from PC..." : "Upload .GLB from System / PC"}</span>
+                    <input
+                      type="file"
+                      accept=".glb,.gltf,.usdz"
+                      disabled={uploading3D}
+                      onChange={(e) => {
+                        if (e.target.files?.[0]) handleUpload3DModel(e.target.files[0], true);
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+
+                {/* URL or Local Path Input */}
+                <div>
+                  <label className="text-[10px] text-slate-600 font-semibold block mb-1">
+                    Or Enter 3D Model Path / Direct URL:
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. /models/sofa.glb or /uploads/models/custom.glb"
+                    value={editProductData.model3dUrl || ""}
+                    onChange={(e) => setEditProductData({ ...editProductData, model3dUrl: e.target.value })}
+                    className="w-full p-2.5 rounded-xl bg-white border border-amber-300 text-slate-900 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  />
+                </div>
+
+                {/* Quick Presets & Clear */}
+                <div className="flex items-center gap-2 pt-0.5 flex-wrap">
+                  <span className="text-[10px] text-slate-600 font-medium">Quick Presets:</span>
+                  <button
+                    type="button"
+                    onClick={() => setEditProductData({ ...editProductData, model3dUrl: "/models/sofa.glb" })}
+                    className="px-2.5 py-1 rounded-lg bg-white hover:bg-amber-100 text-[10px] font-bold text-amber-900 border border-amber-300 transition cursor-pointer"
+                  >
+                    🛋️ Sofa Model
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditProductData({ ...editProductData, model3dUrl: "/models/chair.glb" })}
+                    className="px-2.5 py-1 rounded-lg bg-white hover:bg-amber-100 text-[10px] font-bold text-amber-900 border border-amber-300 transition cursor-pointer"
+                  >
+                    🪑 Chair Model
+                  </button>
+                  {editProductData.model3dUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setEditProductData({ ...editProductData, model3dUrl: "" })}
+                      className="px-2.5 py-1 rounded-lg bg-red-100 hover:bg-red-200 text-[10px] font-bold text-red-800 border border-red-300 transition cursor-pointer"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+
+                {editProductData.model3dUrl && (
+                  <div className="p-2 rounded-lg bg-emerald-50 border border-emerald-300 text-[11px] text-emerald-900 flex items-center gap-1.5 font-medium">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                    <span className="truncate">3D Model Linked: {editProductData.model3dUrl}</span>
+                  </div>
+                )}
+
+                <p className="text-[10px] text-slate-500">
+                  Enables customers to inspect this exact product in 360° and test it on their room floor using phone AR.
+                </p>
               </div>
 
               {/* 🎛️ Storefront Buttons Controls */}

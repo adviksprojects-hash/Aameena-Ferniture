@@ -21,6 +21,7 @@ import {
   X,
   Edit3,
   ExternalLink,
+  Box,
 } from "lucide-react";
 import {
   getProducts,
@@ -95,6 +96,7 @@ export default function AdminProductsPage() {
     description: "",
     images: [],
     finishType: "",
+    model3dUrl: "",
     showInquiryBtn: true,
     showDetailsBtn: true,
   });
@@ -103,6 +105,43 @@ export default function AdminProductsPage() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [editProductImages, setEditProductImages] = useState([]);
+  const [uploading3D, setUploading3D] = useState(false);
+
+  const handleUpload3DModel = async (file, isEdit = false) => {
+    if (!file) return;
+    const nameLower = file.name.toLowerCase();
+    if (!nameLower.endsWith(".glb") && !nameLower.endsWith(".gltf") && !nameLower.endsWith(".usdz")) {
+      alert("Please select a valid 3D model file (.glb, .gltf, or .usdz).");
+      return;
+    }
+
+    try {
+      setUploading3D(true);
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/upload-model3d", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        if (isEdit) {
+          setEditingProduct((prev) => ({ ...prev, model3dUrl: data.url }));
+        } else {
+          setNewProduct((prev) => ({ ...prev, model3dUrl: data.url }));
+        }
+      } else {
+        alert(data.error || "Failed to upload 3D model.");
+      }
+    } catch (err) {
+      console.error("Upload 3D error:", err);
+      alert("Error uploading 3D model file from system.");
+    } finally {
+      setUploading3D(false);
+    }
+  };
 
   const loadProducts = async () => {
     setLoading(true);
@@ -199,6 +238,7 @@ export default function AdminProductsPage() {
         description: "",
         images: [],
         finishType: "",
+        model3dUrl: "",
         showInquiryBtn: true,
         showDetailsBtn: true,
       });
@@ -224,6 +264,7 @@ export default function AdminProductsPage() {
       stock: prod.stock,
       dimensions: prod.dimensions || "",
       description: prod.description || "",
+      model3dUrl: prod.model3dUrl || "",
       showInquiryBtn: prod.showInquiryBtn !== false,
       showDetailsBtn: prod.showDetailsBtn !== false,
     });
@@ -843,6 +884,95 @@ export default function AdminProductsPage() {
                 />
               </div>
 
+              {/* 3D & Augmented Reality Model (.glb file) */}
+              <div className="p-3 bg-slate-950 rounded-xl border border-amber-500/40 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-amber-400 font-bold text-xs">
+                    <Box className="w-4 h-4 text-amber-400" />
+                    <span>3D Model & AR Asset (.glb / .gltf)</span>
+                  </div>
+                  <span className="text-[10px] text-amber-300/90 bg-amber-950 px-2 py-0.5 rounded border border-amber-800 font-bold">
+                    Interactive 360° & AR
+                  </span>
+                </div>
+
+                {/* Upload Button from System */}
+                <div className="flex items-center gap-2">
+                  <label
+                    className={`flex-1 py-2.5 px-3 rounded-xl border border-dashed text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                      uploading3D
+                        ? "bg-amber-950/60 text-amber-300 border-amber-500 animate-pulse"
+                        : "bg-slate-900 hover:bg-slate-800 text-amber-400 border-amber-500/50 hover:border-amber-400"
+                    }`}
+                  >
+                    <Upload className="w-4 h-4 text-amber-400" />
+                    <span>{uploading3D ? "Uploading 3D Model from PC..." : "Upload .GLB from System / PC"}</span>
+                    <input
+                      type="file"
+                      accept=".glb,.gltf,.usdz"
+                      disabled={uploading3D}
+                      onChange={(e) => {
+                        if (e.target.files?.[0]) handleUpload3DModel(e.target.files[0], false);
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+
+                {/* URL or Local Path Input */}
+                <div>
+                  <label className="text-[10px] text-slate-400 font-semibold block mb-1">
+                    Or Enter 3D Model Path / Direct URL:
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. /models/sofa.glb or /uploads/models/custom.glb"
+                    value={newProduct.model3dUrl}
+                    onChange={(e) => setNewProduct({ ...newProduct, model3dUrl: e.target.value })}
+                    className="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white font-mono text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  />
+                </div>
+
+                {/* Quick Presets & Clear */}
+                <div className="flex items-center gap-2 pt-0.5 flex-wrap">
+                  <span className="text-[10px] text-slate-400 font-medium">Quick Presets:</span>
+                  <button
+                    type="button"
+                    onClick={() => setNewProduct({ ...newProduct, model3dUrl: "/models/sofa.glb" })}
+                    className="px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 text-[10px] font-semibold text-amber-300 border border-slate-700 transition cursor-pointer"
+                  >
+                    🛋️ Sofa Model
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNewProduct({ ...newProduct, model3dUrl: "/models/chair.glb" })}
+                    className="px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 text-[10px] font-semibold text-amber-300 border border-slate-700 transition cursor-pointer"
+                  >
+                    🪑 Chair Model
+                  </button>
+                  {newProduct.model3dUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setNewProduct({ ...newProduct, model3dUrl: "" })}
+                      className="px-2 py-1 rounded bg-red-950/60 hover:bg-red-900 text-[10px] font-semibold text-red-300 border border-red-800 transition cursor-pointer"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+
+                {newProduct.model3dUrl && (
+                  <div className="p-2 rounded-lg bg-emerald-950/60 border border-emerald-800 text-[11px] text-emerald-300 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <span className="truncate">3D Model Linked: {newProduct.model3dUrl}</span>
+                  </div>
+                )}
+
+                <p className="text-[10px] text-slate-400">
+                  Enables 360° interactive turntable rotation and live room placement with smartphone AR.
+                </p>
+              </div>
+
               {/* Display Options for Product Card */}
               <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
                 <span className="text-[11px] font-bold text-slate-300 block">
@@ -1068,6 +1198,95 @@ export default function AdminProductsPage() {
                     className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none"
                   />
                 </div>
+              </div>
+
+              {/* 3D & Augmented Reality Model (.glb file) */}
+              <div className="p-3 bg-slate-950 rounded-xl border border-amber-500/40 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-amber-400 font-bold text-xs">
+                    <Box className="w-4 h-4 text-amber-400" />
+                    <span>3D Model & AR Asset (.glb / .gltf)</span>
+                  </div>
+                  <span className="text-[10px] text-amber-300/90 bg-amber-950 px-2 py-0.5 rounded border border-amber-800 font-bold">
+                    Interactive 360° & AR
+                  </span>
+                </div>
+
+                {/* Upload Button from System */}
+                <div className="flex items-center gap-2">
+                  <label
+                    className={`flex-1 py-2.5 px-3 rounded-xl border border-dashed text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                      uploading3D
+                        ? "bg-amber-950/60 text-amber-300 border-amber-500 animate-pulse"
+                        : "bg-slate-900 hover:bg-slate-800 text-amber-400 border-amber-500/50 hover:border-amber-400"
+                    }`}
+                  >
+                    <Upload className="w-4 h-4 text-amber-400" />
+                    <span>{uploading3D ? "Uploading 3D Model from PC..." : "Upload .GLB from System / PC"}</span>
+                    <input
+                      type="file"
+                      accept=".glb,.gltf,.usdz"
+                      disabled={uploading3D}
+                      onChange={(e) => {
+                        if (e.target.files?.[0]) handleUpload3DModel(e.target.files[0], true);
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+
+                {/* URL or Local Path Input */}
+                <div>
+                  <label className="text-[10px] text-slate-400 font-semibold block mb-1">
+                    Or Enter 3D Model Path / Direct URL:
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. /models/sofa.glb or /uploads/models/custom.glb"
+                    value={editingProduct.model3dUrl || ""}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, model3dUrl: e.target.value })}
+                    className="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white font-mono text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  />
+                </div>
+
+                {/* Quick Presets & Clear */}
+                <div className="flex items-center gap-2 pt-0.5 flex-wrap">
+                  <span className="text-[10px] text-slate-400 font-medium">Quick Presets:</span>
+                  <button
+                    type="button"
+                    onClick={() => setEditingProduct({ ...editingProduct, model3dUrl: "/models/sofa.glb" })}
+                    className="px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 text-[10px] font-semibold text-amber-300 border border-slate-700 transition cursor-pointer"
+                  >
+                    🛋️ Sofa Model
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingProduct({ ...editingProduct, model3dUrl: "/models/chair.glb" })}
+                    className="px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 text-[10px] font-semibold text-amber-300 border border-slate-700 transition cursor-pointer"
+                  >
+                    🪑 Chair Model
+                  </button>
+                  {editingProduct.model3dUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setEditingProduct({ ...editingProduct, model3dUrl: "" })}
+                      className="px-2 py-1 rounded bg-red-950/60 hover:bg-red-900 text-[10px] font-semibold text-red-300 border border-red-800 transition cursor-pointer"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+
+                {editingProduct.model3dUrl && (
+                  <div className="p-2 rounded-lg bg-emerald-950/60 border border-emerald-800 text-[11px] text-emerald-300 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <span className="truncate">3D Model Linked: {editingProduct.model3dUrl}</span>
+                  </div>
+                )}
+
+                <p className="text-[10px] text-slate-400">
+                  Enables 360° interactive turntable rotation and live room placement with smartphone AR.
+                </p>
               </div>
 
               {/* Display Options in Edit Modal */}

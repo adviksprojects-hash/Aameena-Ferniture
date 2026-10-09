@@ -38,6 +38,7 @@ export default function Furniture3DViewer({
   const [isMobile, setIsMobile] = useState(false);
   const [activeModel, setActiveModel] = useState(
     initialModelUrl ||
+      product?.model3dUrl ||
       (product?.woodType?.toLowerCase().includes("fabric") ||
       product?.title?.toLowerCase().includes("sofa") ||
       product?.Category?.slug?.includes("sofa") ||
@@ -45,6 +46,13 @@ export default function Furniture3DViewer({
         ? "/models/sofa.glb"
         : "/models/chair.glb")
   );
+
+  // Sync if product model3dUrl changes
+  useEffect(() => {
+    if (product?.model3dUrl) {
+      setActiveModel(product.model3dUrl);
+    }
+  }, [product?.model3dUrl]);
   const [activeEnvironment, setActiveEnvironment] = useState("neutral");
   const [modelLoading, setModelLoading] = useState(true);
 

@@ -92,7 +92,7 @@ export default function ProductDetailView({ product, relatedProducts = [] }) {
 
   const getShareUrl = () => {
     const identifier = product.slug || product.id;
-    if (typeof window !== "undefined") {
+    if (mounted && typeof window !== "undefined") {
       return `${window.location.origin}/products/${identifier}`;
     }
     return `https://aameenafurniture.com/products/${identifier}`;
@@ -350,6 +350,7 @@ export default function ProductDetailView({ product, relatedProducts = [] }) {
                 href={getWhatsAppLink()}
                 target="_blank"
                 rel="noopener noreferrer"
+                suppressHydrationWarning
                 className="py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-900 via-amber-950 to-amber-900 hover:from-amber-800 hover:to-amber-900 text-amber-50 font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all hover:scale-102 tracking-wide cursor-pointer border border-amber-700/60"
               >
                 <MessageSquare className="w-5 h-5 text-amber-300" />
