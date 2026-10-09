@@ -139,6 +139,11 @@ export default function QuickReviewCard({
 
   // Direct Submit Handler: Copies chosen review & redirects to Google Maps + persists to DB
   const handleDirectSubmit = async () => {
+    if (!authorName || !authorName.trim()) {
+      setErrorMessage("Please enter your Customer Name (Compulsory).");
+      return;
+    }
+
     const textToSubmit = (customText && customText.trim()) || prompts[selectedPromptIndex]?.quoteText || "";
 
     if (!textToSubmit || textToSubmit.trim().length < 5) {
@@ -335,14 +340,21 @@ export default function QuickReviewCard({
           </div>
         )}
 
-        {/* Optional patron name */}
-        <div className="pt-1">
+        {/* Patron name (Compulsory) */}
+        <div className="pt-1 space-y-1">
+          <label className="text-[11px] font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1">
+            <span>Your Name <span className="text-red-500">* (Compulsory)</span></span>
+          </label>
           <input
             type="text"
-            placeholder="Your name (e.g. Ramesh K., Solapur)"
+            required
+            placeholder="Enter your full name (e.g. Ramesh K., Solapur) *"
             value={authorName}
-            onChange={(e) => setAuthorName(e.target.value)}
-            className="w-full p-2.5 rounded-xl border border-amber-200 dark:border-stone-700 bg-slate-50/50 dark:bg-stone-950 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+            onChange={(e) => {
+              setAuthorName(e.target.value);
+              if (errorMessage) setErrorMessage(null);
+            }}
+            className="w-full p-2.5 rounded-xl border border-amber-300 dark:border-stone-700 bg-slate-50/50 dark:bg-stone-950 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium"
           />
         </div>
       </div>

@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Phone, Mail, MapPin, MessageSquare, Clock, Send, CheckCircle2 } from "lucide-react";
+import { Phone, Mail, MapPin, MessageSquare, Clock, Send, CheckCircle2, Loader2 } from "lucide-react";
 import SearchableSelect from "@/components/SearchableSelect";
 import { validatePhone, validateName, validateEmail } from "@/lib/validation";
+import { createContactInquiry } from "@/actions/serviceActions";
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -16,7 +18,7 @@ export default function ContactPage() {
   });
   const [errors, setErrors] = useState({});
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
     const nameCheck = validateName(formData.name, "Full Name");
@@ -36,7 +38,28 @@ export default function ContactPage() {
     }
 
     setErrors({});
-    setSubmitted(true);
+    setSubmitting(true);
+
+    try {
+      const res = await createContactInquiry({
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        interest: formData.interest,
+        message: formData.message,
+      });
+
+      if (res.success) {
+        setSubmitted(true);
+      } else {
+        alert(res.error || "Failed to submit inquiry. Please try again.");
+      }
+    } catch (err) {
+      console.error("Error submitting contact inquiry:", err);
+      alert("Error submitting inquiry. Please check your network connection.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -257,10 +280,20 @@ export default function ContactPage() {
 
                 <button
                   type="submit"
-                  className="w-full py-4 rounded-xl bg-amber-800 hover:bg-amber-900 text-amber-50 font-bold text-xs transition-colors flex items-center justify-center gap-2 shadow-md"
+                  disabled={submitting}
+                  className="w-full py-4 rounded-xl bg-amber-800 hover:bg-amber-900 text-amber-50 font-bold text-xs transition-colors flex items-center justify-center gap-2 shadow-md disabled:opacity-60 cursor-pointer"
                 >
-                  <Send className="w-4 h-4" />
-                  <span>Submit Inquiry</span>
+                  {submitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-amber-300" />
+                      <span>Submitting Inquiry...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      <span>Submit Inquiry</span>
+                    </>
+                  )}
                 </button>
               </form>
             )}

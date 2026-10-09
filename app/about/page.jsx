@@ -18,7 +18,7 @@ export default function AboutPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <div className="space-y-6">
           <span className="text-xs uppercase font-bold tracking-widest text-amber-800">Our Story</span>
-          <h2 className="text-2xl sm:text-4xl font-bold font-serif text-slate-900">Over Three Decades of Handcrafted Masterpieces</h2>
+          <h2 className="text-2xl sm:text-4xl font-bold font-serif text-slate-900">Over Seven Decades of Handcrafted Masterpieces</h2>
           <p className="text-slate-600 text-sm leading-relaxed">
             Founded with a passion for genuine solid wood furniture, <strong>Aameena Furniture</strong> has grown from a humble family workshop into one of the region's premier destinations for custom hardwood furniture and luxury home furnishings.
           </p>
@@ -28,7 +28,7 @@ export default function AboutPage() {
 
           <div className="grid grid-cols-2 gap-4 pt-2">
             <div className="bg-amber-50 p-4 rounded-2xl border border-amber-100">
-              <span className="text-3xl font-extrabold text-amber-900 font-serif">30+</span>
+              <span className="text-3xl font-extrabold text-amber-900 font-serif">70+</span>
               <p className="text-xs text-slate-600 font-semibold mt-1">Years of Woodcraft Legacy</p>
             </div>
             <div className="bg-amber-50 p-4 rounded-2xl border border-amber-100">

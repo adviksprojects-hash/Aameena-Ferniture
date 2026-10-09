@@ -23,6 +23,8 @@ import {
   MessageSquare,
   ExternalLink,
   Box,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import {
   getProducts,
@@ -36,7 +38,7 @@ import {
   toggleProductVisibility,
 } from "@/actions/productActions";
 import SearchableSelect from "@/components/SearchableSelect";
-import { validateName, validateAmount } from "@/lib/validation";
+import { validateProductTitle, validateAmount } from "@/lib/validation";
 
 const CATEGORY_OPTIONS = [
   { value: "living", label: "Living Room" },
@@ -77,6 +79,8 @@ export default function ManagerProductsPage() {
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
   const [activeTab, setActiveTab] = useState("active"); // "active" | "archived"
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedProductForEdit, setSelectedProductForEdit] = useState(null);
@@ -319,7 +323,7 @@ export default function ManagerProductsPage() {
     if (!selectedProductForEdit) return;
 
     const errors = {};
-    const nameCheck = validateName(editProductData.title, "Product title", 3);
+    const nameCheck = validateProductTitle(editProductData.title, "Product title");
     if (!nameCheck.valid) errors.title = nameCheck.error;
 
     const priceCheck = validateAmount(editProductData.price, "Price");
@@ -363,7 +367,7 @@ export default function ManagerProductsPage() {
     e.preventDefault();
 
     const errors = {};
-    const nameCheck = validateName(newProduct.title, "Product title", 3);
+    const nameCheck = validateProductTitle(newProduct.title, "Product title");
     if (!nameCheck.valid) errors.title = nameCheck.error;
 
     if (!newProduct.categorySlug || !newProduct.categorySlug.trim()) {
@@ -438,6 +442,10 @@ export default function ManagerProductsPage() {
 
   const activeCount = products.filter((p) => !p.isArchived).length;
   const archivedCount = products.filter((p) => p.isArchived).length;
+
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE) || 1;
+  const safeCurrentPage = Math.min(Math.max(currentPage, 1), totalPages);
+  const paginatedProducts = filteredProducts.slice((safeCurrentPage - 1) * ITEMS_PER_PAGE, safeCurrentPage * ITEMS_PER_PAGE);
 
   if (!mounted) {
     return (
@@ -526,7 +534,7 @@ export default function ManagerProductsPage() {
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <button
             type="button"
-            onClick={() => setActiveTab("active")}
+            onClick={() => { setActiveTab("active"); setCurrentPage(1); }}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
               activeTab === "active"
                 ? "bg-amber-950 text-amber-50 shadow-sm"
@@ -539,7 +547,7 @@ export default function ManagerProductsPage() {
 
           <button
             type="button"
-            onClick={() => setActiveTab("archived")}
+            onClick={() => { setActiveTab("archived"); setCurrentPage(1); }}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
               activeTab === "archived"
                 ? "bg-amber-950 text-amber-50 shadow-sm"
@@ -557,7 +565,7 @@ export default function ManagerProductsPage() {
             type="text"
             placeholder="Search by title, wood type, category..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
             className="w-full pl-9 pr-4 py-2 rounded-xl bg-amber-50/40 border border-amber-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-700"
           />
         </div>
@@ -586,7 +594,7 @@ export default function ManagerProductsPage() {
                     Fetching manufacturer catalog from database...
                   </td>
                 </tr>
-              ) : filteredProducts.length === 0 ? (
+              ) : paginatedProducts.length === 0 ? (
                 <tr>
                   <td colSpan="7" className="p-8 text-center text-slate-500">
                     {activeTab === "archived"
@@ -595,7 +603,7 @@ export default function ManagerProductsPage() {
                   </td>
                 </tr>
               ) : (
-                filteredProducts.map((p) => {
+                paginatedProducts.map((p) => {
                   const inStock = p.stock > 0;
                   const isUpdating = updatingId === p.id;
                   const images = p.images && p.images.length > 0 ? p.images : [];
@@ -750,15 +758,77 @@ export default function ManagerProductsPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Controls (10 products per page) */}
+        {filteredProducts.length > ITEMS_PER_PAGE && (
+          <div className="p-4 bg-amber-50/60 border-t border-amber-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-700">
+            <div>
+              Showing <span className="font-bold text-slate-900">{(safeCurrentPage - 1) * ITEMS_PER_PAGE + 1}</span> to{" "}
+              <span className="font-bold text-slate-900">{Math.min(safeCurrentPage * ITEMS_PER_PAGE, filteredProducts.length)}</span> of{" "}
+              <span className="font-bold text-slate-900">{filteredProducts.length}</span> products
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                disabled={safeCurrentPage <= 1}
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                className="px-3 py-1.5 rounded-lg border border-amber-300 bg-white hover:bg-amber-100 disabled:opacity-40 disabled:cursor-not-allowed font-bold inline-flex items-center gap-1 text-slate-800 transition-colors cursor-pointer"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+                <span>Prev</span>
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => {
+                if (
+                  num === 1 ||
+                  num === totalPages ||
+                  (num >= safeCurrentPage - 1 && num <= safeCurrentPage + 1)
+                ) {
+                  return (
+                    <button
+                      key={num}
+                      type="button"
+                      onClick={() => setCurrentPage(num)}
+                      className={`w-8 h-8 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                        safeCurrentPage === num
+                          ? "bg-amber-900 text-amber-50"
+                          : "bg-white border border-amber-300 hover:bg-amber-100 text-slate-800"
+                      }`}
+                    >
+                      {num}
+                    </button>
+                  );
+                }
+                if (num === safeCurrentPage - 2 || num === safeCurrentPage + 2) {
+                  return (
+                    <span key={num} className="px-1 text-slate-400">
+                      ...
+                    </span>
+                  );
+                }
+                return null;
+              })}
+              <button
+                type="button"
+                disabled={safeCurrentPage >= totalPages}
+                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                className="px-3 py-1.5 rounded-lg border border-amber-300 bg-white hover:bg-amber-100 disabled:opacity-40 disabled:cursor-not-allowed font-bold inline-flex items-center gap-1 text-slate-800 transition-colors cursor-pointer"
+              >
+                <span>Next</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ============================================================== */}
       {/* 🚀 MODAL 1: ADD PRODUCT (With 1-3 Device/Camera Image Upload)  */}
       {/* ============================================================== */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-amber-200 my-8">
-            <div className="flex items-center justify-between border-b border-amber-100 pb-4">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-amber-200 flex flex-col max-h-[90vh] overflow-hidden my-auto">
+            {/* Fixed Modal Header */}
+            <div className="p-6 pb-4 border-b border-amber-100 flex items-center justify-between shrink-0 bg-white">
               <div>
                 <span className="text-[10px] uppercase font-bold tracking-widest text-amber-800">
                   Solapur Facility Inventory Entry
@@ -766,353 +836,373 @@ export default function ManagerProductsPage() {
                 <h3 className="text-xl font-bold font-serif text-slate-900 mt-0.5">
                   Add New Manufacturer Furniture Piece
                 </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Upload device/camera photos, set timber specifications, pricing, and 3D models.
+                </p>
               </div>
               <button
+                type="button"
                 onClick={() => setShowAddModal(false)}
-                className="p-2 rounded-full hover:bg-slate-100 text-slate-500"
+                className="p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer border border-amber-200"
+                title="Close"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleAddProduct} className="space-y-4 text-xs">
-              <div>
-                <label className="font-bold text-slate-700 block mb-1">Furniture Piece Title *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Royal 7-Seater Sagwan Teak Living Set"
-                  value={newProduct.title}
-                  onChange={(e) => {
-                    setNewProduct({ ...newProduct, title: e.target.value });
-                    if (addErrors.title) setAddErrors((prev) => ({ ...prev, title: null }));
-                  }}
-                  className={`w-full p-2.5 rounded-xl border ${
-                    addErrors.title ? "border-red-500" : "border-amber-200"
-                  }`}
-                />
-                {addErrors.title && <p className="text-red-500 text-[10px] mt-1">{addErrors.title}</p>}
-              </div>
-
-              {/* 📸 Image Upload from Device / Camera (Min 1, Max 3) */}
-              <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="font-bold text-slate-800 flex items-center gap-1.5">
-                    <Camera className="w-4 h-4 text-amber-800" />
-                    <span>Upload Product Photos from Device / Camera (1 to 3 images) *</span>
-                  </label>
-                  <span className="text-[10px] font-bold text-amber-900">
-                    {newProductImages.length} of 3 added
-                  </span>
-                </div>
-
-                {/* Upload Button & File Input */}
-                <div className="flex flex-col sm:flex-row items-center gap-3">
-                  <label
-                    className={`cursor-pointer px-4 py-2.5 rounded-xl border border-dashed font-bold flex items-center gap-2 transition-all ${
-                      newProductImages.length >= 3
-                        ? "bg-slate-100 text-slate-400 border-slate-300 cursor-not-allowed"
-                        : "bg-white text-amber-900 border-amber-300 hover:bg-amber-100"
-                    }`}
-                  >
-                    <Upload className="w-4 h-4 text-amber-700" />
-                    <span>Choose File / Take Photo</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      capture="environment"
-                      multiple
-                      disabled={newProductImages.length >= 3}
-                      onChange={(e) => handleFiles(e.target.files, false)}
-                      className="hidden"
-                    />
-                  </label>
-                  <span className="text-[10px] text-slate-500">
-                    Accepts JPEG/PNG from phone camera or computer. Minimum 1, up to 3 photos.
-                  </span>
-                </div>
-
-                {/* Thumbnail Previews */}
-                {newProductImages.length > 0 && (
-                  <div className="grid grid-cols-3 gap-3 pt-2">
-                    {newProductImages.map((img, idx) => (
-                      <div key={idx} className="relative rounded-xl overflow-hidden border border-amber-300 group">
-                        <img src={img} alt={`Preview ${idx + 1}`} className="w-full h-24 object-cover" />
-                        <span className="absolute bottom-1 left-1 bg-black/70 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
-                          Photo {idx + 1}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => removeImage(idx, false)}
-                          className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full hover:bg-red-700 shadow-md"
-                          title="Remove photo"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Scrollable Form Body */}
+            <form onSubmit={handleAddProduct} className="flex flex-col flex-1 overflow-hidden">
+              <div className="p-6 overflow-y-auto space-y-4 flex-1 scrollbar-thin scrollbar-thumb-amber-500/40 scrollbar-track-amber-50 pr-4 text-xs">
                 <div>
-                  <SearchableSelect
-                    label="Room Category *"
-                    options={CATEGORY_OPTIONS}
-                    value={newProduct.categorySlug}
-                    onChange={(val) => {
-                      setNewProduct({ ...newProduct, categorySlug: val });
-                      if (addErrors.categorySlug) setAddErrors((prev) => ({ ...prev, categorySlug: null }));
-                    }}
-                    placeholder="-- Select Category (Required) --"
-                    error={addErrors.categorySlug}
-                    allowOther={true}
-                    required={true}
-                  />
-                  {addErrors.categorySlug && <p className="text-red-600 text-[10px] mt-1 font-semibold">{addErrors.categorySlug}</p>}
-                </div>
-
-                <div>
-                  <SearchableSelect
-                    label="Timber / Material Selection *"
-                    options={WOOD_OPTIONS}
-                    value={newProduct.woodType}
-                    onChange={(val) => {
-                      setNewProduct({ ...newProduct, woodType: val });
-                      if (addErrors.woodType) setAddErrors((prev) => ({ ...prev, woodType: null }));
-                    }}
-                    placeholder="-- Select Material (Required) --"
-                    error={addErrors.woodType}
-                    allowOther={true}
-                    required={true}
-                  />
-                  {addErrors.woodType && <p className="text-red-600 text-[10px] mt-1 font-semibold">{addErrors.woodType}</p>}
-                </div>
-              </div>
-
-              <div>
-                <label className="font-bold text-slate-700 block mb-1">
-                  Material / Timber Purity & Authenticity (%)
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. 100% Pure Cotton, 100% Grade-A Sagwan Teak, 95% Organic Cotton"
-                  value={newProduct.materialPurity}
-                  onChange={(e) => setNewProduct({ ...newProduct, materialPurity: e.target.value })}
-                  className="w-full p-2.5 rounded-xl border border-amber-200"
-                />
-                <p className="text-[10px] text-slate-500 mt-1">
-                  Optional authenticity badge (e.g. "✓ 100% Pure Cotton" or "✓ 100% Genuine Sagwan"). Left blank if unspecified.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <SearchableSelect
-                  label="Finish Type (Optional)"
-                  options={[
-                    { value: "", label: "-- None / Natural Unfinished --" },
-                    ...FINISH_OPTIONS,
-                  ]}
-                  value={newProduct.finishType}
-                  onChange={(val) => setNewProduct({ ...newProduct, finishType: val })}
-                  placeholder="-- Select Finish Type (Optional) --"
-                  allowOther={true}
-                />
-
-                <div>
-                  <label className="font-bold text-slate-700 block mb-1">Dimensions (Optional)</label>
+                  <label className="font-bold text-slate-700 block mb-1">Furniture Piece Title *</label>
                   <input
                     type="text"
-                    placeholder='e.g. 78" W x 34" D x 32" H'
-                    value={newProduct.dimensions}
-                    onChange={(e) => setNewProduct({ ...newProduct, dimensions: e.target.value })}
-                    className="w-full p-2.5 rounded-xl border border-amber-200"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label className="font-bold text-slate-700 block mb-1">Facility Price (₹) *</label>
-                  <input
-                    type="number"
                     required
-                    placeholder="e.g. 74999"
-                    value={newProduct.price}
+                    placeholder="e.g. Royal 7-Seater Sagwan Teak Living Set"
+                    value={newProduct.title}
                     onChange={(e) => {
-                      setNewProduct({ ...newProduct, price: e.target.value });
-                      if (addErrors.price) setAddErrors((prev) => ({ ...prev, price: null }));
+                      setNewProduct({ ...newProduct, title: e.target.value });
+                      if (addErrors.title) setAddErrors((prev) => ({ ...prev, title: null }));
                     }}
                     className={`w-full p-2.5 rounded-xl border ${
-                      addErrors.price ? "border-red-500" : "border-amber-200"
-                    } font-bold`}
-                  />
-                  {addErrors.price && <p className="text-red-500 text-[10px] mt-1">{addErrors.price}</p>}
-                </div>
-                <div>
-                  <label className="font-bold text-slate-700 block mb-1">Compare Price (₹)</label>
-                  <input
-                    type="number"
-                    placeholder="e.g. 89999"
-                    value={newProduct.compareAtPrice}
-                    onChange={(e) => setNewProduct({ ...newProduct, compareAtPrice: e.target.value })}
-                    className="w-full p-2.5 rounded-xl border border-amber-200"
-                  />
-                </div>
-                <div>
-                  <label className="font-bold text-slate-700 block mb-1">Initial Stock Units *</label>
-                  <input
-                    type="number"
-                    required
-                    placeholder="e.g. 5"
-                    value={newProduct.stock}
-                    onChange={(e) => {
-                      setNewProduct({ ...newProduct, stock: e.target.value });
-                      if (addErrors.stock) setAddErrors((prev) => ({ ...prev, stock: null }));
-                    }}
-                    className={`w-full p-2.5 rounded-xl border ${
-                      addErrors.stock ? "border-red-500" : "border-amber-200"
-                    } font-bold`}
-                  />
-                  {addErrors.stock && <p className="text-red-500 text-[10px] mt-1">{addErrors.stock}</p>}
-                </div>
-              </div>
-
-              {/* 3D & Augmented Reality Model (.glb file) */}
-              <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-300 space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-amber-950 font-bold text-xs">
-                    <Box className="w-4 h-4 text-amber-800" />
-                    <span>3D Model & AR Asset (.glb / .gltf)</span>
-                  </div>
-                  <span className="text-[10px] text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded border border-amber-300 font-bold">
-                    Interactive 360° & AR
-                  </span>
-                </div>
-
-                {/* Upload Button from System */}
-                <div className="flex items-center gap-2">
-                  <label
-                    className={`flex-1 py-2.5 px-3 rounded-xl border border-dashed text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                      uploading3D
-                        ? "bg-amber-200/80 text-amber-950 border-amber-600 animate-pulse"
-                        : "bg-white hover:bg-amber-100 text-amber-900 border-amber-400"
+                      addErrors.title ? "border-red-500" : "border-amber-200"
                     }`}
-                  >
-                    <Upload className="w-4 h-4 text-amber-800" />
-                    <span>{uploading3D ? "Uploading 3D Model from PC..." : "Upload .GLB from System / PC"}</span>
-                    <input
-                      type="file"
-                      accept=".glb,.gltf,.usdz"
-                      disabled={uploading3D}
-                      onChange={(e) => {
-                        if (e.target.files?.[0]) handleUpload3DModel(e.target.files[0], false);
-                      }}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-
-                {/* URL or Local Path Input */}
-                <div>
-                  <label className="text-[10px] text-slate-600 font-semibold block mb-1">
-                    Or Enter 3D Model Path / Direct URL:
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. /models/sofa.glb or /uploads/models/custom.glb"
-                    value={newProduct.model3dUrl}
-                    onChange={(e) => setNewProduct({ ...newProduct, model3dUrl: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-white border border-amber-300 text-slate-900 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
                   />
+                  {addErrors.title && <p className="text-red-500 text-[10px] mt-1">{addErrors.title}</p>}
                 </div>
 
-                {/* Quick Presets & Clear */}
-                <div className="flex items-center gap-2 pt-0.5 flex-wrap">
-                  <span className="text-[10px] text-slate-600 font-medium">Quick Presets:</span>
-                  <button
-                    type="button"
-                    onClick={() => setNewProduct({ ...newProduct, model3dUrl: "/models/sofa.glb" })}
-                    className="px-2.5 py-1 rounded-lg bg-white hover:bg-amber-100 text-[10px] font-bold text-amber-900 border border-amber-300 transition cursor-pointer"
-                  >
-                    🛋️ Sofa Model
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setNewProduct({ ...newProduct, model3dUrl: "/models/chair.glb" })}
-                    className="px-2.5 py-1 rounded-lg bg-white hover:bg-amber-100 text-[10px] font-bold text-amber-900 border border-amber-300 transition cursor-pointer"
-                  >
-                    🪑 Chair Model
-                  </button>
-                  {newProduct.model3dUrl && (
-                    <button
-                      type="button"
-                      onClick={() => setNewProduct({ ...newProduct, model3dUrl: "" })}
-                      className="px-2.5 py-1 rounded-lg bg-red-100 hover:bg-red-200 text-[10px] font-bold text-red-800 border border-red-300 transition cursor-pointer"
+                {/* 📸 Image Upload from Device / Camera (Min 1, Max 3) */}
+                <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="font-bold text-slate-800 flex items-center gap-1.5">
+                      <Camera className="w-4 h-4 text-amber-800" />
+                      <span>Upload Product Photos from Device / Camera (1 to 3 images) *</span>
+                    </label>
+                    <span className="text-[10px] font-bold text-amber-900">
+                      {newProductImages.length} of 3 added
+                    </span>
+                  </div>
+
+                  {/* Upload Button & File Input */}
+                  <div className="flex flex-col sm:flex-row items-center gap-3">
+                    <label
+                      className={`cursor-pointer px-4 py-2.5 rounded-xl border border-dashed font-bold flex items-center gap-2 transition-all ${
+                        newProductImages.length >= 3
+                          ? "bg-slate-100 text-slate-400 border-slate-300 cursor-not-allowed"
+                          : "bg-white text-amber-900 border-amber-300 hover:bg-amber-100"
+                      }`}
                     >
-                      Clear
-                    </button>
+                      <Upload className="w-4 h-4 text-amber-700" />
+                      <span>Choose File / Take Photo</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        multiple
+                        disabled={newProductImages.length >= 3}
+                        onChange={(e) => handleFiles(e.target.files, false)}
+                        className="hidden"
+                      />
+                    </label>
+                    <span className="text-[10px] text-slate-500">
+                      Accepts JPEG/PNG from phone camera or computer. Minimum 1, up to 3 photos.
+                    </span>
+                  </div>
+
+                  {/* Thumbnail Previews */}
+                  {newProductImages.length > 0 && (
+                    <div className="grid grid-cols-3 gap-3 pt-2">
+                      {newProductImages.map((img, idx) => (
+                        <div key={idx} className="relative rounded-xl overflow-hidden border border-amber-300 group">
+                          <img src={img} alt={`Preview ${idx + 1}`} className="w-full h-24 object-cover" />
+                          <span className="absolute bottom-1 left-1 bg-black/70 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
+                            Photo {idx + 1}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => removeImage(idx, false)}
+                            className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full hover:bg-red-700 shadow-md cursor-pointer"
+                            title="Remove photo"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
 
-                {newProduct.model3dUrl && (
-                  <div className="p-2 rounded-lg bg-emerald-50 border border-emerald-300 text-[11px] text-emerald-900 flex items-center gap-1.5 font-medium">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
-                    <span className="truncate">3D Model Linked: {newProduct.model3dUrl}</span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <SearchableSelect
+                      label="Room Category *"
+                      options={CATEGORY_OPTIONS}
+                      value={newProduct.categorySlug}
+                      onChange={(val) => {
+                        setNewProduct({ ...newProduct, categorySlug: val });
+                        if (addErrors.categorySlug) setAddErrors((prev) => ({ ...prev, categorySlug: null }));
+                      }}
+                      placeholder="-- Select Category (Required) --"
+                      error={addErrors.categorySlug}
+                      allowOther={true}
+                      required={true}
+                    />
+                    {addErrors.categorySlug && <p className="text-red-600 text-[10px] mt-1 font-semibold">{addErrors.categorySlug}</p>}
                   </div>
-                )}
 
-                <p className="text-[10px] text-slate-500">
-                  Enables customers to inspect this exact product in 360° and test it on their room floor using phone AR.
-                </p>
-              </div>
+                  <div>
+                    <SearchableSelect
+                      label="Timber / Material Selection *"
+                      options={WOOD_OPTIONS}
+                      value={newProduct.woodType}
+                      onChange={(val) => {
+                        setNewProduct({ ...newProduct, woodType: val });
+                        if (addErrors.woodType) setAddErrors((prev) => ({ ...prev, woodType: null }));
+                      }}
+                      placeholder="-- Select Material (Required) --"
+                      error={addErrors.woodType}
+                      allowOther={true}
+                      required={true}
+                    />
+                    {addErrors.woodType && <p className="text-red-600 text-[10px] mt-1 font-semibold">{addErrors.woodType}</p>}
+                  </div>
+                </div>
 
-              {/* 🎛️ Storefront Buttons Controls */}
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                <span className="font-bold text-slate-800 block text-[11px] uppercase">
-                  Storefront Button Visibility Controls:
-                </span>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={newProduct.showInquiryBtn}
-                      onChange={(e) => setNewProduct({ ...newProduct, showInquiryBtn: e.target.checked })}
-                      className="w-4 h-4 rounded text-amber-900"
-                    />
-                    <span className="font-semibold text-slate-700">Show "Direct WhatsApp Inquiry" Button</span>
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">
+                    Material / Timber Purity & Authenticity (%)
                   </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="text"
+                    placeholder="e.g. 100% Pure Cotton, 100% Grade-A Sagwan Teak, 95% Organic Cotton"
+                    value={newProduct.materialPurity}
+                    onChange={(e) => setNewProduct({ ...newProduct, materialPurity: e.target.value })}
+                    className="w-full p-2.5 rounded-xl border border-amber-200"
+                  />
+                  <p className="text-[10px] text-slate-500 mt-1">
+                    Optional authenticity badge (e.g. "✓ 100% Pure Cotton" or "✓ 100% Genuine Sagwan"). Left blank if unspecified.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <SearchableSelect
+                    label="Finish Type (Optional)"
+                    options={[
+                      { value: "", label: "-- None / Natural Unfinished --" },
+                      ...FINISH_OPTIONS,
+                    ]}
+                    value={newProduct.finishType}
+                    onChange={(val) => setNewProduct({ ...newProduct, finishType: val })}
+                    placeholder="-- Select Finish Type (Optional) --"
+                    allowOther={true}
+                  />
+
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Dimensions (Optional)</label>
                     <input
-                      type="checkbox"
-                      checked={newProduct.showDetailsBtn}
-                      onChange={(e) => setNewProduct({ ...newProduct, showDetailsBtn: e.target.checked })}
-                      className="w-4 h-4 rounded text-amber-900"
+                      type="text"
+                      placeholder='e.g. 78" W x 34" D x 32" H'
+                      value={newProduct.dimensions}
+                      onChange={(e) => setNewProduct({ ...newProduct, dimensions: e.target.value })}
+                      className="w-full p-2.5 rounded-xl border border-amber-200"
                     />
-                    <span className="font-semibold text-slate-700">Show "See Details" Button</span>
-                  </label>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Facility Price (₹) *</label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="e.g. 74999"
+                      value={newProduct.price}
+                      onChange={(e) => {
+                        setNewProduct({ ...newProduct, price: e.target.value });
+                        if (addErrors.price) setAddErrors((prev) => ({ ...prev, price: null }));
+                      }}
+                      className={`w-full p-2.5 rounded-xl border ${
+                        addErrors.price ? "border-red-500" : "border-amber-200"
+                      } font-bold`}
+                    />
+                    {addErrors.price && <p className="text-red-500 text-[10px] mt-1">{addErrors.price}</p>}
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Compare Price (₹)</label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 89999"
+                      value={newProduct.compareAtPrice}
+                      onChange={(e) => setNewProduct({ ...newProduct, compareAtPrice: e.target.value })}
+                      className="w-full p-2.5 rounded-xl border border-amber-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Initial Stock Units *</label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="e.g. 5"
+                      value={newProduct.stock}
+                      onChange={(e) => {
+                        setNewProduct({ ...newProduct, stock: e.target.value });
+                        if (addErrors.stock) setAddErrors((prev) => ({ ...prev, stock: null }));
+                      }}
+                      className={`w-full p-2.5 rounded-xl border ${
+                        addErrors.stock ? "border-red-500" : "border-amber-200"
+                      } font-bold`}
+                    />
+                    {addErrors.stock && <p className="text-red-500 text-[10px] mt-1">{addErrors.stock}</p>}
+                  </div>
+                </div>
+
+                {/* 3D & Augmented Reality Model (.glb file) */}
+                <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-300 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-amber-950 font-bold text-xs">
+                      <Box className="w-4 h-4 text-amber-800" />
+                      <span>3D Model & AR Asset (.glb / .gltf)</span>
+                    </div>
+                    <span className="text-[10px] text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded border border-amber-300 font-bold">
+                      Interactive 360° & AR
+                    </span>
+                  </div>
+
+                  {/* Upload Button from System */}
+                  <div className="flex items-center gap-2">
+                    <label
+                      className={`flex-1 py-2.5 px-3 rounded-xl border border-dashed text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                        uploading3D
+                          ? "bg-amber-200/80 text-amber-950 border-amber-600 animate-pulse"
+                          : "bg-white hover:bg-amber-100 text-amber-900 border-amber-400"
+                      }`}
+                    >
+                      <Upload className="w-4 h-4 text-amber-800" />
+                      <span>{uploading3D ? "Uploading 3D Model from PC..." : "Upload .GLB from System / PC"}</span>
+                      <input
+                        type="file"
+                        accept=".glb,.gltf,.usdz"
+                        disabled={uploading3D}
+                        onChange={(e) => {
+                          if (e.target.files?.[0]) handleUpload3DModel(e.target.files[0], false);
+                        }}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+
+                  {/* URL or Local Path Input */}
+                  <div>
+                    <label className="text-[10px] text-slate-600 font-semibold block mb-1">
+                      Or Enter 3D Model Path / Direct URL:
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. /models/sofa.glb or /uploads/models/custom.glb"
+                      value={newProduct.model3dUrl}
+                      onChange={(e) => setNewProduct({ ...newProduct, model3dUrl: e.target.value })}
+                      className="w-full p-2.5 rounded-xl bg-white border border-amber-300 text-slate-900 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
+                    />
+                  </div>
+
+                  {/* Quick Presets & Clear */}
+                  <div className="flex items-center gap-2 pt-0.5 flex-wrap">
+                    <span className="text-[10px] text-slate-600 font-medium">Quick Presets:</span>
+                    <button
+                      type="button"
+                      onClick={() => setNewProduct({ ...newProduct, model3dUrl: "/models/sofa.glb" })}
+                      className="px-2.5 py-1 rounded-lg bg-white hover:bg-amber-100 text-[10px] font-bold text-amber-900 border border-amber-300 transition cursor-pointer"
+                    >
+                      🛋️ Sofa Model
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setNewProduct({ ...newProduct, model3dUrl: "/models/chair.glb" })}
+                      className="px-2.5 py-1 rounded-lg bg-white hover:bg-amber-100 text-[10px] font-bold text-amber-900 border border-amber-300 transition cursor-pointer"
+                    >
+                      🪑 Chair Model
+                    </button>
+                    {newProduct.model3dUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setNewProduct({ ...newProduct, model3dUrl: "" })}
+                        className="px-2.5 py-1 rounded-lg bg-red-100 hover:bg-red-200 text-[10px] font-bold text-red-800 border border-red-300 transition cursor-pointer"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+
+                  {newProduct.model3dUrl && (
+                    <div className="p-2 rounded-lg bg-emerald-50 border border-emerald-300 text-[11px] text-emerald-900 flex items-center gap-1.5 font-medium">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                      <span className="truncate">3D Model Linked: {newProduct.model3dUrl}</span>
+                    </div>
+                  )}
+
+                  <p className="text-[10px] text-slate-500">
+                    Enables customers to inspect this exact product in 360° and test it on their room floor using phone AR.
+                  </p>
+                </div>
+
+                {/* 🎛️ Storefront Buttons Controls */}
+                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                  <span className="font-bold text-slate-800 block text-[11px] uppercase">
+                    Storefront Button Visibility Controls:
+                  </span>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={newProduct.showInquiryBtn}
+                        onChange={(e) => setNewProduct({ ...newProduct, showInquiryBtn: e.target.checked })}
+                        className="w-4 h-4 rounded text-amber-900"
+                      />
+                      <span className="font-semibold text-slate-700">Show "Direct WhatsApp Inquiry" Button</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={newProduct.showDetailsBtn}
+                        onChange={(e) => setNewProduct({ ...newProduct, showDetailsBtn: e.target.checked })}
+                        className="w-4 h-4 rounded text-amber-900"
+                      />
+                      <span className="font-semibold text-slate-700">Show "See Details" Button</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Artisan Description</label>
+                  <textarea
+                    rows="2"
+                    placeholder="Describe wood seasoning, joint stability, cushion density, and hand-rubbed finish..."
+                    value={newProduct.description}
+                    onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                    className="w-full p-2.5 rounded-xl border border-amber-200"
+                  ></textarea>
                 </div>
               </div>
 
-              <div>
-                <label className="font-bold text-slate-700 block mb-1">Artisan Description</label>
-                <textarea
-                  rows="2"
-                  placeholder="Describe wood seasoning, joint stability, cushion density, and hand-rubbed finish..."
-                  value={newProduct.description}
-                  onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
-                  className="w-full p-2.5 rounded-xl border border-amber-200"
-                ></textarea>
+              {/* Fixed Modal Footer with Cancel & Save Buttons */}
+              <div className="p-4 sm:p-5 border-t border-amber-100 flex items-center justify-end gap-3 bg-amber-50/50 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className="py-2.5 px-5 rounded-xl bg-white hover:bg-amber-100 text-slate-700 hover:text-slate-900 font-bold text-xs transition-colors flex items-center gap-1.5 cursor-pointer border border-amber-200 shadow-xs"
+                >
+                  <X className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Cancel</span>
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="py-2.5 px-6 rounded-xl bg-amber-900 hover:bg-amber-800 text-amber-50 font-bold text-xs transition-all shadow-md flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+                >
+                  <CheckCircle2 className="w-4 h-4 text-amber-300" />
+                  <span>{submitting ? "Saving Photos to Database..." : "Save Product to Manufacturer Catalog"}</span>
+                </button>
               </div>
-
-              <button
-                type="submit"
-                disabled={submitting}
-                className="w-full py-3.5 rounded-xl bg-amber-900 hover:bg-amber-800 text-amber-50 font-bold transition-all shadow-md disabled:opacity-50"
-              >
-                {submitting ? "Saving Photos to Database..." : "Save Product to Manufacturer Catalog"}
-              </button>
             </form>
           </div>
         </div>
@@ -1121,10 +1211,14 @@ export default function ManagerProductsPage() {
       {/* ============================================================== */}
       {/* ✏️ MODAL 2: EDIT PRODUCT (With Photo Edit & Button Controls)  */}
       {/* ============================================================== */}
+      {/* ============================================================== */}
+      {/* ✏️ MODAL 2: EDIT PRODUCT (With Photo Edit & Button Controls)  */}
+      {/* ============================================================== */}
       {showEditModal && selectedProductForEdit && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-amber-200 my-8">
-            <div className="flex items-center justify-between border-b border-amber-100 pb-4">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl border border-amber-200 animate-in fade-in zoom-in-95 duration-200">
+            {/* Fixed Modal Header */}
+            <div className="p-5 sm:p-6 border-b border-amber-100 flex items-center justify-between bg-amber-50/30 shrink-0">
               <div>
                 <span className="text-[10px] uppercase font-bold tracking-widest text-amber-800">
                   Update Manufacturer Catalog
@@ -1134,306 +1228,323 @@ export default function ManagerProductsPage() {
                 </h3>
               </div>
               <button
+                type="button"
                 onClick={() => setShowEditModal(false)}
-                className="p-2 rounded-full hover:bg-slate-100 text-slate-500"
+                className="p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer border border-amber-200"
+                title="Close"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleEditProduct} className="space-y-4 text-xs">
-              <div>
-                <label className="font-bold text-slate-700 block mb-1">Product Title:</label>
-                <input
-                  type="text"
-                  required
-                  value={editProductData.title}
-                  onChange={(e) => {
-                    setEditProductData({ ...editProductData, title: e.target.value });
-                    if (editErrors.title) setEditErrors((prev) => ({ ...prev, title: null }));
-                  }}
-                  className={`w-full p-2.5 rounded-xl border ${
-                    editErrors.title ? "border-red-500" : "border-amber-200"
-                  }`}
-                />
-                {editErrors.title && <p className="text-red-500 text-[10px] mt-1">{editErrors.title}</p>}
-              </div>
-
-              {/* 📸 Edit Photos (1-3 images) */}
-              <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="font-bold text-slate-800 flex items-center gap-1.5">
-                    <Camera className="w-4 h-4 text-amber-800" />
-                    <span>Manage Product Photos (1 to 3 images) *</span>
-                  </label>
-                  <span className="text-[10px] font-bold text-amber-900">
-                    {editProductImages.length} of 3 photos
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <label
-                    className={`cursor-pointer px-4 py-2 rounded-xl border border-dashed font-bold flex items-center gap-2 transition-all ${
-                      editProductImages.length >= 3
-                        ? "bg-slate-100 text-slate-400 border-slate-300 cursor-not-allowed"
-                        : "bg-white text-amber-900 border-amber-300 hover:bg-amber-100"
-                    }`}
-                  >
-                    <Upload className="w-4 h-4 text-amber-700" />
-                    <span>Add New Photo</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      capture="environment"
-                      multiple
-                      disabled={editProductImages.length >= 3}
-                      onChange={(e) => handleFiles(e.target.files, true)}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-
-                {editProductImages.length > 0 && (
-                  <div className="grid grid-cols-3 gap-3 pt-2">
-                    {editProductImages.map((img, idx) => (
-                      <div key={idx} className="relative rounded-xl overflow-hidden border border-amber-300">
-                        <img src={img} alt={`Preview ${idx + 1}`} className="w-full h-24 object-cover" />
-                        <span className="absolute bottom-1 left-1 bg-black/70 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
-                          Photo {idx + 1}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => removeImage(idx, true)}
-                          className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full hover:bg-red-700"
-                          title="Remove photo"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <SearchableSelect
-                  label="Room Category:"
-                  options={CATEGORY_OPTIONS}
-                  value={editProductData.categorySlug}
-                  onChange={(val) => setEditProductData({ ...editProductData, categorySlug: val })}
-                  allowOther={true}
-                />
-
-                <SearchableSelect
-                  label="Timber / Material Selection:"
-                  options={WOOD_OPTIONS}
-                  value={editProductData.woodType}
-                  onChange={(val) => setEditProductData({ ...editProductData, woodType: val })}
-                  allowOther={true}
-                />
-
-                <SearchableSelect
-                  label="Finishing Polish / Weave:"
-                  options={FINISH_OPTIONS}
-                  value={editProductData.finishType}
-                  onChange={(val) => setEditProductData({ ...editProductData, finishType: val })}
-                  allowOther={true}
-                />
-              </div>
-
-              <div>
-                <label className="font-bold text-slate-700 block mb-1">
-                  Material / Timber Purity & Authenticity (%)
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. 100% Pure Cotton, 100% Grade-A Sagwan Teak, 95% Organic Cotton"
-                  value={editProductData.materialPurity || ""}
-                  onChange={(e) => setEditProductData({ ...editProductData, materialPurity: e.target.value })}
-                  className="w-full p-2.5 rounded-xl border border-amber-200"
-                />
-                <p className="text-[10px] text-slate-500 mt-1">
-                  Appears as product authenticity badge (e.g. "✓ 100% Pure Cotton" or "✓ 100% Genuine Sagwan"). Defaults to 100% Genuine Quality if left blank.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {/* Scrollable Form Body */}
+            <form onSubmit={handleEditProduct} className="flex flex-col flex-1 overflow-hidden">
+              <div className="p-6 overflow-y-auto space-y-4 flex-1 scrollbar-thin scrollbar-thumb-amber-500/40 scrollbar-track-amber-50 pr-4 text-xs">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Price (₹):</label>
-                  <input
-                    type="number"
-                    required
-                    value={editProductData.price}
-                    onChange={(e) => {
-                      setEditProductData({ ...editProductData, price: e.target.value });
-                      if (editErrors.price) setEditErrors((prev) => ({ ...prev, price: null }));
-                    }}
-                    className={`w-full p-2.5 rounded-xl border ${
-                      editErrors.price ? "border-red-500" : "border-amber-200"
-                    } font-bold`}
-                  />
-                  {editErrors.price && <p className="text-red-500 text-[10px] mt-1">{editErrors.price}</p>}
-                </div>
-                <div>
-                  <label className="font-bold text-slate-700 block mb-1">Compare Price (₹):</label>
-                  <input
-                    type="number"
-                    value={editProductData.compareAtPrice}
-                    onChange={(e) => setEditProductData({ ...editProductData, compareAtPrice: e.target.value })}
-                    className="w-full p-2.5 rounded-xl border border-amber-200"
-                  />
-                </div>
-                <div>
-                  <label className="font-bold text-slate-700 block mb-1">Stock Units:</label>
-                  <input
-                    type="number"
-                    required
-                    value={editProductData.stock}
-                    onChange={(e) => {
-                      setEditProductData({ ...editProductData, stock: e.target.value });
-                      if (editErrors.stock) setEditErrors((prev) => ({ ...prev, stock: null }));
-                    }}
-                    className={`w-full p-2.5 rounded-xl border ${
-                      editErrors.stock ? "border-red-500" : "border-amber-200"
-                    } font-bold`}
-                  />
-                  {editErrors.stock && <p className="text-red-500 text-[10px] mt-1">{editErrors.stock}</p>}
-                </div>
-              </div>
-
-              {/* 3D & Augmented Reality Model (.glb file) */}
-              <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-300 space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-amber-950 font-bold text-xs">
-                    <Box className="w-4 h-4 text-amber-800" />
-                    <span>3D Model & AR Asset (.glb / .gltf)</span>
-                  </div>
-                  <span className="text-[10px] text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded border border-amber-300 font-bold">
-                    Interactive 360° & AR
-                  </span>
-                </div>
-
-                {/* Upload Button from System */}
-                <div className="flex items-center gap-2">
-                  <label
-                    className={`flex-1 py-2.5 px-3 rounded-xl border border-dashed text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                      uploading3D
-                        ? "bg-amber-200/80 text-amber-950 border-amber-600 animate-pulse"
-                        : "bg-white hover:bg-amber-100 text-amber-900 border-amber-400"
-                    }`}
-                  >
-                    <Upload className="w-4 h-4 text-amber-800" />
-                    <span>{uploading3D ? "Uploading 3D Model from PC..." : "Upload .GLB from System / PC"}</span>
-                    <input
-                      type="file"
-                      accept=".glb,.gltf,.usdz"
-                      disabled={uploading3D}
-                      onChange={(e) => {
-                        if (e.target.files?.[0]) handleUpload3DModel(e.target.files[0], true);
-                      }}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-
-                {/* URL or Local Path Input */}
-                <div>
-                  <label className="text-[10px] text-slate-600 font-semibold block mb-1">
-                    Or Enter 3D Model Path / Direct URL:
-                  </label>
+                  <label className="font-bold text-slate-700 block mb-1">Product Title:</label>
                   <input
                     type="text"
-                    placeholder="e.g. /models/sofa.glb or /uploads/models/custom.glb"
-                    value={editProductData.model3dUrl || ""}
-                    onChange={(e) => setEditProductData({ ...editProductData, model3dUrl: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-white border border-amber-300 text-slate-900 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
+                    required
+                    value={editProductData.title}
+                    onChange={(e) => {
+                      setEditProductData({ ...editProductData, title: e.target.value });
+                      if (editErrors.title) setEditErrors((prev) => ({ ...prev, title: null }));
+                    }}
+                    className={`w-full p-2.5 rounded-xl border ${
+                      editErrors.title ? "border-red-500" : "border-amber-200"
+                    }`}
                   />
+                  {editErrors.title && <p className="text-red-500 text-[10px] mt-1">{editErrors.title}</p>}
                 </div>
 
-                {/* Quick Presets & Clear */}
-                <div className="flex items-center gap-2 pt-0.5 flex-wrap">
-                  <span className="text-[10px] text-slate-600 font-medium">Quick Presets:</span>
-                  <button
-                    type="button"
-                    onClick={() => setEditProductData({ ...editProductData, model3dUrl: "/models/sofa.glb" })}
-                    className="px-2.5 py-1 rounded-lg bg-white hover:bg-amber-100 text-[10px] font-bold text-amber-900 border border-amber-300 transition cursor-pointer"
-                  >
-                    🛋️ Sofa Model
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setEditProductData({ ...editProductData, model3dUrl: "/models/chair.glb" })}
-                    className="px-2.5 py-1 rounded-lg bg-white hover:bg-amber-100 text-[10px] font-bold text-amber-900 border border-amber-300 transition cursor-pointer"
-                  >
-                    🪑 Chair Model
-                  </button>
-                  {editProductData.model3dUrl && (
-                    <button
-                      type="button"
-                      onClick={() => setEditProductData({ ...editProductData, model3dUrl: "" })}
-                      className="px-2.5 py-1 rounded-lg bg-red-100 hover:bg-red-200 text-[10px] font-bold text-red-800 border border-red-300 transition cursor-pointer"
+                {/* 📸 Edit Photos (1-3 images) */}
+                <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="font-bold text-slate-800 flex items-center gap-1.5">
+                      <Camera className="w-4 h-4 text-amber-800" />
+                      <span>Manage Product Photos (1 to 3 images) *</span>
+                    </label>
+                    <span className="text-[10px] font-bold text-amber-900">
+                      {editProductImages.length} of 3 photos
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <label
+                      className={`cursor-pointer px-4 py-2 rounded-xl border border-dashed font-bold flex items-center gap-2 transition-all ${
+                        editProductImages.length >= 3
+                          ? "bg-slate-100 text-slate-400 border-slate-300 cursor-not-allowed"
+                          : "bg-white text-amber-900 border-amber-300 hover:bg-amber-100"
+                      }`}
                     >
-                      Clear
-                    </button>
+                      <Upload className="w-4 h-4 text-amber-700" />
+                      <span>Add New Photo</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        multiple
+                        disabled={editProductImages.length >= 3}
+                        onChange={(e) => handleFiles(e.target.files, true)}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+
+                  {editProductImages.length > 0 && (
+                    <div className="grid grid-cols-3 gap-3 pt-2">
+                      {editProductImages.map((img, idx) => (
+                        <div key={idx} className="relative rounded-xl overflow-hidden border border-amber-300">
+                          <img src={img} alt={`Preview ${idx + 1}`} className="w-full h-24 object-cover" />
+                          <span className="absolute bottom-1 left-1 bg-black/70 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
+                            Photo {idx + 1}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => removeImage(idx, true)}
+                            className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full hover:bg-red-700 cursor-pointer"
+                            title="Remove photo"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
 
-                {editProductData.model3dUrl && (
-                  <div className="p-2 rounded-lg bg-emerald-50 border border-emerald-300 text-[11px] text-emerald-900 flex items-center gap-1.5 font-medium">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
-                    <span className="truncate">3D Model Linked: {editProductData.model3dUrl}</span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <SearchableSelect
+                    label="Room Category:"
+                    options={CATEGORY_OPTIONS}
+                    value={editProductData.categorySlug}
+                    onChange={(val) => setEditProductData({ ...editProductData, categorySlug: val })}
+                    allowOther={true}
+                  />
+
+                  <SearchableSelect
+                    label="Timber / Material Selection:"
+                    options={WOOD_OPTIONS}
+                    value={editProductData.woodType}
+                    onChange={(val) => setEditProductData({ ...editProductData, woodType: val })}
+                    allowOther={true}
+                  />
+
+                  <SearchableSelect
+                    label="Finishing Polish / Weave:"
+                    options={FINISH_OPTIONS}
+                    value={editProductData.finishType}
+                    onChange={(val) => setEditProductData({ ...editProductData, finishType: val })}
+                    allowOther={true}
+                  />
+                </div>
+
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">
+                    Material / Timber Purity & Authenticity (%)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 100% Pure Cotton, 100% Grade-A Sagwan Teak, 95% Organic Cotton"
+                    value={editProductData.materialPurity || ""}
+                    onChange={(e) => setEditProductData({ ...editProductData, materialPurity: e.target.value })}
+                    className="w-full p-2.5 rounded-xl border border-amber-200"
+                  />
+                  <p className="text-[10px] text-slate-500 mt-1">
+                    Appears as product authenticity badge (e.g. "✓ 100% Pure Cotton" or "✓ 100% Genuine Sagwan"). Defaults to 100% Genuine Quality if left blank.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Price (₹):</label>
+                    <input
+                      type="number"
+                      required
+                      value={editProductData.price}
+                      onChange={(e) => {
+                        setEditProductData({ ...editProductData, price: e.target.value });
+                        if (editErrors.price) setEditErrors((prev) => ({ ...prev, price: null }));
+                      }}
+                      className={`w-full p-2.5 rounded-xl border ${
+                        editErrors.price ? "border-red-500" : "border-amber-200"
+                      } font-bold`}
+                    />
+                    {editErrors.price && <p className="text-red-500 text-[10px] mt-1">{editErrors.price}</p>}
                   </div>
-                )}
-
-                <p className="text-[10px] text-slate-500">
-                  Enables customers to inspect this exact product in 360° and test it on their room floor using phone AR.
-                </p>
-              </div>
-
-              {/* 🎛️ Storefront Buttons Controls */}
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                <span className="font-bold text-slate-800 block text-[11px] uppercase">
-                  Storefront Button Visibility Controls:
-                </span>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <label className="flex items-center gap-2 cursor-pointer">
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Compare Price (₹):</label>
                     <input
-                      type="checkbox"
-                      checked={editProductData.showInquiryBtn}
-                      onChange={(e) => setEditProductData({ ...editProductData, showInquiryBtn: e.target.checked })}
-                      className="w-4 h-4 rounded text-amber-900"
+                      type="number"
+                      value={editProductData.compareAtPrice}
+                      onChange={(e) => setEditProductData({ ...editProductData, compareAtPrice: e.target.value })}
+                      className="w-full p-2.5 rounded-xl border border-amber-200"
                     />
-                    <span className="font-semibold text-slate-700">Show "Direct WhatsApp Inquiry" Button</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Stock Units:</label>
                     <input
-                      type="checkbox"
-                      checked={editProductData.showDetailsBtn}
-                      onChange={(e) => setEditProductData({ ...editProductData, showDetailsBtn: e.target.checked })}
-                      className="w-4 h-4 rounded text-amber-900"
+                      type="number"
+                      required
+                      value={editProductData.stock}
+                      onChange={(e) => {
+                        setEditProductData({ ...editProductData, stock: e.target.value });
+                        if (editErrors.stock) setEditErrors((prev) => ({ ...prev, stock: null }));
+                      }}
+                      className={`w-full p-2.5 rounded-xl border ${
+                        editErrors.stock ? "border-red-500" : "border-amber-200"
+                      } font-bold`}
                     />
-                    <span className="font-semibold text-slate-700">Show "See Details" Button</span>
-                  </label>
+                    {editErrors.stock && <p className="text-red-500 text-[10px] mt-1">{editErrors.stock}</p>}
+                  </div>
+                </div>
+
+                {/* 3D & Augmented Reality Model (.glb file) */}
+                <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-300 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-amber-950 font-bold text-xs">
+                      <Box className="w-4 h-4 text-amber-800" />
+                      <span>3D Model & AR Asset (.glb / .gltf)</span>
+                    </div>
+                    <span className="text-[10px] text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded border border-amber-300 font-bold">
+                      Interactive 360° & AR
+                    </span>
+                  </div>
+
+                  {/* Upload Button from System */}
+                  <div className="flex items-center gap-2">
+                    <label
+                      className={`flex-1 py-2.5 px-3 rounded-xl border border-dashed text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                        uploading3D
+                          ? "bg-amber-200/80 text-amber-950 border-amber-600 animate-pulse"
+                          : "bg-white hover:bg-amber-100 text-amber-900 border-amber-400"
+                      }`}
+                    >
+                      <Upload className="w-4 h-4 text-amber-800" />
+                      <span>{uploading3D ? "Uploading 3D Model from PC..." : "Upload .GLB from System / PC"}</span>
+                      <input
+                        type="file"
+                        accept=".glb,.gltf,.usdz"
+                        disabled={uploading3D}
+                        onChange={(e) => {
+                          if (e.target.files?.[0]) handleUpload3DModel(e.target.files[0], true);
+                        }}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+
+                  {/* URL or Local Path Input */}
+                  <div>
+                    <label className="text-[10px] text-slate-600 font-semibold block mb-1">
+                      Or Enter 3D Model Path / Direct URL:
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. /models/sofa.glb or /uploads/models/custom.glb"
+                      value={editProductData.model3dUrl || ""}
+                      onChange={(e) => setEditProductData({ ...editProductData, model3dUrl: e.target.value })}
+                      className="w-full p-2.5 rounded-xl bg-white border border-amber-300 text-slate-900 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
+                    />
+                  </div>
+
+                  {/* Quick Presets & Clear */}
+                  <div className="flex items-center gap-2 pt-0.5 flex-wrap">
+                    <span className="text-[10px] text-slate-600 font-medium">Quick Presets:</span>
+                    <button
+                      type="button"
+                      onClick={() => setEditProductData({ ...editProductData, model3dUrl: "/models/sofa.glb" })}
+                      className="px-2.5 py-1 rounded-lg bg-white hover:bg-amber-100 text-[10px] font-bold text-amber-900 border border-amber-300 transition cursor-pointer"
+                    >
+                      🛋️ Sofa Model
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditProductData({ ...editProductData, model3dUrl: "/models/chair.glb" })}
+                      className="px-2.5 py-1 rounded-lg bg-white hover:bg-amber-100 text-[10px] font-bold text-amber-900 border border-amber-300 transition cursor-pointer"
+                    >
+                      🪑 Chair Model
+                    </button>
+                    {editProductData.model3dUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setEditProductData({ ...editProductData, model3dUrl: "" })}
+                        className="px-2.5 py-1 rounded-lg bg-red-100 hover:bg-red-200 text-[10px] font-bold text-red-800 border border-red-300 transition cursor-pointer"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+
+                  {editProductData.model3dUrl && (
+                    <div className="p-2 rounded-lg bg-emerald-50 border border-emerald-300 text-[11px] text-emerald-900 flex items-center gap-1.5 font-medium">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                      <span className="truncate">3D Model Linked: {editProductData.model3dUrl}</span>
+                    </div>
+                  )}
+
+                  <p className="text-[10px] text-slate-500">
+                    Enables customers to inspect this exact product in 360° and test it on their room floor using phone AR.
+                  </p>
+                </div>
+
+                {/* 🎛️ Storefront Buttons Controls */}
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                  <span className="font-bold text-slate-800 block text-[11px] uppercase">
+                    Storefront Button Visibility Controls:
+                  </span>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={editProductData.showInquiryBtn}
+                        onChange={(e) => setEditProductData({ ...editProductData, showInquiryBtn: e.target.checked })}
+                        className="w-4 h-4 rounded text-amber-900"
+                      />
+                      <span className="font-semibold text-slate-700">Show "Direct WhatsApp Inquiry" Button</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={editProductData.showDetailsBtn}
+                        onChange={(e) => setEditProductData({ ...editProductData, showDetailsBtn: e.target.checked })}
+                        className="w-4 h-4 rounded text-amber-900"
+                      />
+                      <span className="font-semibold text-slate-700">Show "See Details" Button</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Description:</label>
+                  <textarea
+                    rows="2"
+                    value={editProductData.description}
+                    onChange={(e) => setEditProductData({ ...editProductData, description: e.target.value })}
+                    className="w-full p-2.5 rounded-xl border border-amber-200"
+                  ></textarea>
                 </div>
               </div>
 
-              <div>
-                <label className="font-bold text-slate-700 block mb-1">Description:</label>
-                <textarea
-                  rows="2"
-                  value={editProductData.description}
-                  onChange={(e) => setEditProductData({ ...editProductData, description: e.target.value })}
-                  className="w-full p-2.5 rounded-xl border border-amber-200"
-                ></textarea>
+              {/* Fixed Modal Footer with Cancel & Save Buttons */}
+              <div className="p-4 sm:p-5 border-t border-amber-100 flex items-center justify-end gap-3 bg-amber-50/50 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setShowEditModal(false)}
+                  className="py-2.5 px-5 rounded-xl bg-white hover:bg-amber-100 text-slate-700 hover:text-slate-900 font-bold text-xs transition-colors flex items-center gap-1.5 cursor-pointer border border-amber-200 shadow-xs"
+                >
+                  <X className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Cancel</span>
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="py-2.5 px-6 rounded-xl bg-amber-900 hover:bg-amber-800 text-amber-50 font-bold text-xs transition-all shadow-md flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+                >
+                  <CheckCircle2 className="w-4 h-4 text-amber-300" />
+                  <span>{submitting ? "Updating Database..." : "Save Product Changes"}</span>
+                </button>
               </div>
-
-              <button
-                type="submit"
-                disabled={submitting}
-                className="w-full py-3.5 rounded-xl bg-amber-900 hover:bg-amber-800 text-amber-50 font-bold transition-all shadow-md disabled:opacity-50"
-              >
-                {submitting ? "Updating Database..." : "Save Product Changes"}
-              </button>
             </form>
           </div>
         </div>

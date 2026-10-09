@@ -32,6 +32,7 @@ import {
   Building2,
   DollarSign,
   ChevronRight,
+  ChevronLeft,
   ShieldCheck,
   ArrowRight,
 } from "lucide-react";
@@ -69,6 +70,11 @@ export default function AdminEmployeesPage() {
   const [staffSearch, setStaffSearch] = useState("");
   const [staffDeptFilter, setStaffDeptFilter] = useState("ALL");
   const [candidateSearch, setCandidateSearch] = useState("");
+
+  // Pagination states (10 items per page)
+  const ITEMS_PER_PAGE = 10;
+  const [staffCurrentPage, setStaffCurrentPage] = useState(1);
+  const [candidateCurrentPage, setCandidateCurrentPage] = useState(1);
 
   // Modals state
   const [showEmpModal, setShowEmpModal] = useState(false);
@@ -468,6 +474,16 @@ export default function AdminEmployeesPage() {
       });
   }, [applications, candidateSubTab, candidateSearch]);
 
+  // Paginated Slices
+  const staffTotalPages = Math.ceil(filteredEmployees.length / ITEMS_PER_PAGE) || 1;
+  const safeStaffPage = Math.min(Math.max(staffCurrentPage, 1), staffTotalPages);
+  const paginatedEmployees = filteredEmployees.slice((safeStaffPage - 1) * ITEMS_PER_PAGE, safeStaffPage * ITEMS_PER_PAGE);
+
+  const candidateTotalPages = Math.ceil(filteredApplications.length / ITEMS_PER_PAGE) || 1;
+  const safeCandidatePage = Math.min(Math.max(candidateCurrentPage, 1), candidateTotalPages);
+  const paginatedApplications = filteredApplications.slice((safeCandidatePage - 1) * ITEMS_PER_PAGE, safeCandidatePage * ITEMS_PER_PAGE);
+
+
   if (!mounted) {
     return (
       <div className="space-y-8" suppressHydrationWarning>
@@ -630,7 +646,7 @@ export default function AdminEmployeesPage() {
                 suppressHydrationWarning
                 placeholder="Search staff by name, email, phone, or role..."
                 value={staffSearch}
-                onChange={(e) => setStaffSearch(e.target.value)}
+                onChange={(e) => { setStaffSearch(e.target.value); setStaffCurrentPage(1); }}
                 className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
               />
             </div>
@@ -642,7 +658,7 @@ export default function AdminEmployeesPage() {
               <select
                 value={staffDeptFilter}
                 suppressHydrationWarning
-                onChange={(e) => setStaffDeptFilter(e.target.value)}
+                onChange={(e) => { setStaffDeptFilter(e.target.value); setStaffCurrentPage(1); }}
                 className="bg-slate-900 text-slate-200 border border-slate-800 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none"
               >
                 <option value="ALL">All Departments</option>
@@ -670,7 +686,7 @@ export default function AdminEmployeesPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800">
-                  {filteredEmployees.length === 0 ? (
+                  {paginatedEmployees.length === 0 ? (
                     <tr>
                       <td colSpan="6" className="p-12 text-center text-slate-500">
                         {staffSearch || staffDeptFilter !== "ALL"
@@ -679,7 +695,7 @@ export default function AdminEmployeesPage() {
                       </td>
                     </tr>
                   ) : (
-                    filteredEmployees.map((emp) => (
+                    paginatedEmployees.map((emp) => (
                       <tr key={emp.id} className="hover:bg-slate-900/50 transition-colors group">
                         <td className="p-4 pl-6">
                           <div className="flex items-center gap-3">
@@ -774,6 +790,67 @@ export default function AdminEmployeesPage() {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination Controls for Staff Directory */}
+            {filteredEmployees.length > ITEMS_PER_PAGE && (
+              <div className="p-4 bg-slate-900 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+                <div>
+                  Showing <span className="font-bold text-white">{(safeStaffPage - 1) * ITEMS_PER_PAGE + 1}</span> to{" "}
+                  <span className="font-bold text-white">{Math.min(safeStaffPage * ITEMS_PER_PAGE, filteredEmployees.length)}</span> of{" "}
+                  <span className="font-bold text-white">{filteredEmployees.length}</span> staff members
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    disabled={safeStaffPage <= 1}
+                    onClick={() => setStaffCurrentPage((p) => Math.max(p - 1, 1))}
+                    className="px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-950 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed font-bold inline-flex items-center gap-1 text-slate-300 transition-colors cursor-pointer"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                    <span>Prev</span>
+                  </button>
+                  {Array.from({ length: staffTotalPages }, (_, i) => i + 1).map((num) => {
+                    if (
+                      num === 1 ||
+                      num === staffTotalPages ||
+                      (num >= safeStaffPage - 1 && num <= safeStaffPage + 1)
+                    ) {
+                      return (
+                        <button
+                          key={num}
+                          type="button"
+                          onClick={() => setStaffCurrentPage(num)}
+                          className={`w-8 h-8 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                            safeStaffPage === num
+                              ? "bg-amber-500 text-slate-950 font-black"
+                              : "bg-slate-950 border border-slate-800 hover:bg-slate-800 text-slate-300"
+                          }`}
+                        >
+                          {num}
+                        </button>
+                      );
+                    }
+                    if (num === safeStaffPage - 2 || num === safeStaffPage + 2) {
+                      return (
+                        <span key={num} className="px-1 text-slate-500">
+                          ...
+                        </span>
+                      );
+                    }
+                    return null;
+                  })}
+                  <button
+                    type="button"
+                    disabled={safeStaffPage >= staffTotalPages}
+                    onClick={() => setStaffCurrentPage((p) => Math.min(p + 1, staffTotalPages))}
+                    className="px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-950 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed font-bold inline-flex items-center gap-1 text-slate-300 transition-colors cursor-pointer"
+                  >
+                    <span>Next</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -922,7 +999,7 @@ export default function AdminEmployeesPage() {
               <button
                 type="button"
                 suppressHydrationWarning
-                onClick={() => setCandidateSubTab("active")}
+                onClick={() => { setCandidateSubTab("active"); setCandidateCurrentPage(1); }}
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   candidateSubTab === "active"
                     ? "bg-amber-500 text-slate-950 shadow-md font-extrabold"
@@ -934,7 +1011,7 @@ export default function AdminEmployeesPage() {
               <button
                 type="button"
                 suppressHydrationWarning
-                onClick={() => setCandidateSubTab("archived")}
+                onClick={() => { setCandidateSubTab("archived"); setCandidateCurrentPage(1); }}
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   candidateSubTab === "archived"
                     ? "bg-amber-500 text-slate-950 shadow-md font-extrabold"
@@ -953,7 +1030,7 @@ export default function AdminEmployeesPage() {
                 suppressHydrationWarning
                 placeholder="Search candidate by name, phone, role..."
                 value={candidateSearch}
-                onChange={(e) => setCandidateSearch(e.target.value)}
+                onChange={(e) => { setCandidateSearch(e.target.value); setCandidateCurrentPage(1); }}
                 className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
               />
             </div>
@@ -975,7 +1052,7 @@ export default function AdminEmployeesPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800">
-                  {filteredApplications.length === 0 ? (
+                  {paginatedApplications.length === 0 ? (
                     <tr>
                       <td colSpan="7" className="p-12 text-center text-slate-500">
                         {candidateSubTab === "archived"
@@ -984,7 +1061,7 @@ export default function AdminEmployeesPage() {
                       </td>
                     </tr>
                   ) : (
-                    filteredApplications.map((app) => (
+                    paginatedApplications.map((app) => (
                       <tr key={app.id} className="hover:bg-slate-900/50 transition-colors">
                         <td className="p-4 pl-6 font-bold text-white">
                           <div className="font-serif text-sm">{app.fullName}</div>
@@ -1095,6 +1172,67 @@ export default function AdminEmployeesPage() {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination Controls for Candidate Applications */}
+            {filteredApplications.length > ITEMS_PER_PAGE && (
+              <div className="p-4 bg-slate-900 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+                <div>
+                  Showing <span className="font-bold text-white">{(safeCandidatePage - 1) * ITEMS_PER_PAGE + 1}</span> to{" "}
+                  <span className="font-bold text-white">{Math.min(safeCandidatePage * ITEMS_PER_PAGE, filteredApplications.length)}</span> of{" "}
+                  <span className="font-bold text-white">{filteredApplications.length}</span> candidates
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    disabled={safeCandidatePage <= 1}
+                    onClick={() => setCandidateCurrentPage((p) => Math.max(p - 1, 1))}
+                    className="px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-950 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed font-bold inline-flex items-center gap-1 text-slate-300 transition-colors cursor-pointer"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                    <span>Prev</span>
+                  </button>
+                  {Array.from({ length: candidateTotalPages }, (_, i) => i + 1).map((num) => {
+                    if (
+                      num === 1 ||
+                      num === candidateTotalPages ||
+                      (num >= safeCandidatePage - 1 && num <= safeCandidatePage + 1)
+                    ) {
+                      return (
+                        <button
+                          key={num}
+                          type="button"
+                          onClick={() => setCandidateCurrentPage(num)}
+                          className={`w-8 h-8 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                            safeCandidatePage === num
+                              ? "bg-amber-500 text-slate-950 font-black"
+                              : "bg-slate-950 border border-slate-800 hover:bg-slate-800 text-slate-300"
+                          }`}
+                        >
+                          {num}
+                        </button>
+                      );
+                    }
+                    if (num === safeCandidatePage - 2 || num === safeCandidatePage + 2) {
+                      return (
+                        <span key={num} className="px-1 text-slate-500">
+                          ...
+                        </span>
+                      );
+                    }
+                    return null;
+                  })}
+                  <button
+                    type="button"
+                    disabled={safeCandidatePage >= candidateTotalPages}
+                    onClick={() => setCandidateCurrentPage((p) => Math.min(p + 1, candidateTotalPages))}
+                    className="px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-950 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed font-bold inline-flex items-center gap-1 text-slate-300 transition-colors cursor-pointer"
+                  >
+                    <span>Next</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

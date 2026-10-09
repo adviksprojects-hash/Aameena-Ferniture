@@ -53,6 +53,14 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
   const [sharingProduct, setSharingProduct] = useState(null);
   const [copiedProductId, setCopiedProductId] = useState(null);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 15;
+
+  // Reset pagination when category, material, or search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, selectedMaterial, searchQuery]);
+
   const handleCopyProductLink = async (productOrId, e) => {
     e?.preventDefault();
     e?.stopPropagation();
@@ -146,6 +154,12 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
     return matchesCategory && matchesMaterial && matchesSearch;
   });
 
+  // Pagination Calculations
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE) || 1;
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, filteredProducts.length);
+  const paginatedProducts = filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
   return (
     <div className="space-y-10" suppressHydrationWarning>
       {/* Header Banner */}
@@ -172,31 +186,6 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
             className="w-full pl-12 pr-4 py-3.5 rounded-full bg-amber-900/80 border border-amber-700/80 text-amber-50 placeholder-amber-300/60 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
           />
         </div>
-      </div>
-
-      {/* FACTORY LOOSE CLOTH & SOFA MATERIAL NOTIFICATION BANNER */}
-      <div className="bg-amber-100/70 border border-amber-300 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
-        <div className="flex items-center gap-3 text-left">
-          <span className="p-2.5 bg-amber-900 text-amber-100 rounded-xl shrink-0 font-serif font-bold text-xs">
-            FACTORY STOCK
-          </span>
-          <div>
-            <h4 className="text-sm font-bold text-slate-900 font-serif">
-              Raw Loose Cloth for Furniture & Sofa Materials Available in Factory
-            </h4>
-            <p className="text-xs text-slate-600">
-              We stock hundreds of meters of velvet, Turkish jacquard, chenille, and foam materials directly at our Solapur plant. Available by the meter or for custom re-upholstery.
-            </p>
-          </div>
-        </div>
-
-        <button
-          onClick={() => setSelectedCategory("fabrics")}
-          suppressHydrationWarning
-          className="shrink-0 px-4 py-2 rounded-xl bg-amber-900 hover:bg-amber-800 text-amber-50 text-xs font-bold transition-colors whitespace-nowrap"
-        >
-          View Loose Fabrics
-        </button>
       </div>
 
       {/* Filter Toolbar */}
@@ -260,252 +249,334 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
               setSearchQuery("");
             }}
             suppressHydrationWarning
-            className="px-6 py-2.5 rounded-full bg-amber-800 text-white text-xs font-bold hover:bg-amber-900 transition-colors"
+            className="px-6 py-2.5 rounded-full bg-amber-800 text-white text-xs font-bold hover:bg-amber-900 transition-colors cursor-pointer"
           >
             Reset Filters
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredProducts.map((product) => {
-            const currentFinish = selectedFinishes[product.id] || product.finishType || "Natural Honey Teak";
-            const inStock = product.stock > 0;
-            const images = product.images && product.images.length > 0 ? product.images : [
-              "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80"
-            ];
-            const primaryImg = images[0];
+        <div className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {paginatedProducts.map((product) => {
+              const currentFinish = selectedFinishes[product.id] || product.finishType || "Natural Honey Teak";
+              const inStock = product.stock > 0;
+              const images = product.images && product.images.length > 0 ? product.images : [
+                "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80"
+              ];
+              const primaryImg = images[0];
 
-            // Manager / Admin decisions:
-            const showInquiry = product.showInquiryBtn !== false;
-            const showDetails = product.showDetailsBtn !== false;
+              // Discount calculation based on original price and selling price
+              const hasDiscount = Boolean(product.compareAtPrice && Number(product.compareAtPrice) > Number(product.price));
+              const discountPercent = hasDiscount
+                ? Math.round(((Number(product.compareAtPrice) - Number(product.price)) / Number(product.compareAtPrice)) * 100)
+                : 0;
 
-            return (
-              <div
-                key={product.id}
-                className="bg-white rounded-3xl overflow-hidden border border-amber-200/80 hover:border-amber-400 shadow-sm hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between group"
-                suppressHydrationWarning
-              >
-                <div>
-                  {/* Photo & Tag with Photo Count Badge */}
-                  <div className="relative h-64 overflow-hidden bg-amber-50">
-                    <Link href={`/products/${product.slug || product.id}`} className="block w-full h-full">
-                      <img
-                        src={primaryImg}
-                        alt={product.title}
-                        loading="lazy"
-                        decoding="async"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    </Link>
-                    <div className="absolute top-4 left-4 bg-amber-950/90 text-amber-200 text-[10px] font-bold px-3 py-1 rounded-full backdrop-blur-sm shadow-md pointer-events-none">
-                      {product.woodType}
-                    </div>
+              // Manager / Admin decisions:
+              const showInquiry = product.showInquiryBtn !== false;
+              const showDetails = product.showDetailsBtn !== false;
 
-                    {images.length > 1 && (
-                      <div className="absolute bottom-3 right-3 bg-black/75 text-white text-[10px] font-bold px-2 py-0.5 rounded-full backdrop-blur-sm pointer-events-none">
-                        1 of {images.length} photos
-                      </div>
-                    )}
-
-                    {/* Top Right Action Buttons: Wishlist Heart & Share */}
-                    <div className="absolute top-4 right-4 z-10 flex items-center gap-1.5">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          toggleWishlist(product);
-                        }}
-                        suppressHydrationWarning
-                        className="p-2 rounded-full bg-white/95 hover:bg-white text-slate-800 shadow-md backdrop-blur-xs transition-all hover:scale-110 active:scale-95 border border-slate-200 cursor-pointer"
-                        title={mounted && isInWishlist(product.id) ? "Remove from Wishlist" : "Save to Wishlist"}
-                      >
-                        <Heart
-                          className={`w-3.5 h-3.5 transition-colors ${
-                            mounted && isInWishlist(product.id)
-                              ? "fill-rose-500 text-rose-500"
-                              : "text-slate-600 hover:text-rose-500"
-                          }`}
+              return (
+                <div
+                  key={product.id}
+                  className="bg-white rounded-3xl overflow-hidden border border-amber-200/80 hover:border-amber-400 shadow-sm hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between group"
+                  suppressHydrationWarning
+                >
+                  <div>
+                    {/* Photo & Tag with Photo Count Badge & Discount Badge */}
+                    <div className="relative h-64 overflow-hidden bg-amber-50">
+                      <Link href={`/products/${product.slug || product.id}`} className="block w-full h-full">
+                        <img
+                          src={primaryImg}
+                          alt={product.title}
+                          loading="lazy"
+                          decoding="async"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
-                      </button>
+                      </Link>
 
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setSharingProduct(product);
-                        }}
-                        suppressHydrationWarning
-                        className="p-2 rounded-full bg-white/95 hover:bg-white text-slate-800 shadow-md backdrop-blur-xs transition-all hover:scale-110 border border-slate-200 cursor-pointer"
-                        title="Share product"
-                      >
-                        <Share2 className="w-3.5 h-3.5 text-amber-900" />
-                      </button>
+                      {/* Top Left Badges: Timber & Discount % */}
+                      <div className="absolute top-4 left-4 z-10 flex flex-col gap-1.5 items-start pointer-events-none">
+                        <div className="bg-amber-950/90 text-amber-200 text-[10px] font-bold px-3 py-1 rounded-full backdrop-blur-sm shadow-md">
+                          {product.woodType}
+                        </div>
+                        {hasDiscount && (
+                          <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-lg border border-emerald-400/40 tracking-wide">
+                            {discountPercent}% OFF
+                          </div>
+                        )}
+                      </div>
+
+                      {images.length > 1 && (
+                        <div className="absolute bottom-3 right-3 bg-black/75 text-white text-[10px] font-bold px-2 py-0.5 rounded-full backdrop-blur-sm pointer-events-none">
+                          1 of {images.length} photos
+                        </div>
+                      )}
+
+                      {/* Top Right Action Buttons: Wishlist Heart & Share */}
+                      <div className="absolute top-4 right-4 z-10 flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            toggleWishlist(product);
+                          }}
+                          suppressHydrationWarning
+                          className="p-2 rounded-full bg-white/95 hover:bg-white text-slate-800 shadow-md backdrop-blur-xs transition-all hover:scale-110 active:scale-95 border border-slate-200 cursor-pointer"
+                          title={mounted && isInWishlist(product.id) ? "Remove from Wishlist" : "Save to Wishlist"}
+                        >
+                          <Heart
+                            className={`w-3.5 h-3.5 transition-colors ${
+                              mounted && isInWishlist(product.id)
+                                ? "fill-rose-500 text-rose-500"
+                                : "text-slate-600 hover:text-rose-500"
+                            }`}
+                          />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setSharingProduct(product);
+                          }}
+                          suppressHydrationWarning
+                          className="p-2 rounded-full bg-white/95 hover:bg-white text-slate-800 shadow-md backdrop-blur-xs transition-all hover:scale-110 border border-slate-200 cursor-pointer"
+                          title="Share product"
+                        >
+                          <Share2 className="w-3.5 h-3.5 text-amber-900" />
+                        </button>
+                      </div>
+
+                      <div className="absolute bottom-3 left-4 pointer-events-none">
+                        <span
+                          className={`text-[10px] font-bold px-2.5 py-1 rounded-full shadow-md backdrop-blur-sm ${
+                            inStock
+                              ? "bg-emerald-950/90 text-emerald-300 border border-emerald-700/60"
+                              : "bg-amber-950/90 text-amber-300 border border-amber-700/60"
+                          }`}
+                        >
+                          {inStock ? "Ready in Solapur" : "Custom Built to Order"}
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="absolute bottom-3 left-4 pointer-events-none">
-                      <span
-                        className={`text-[10px] font-bold px-2.5 py-1 rounded-full shadow-md backdrop-blur-sm ${
-                          inStock
-                            ? "bg-emerald-950/90 text-emerald-300 border border-emerald-700/60"
-                            : "bg-amber-950/90 text-amber-300 border border-amber-700/60"
-                        }`}
-                      >
-                        {inStock ? "Ready in Solapur" : "Custom Built to Order"}
-                      </span>
+                    {/* Body */}
+                    <div className="p-6 space-y-3">
+                      <div className="flex items-center justify-between text-xs text-slate-500">
+                        <span className="capitalize font-semibold text-amber-900 bg-amber-100/70 px-2.5 py-0.5 rounded-md">
+                          {product.Category?.name || "Collection"}
+                        </span>
+                      </div>
+
+                      <h3>
+                        <Link
+                          href={`/products/${product.slug || product.id}`}
+                          className="text-lg font-bold font-serif text-slate-900 line-clamp-1 hover:text-amber-800 transition-colors block"
+                        >
+                          {product.title}
+                        </Link>
+                      </h3>
+
+                      {/* Ratings & Customer Reviews Quick Link */}
+                      <div className="flex items-center gap-2 text-xs">
+                        <div className="flex items-center gap-1 text-amber-600 font-bold">
+                          <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                          <span>{getProductRatingScore(product)}</span>
+                        </div>
+                        <span className="text-slate-300">•</span>
+                        <Link
+                          href={`/products/${product.slug || product.id}#product-reviews-section`}
+                          className="text-slate-500 hover:text-amber-900 font-medium hover:underline text-[11px]"
+                        >
+                          Customer Reviews & Ratings →
+                        </Link>
+                      </div>
+
+                      <p className="text-xs text-slate-600 leading-relaxed line-clamp-2">
+                        {product.description || "Bespoke solid wood construction, finished with eco-friendly polishes."}
+                      </p>
+
+                      {/* Finish Swatch Selector */}
+                      <div className="pt-2 border-t border-amber-100 space-y-1.5">
+                        <span className="text-[11px] text-slate-500 font-semibold block">
+                          Select Wood Finish: <span className="text-amber-900 font-bold">{currentFinish}</span>
+                        </span>
+                        <div className="flex items-center gap-2">
+                          {FINISH_OPTIONS.map((finish) => {
+                            const isSelected = currentFinish === finish.name;
+                            return (
+                              <button
+                                key={finish.id}
+                                onClick={() => handleFinishChange(product.id, finish.name)}
+                                suppressHydrationWarning
+                                className={`w-6 h-6 rounded-full ${finish.color} border-2 transition-all ${
+                                  isSelected ? "ring-2 ring-amber-600 scale-110" : "opacity-75 hover:opacity-100"
+                                }`}
+                                title={finish.name}
+                              />
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Price & Discount */}
+                      <div className="flex items-baseline gap-2 pt-2 flex-wrap">
+                        <span className="text-xl font-extrabold text-slate-900">
+                          ₹{product.price?.toLocaleString("en-IN")}
+                        </span>
+                        {hasDiscount && (
+                          <>
+                            <span className="text-xs text-slate-400 line-through">
+                              ₹{product.compareAtPrice?.toLocaleString("en-IN")}
+                            </span>
+                            <span className="text-[11px] font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md border border-emerald-300">
+                              {discountPercent}% OFF
+                            </span>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
 
-                  {/* Body */}
-                  <div className="p-6 space-y-3">
-                    <div className="flex items-center justify-between text-xs text-slate-500">
-                      <span className="capitalize font-semibold text-amber-900 bg-amber-100/70 px-2.5 py-0.5 rounded-md">
-                        {product.Category?.name || "Collection"}
-                      </span>
-                    </div>
+                  {/* ============================================================== */}
+                  {/* 🎯 ACTION BUTTONS WITH DIRECT PAGE LINK AND INQUIRY             */}
+                  {/* ============================================================== */}
+                  <div className="p-6 pt-0 space-y-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {/* Button 1: See Details -> Navigates to Separate Page */}
+                      {showDetails && (
+                        <Link
+                          href={`/products/${product.slug || product.id}`}
+                          className="w-full py-2.5 px-3 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-300 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-2xs hover:shadow-xs"
+                        >
+                          <Eye className="w-3.5 h-3.5 text-amber-800" />
+                          <span>See Details</span>
+                        </Link>
+                      )}
 
-                    <h3>
-                      <Link
-                        href={`/products/${product.slug || product.id}`}
-                        className="text-lg font-bold font-serif text-slate-900 line-clamp-1 hover:text-amber-800 transition-colors block"
-                      >
-                        {product.title}
-                      </Link>
-                    </h3>
-
-                    {/* Ratings & Customer Reviews Quick Link */}
-                    <div className="flex items-center gap-2 text-xs">
-                      <div className="flex items-center gap-1 text-amber-600 font-bold">
-                        <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                        <span>{getProductRatingScore(product)}</span>
-                      </div>
-                      <span className="text-slate-300">•</span>
-                      <Link
-                        href={`/products/${product.slug || product.id}#product-reviews-section`}
-                        className="text-slate-500 hover:text-amber-900 font-medium hover:underline text-[11px]"
-                      >
-                        Customer Reviews & Ratings →
-                      </Link>
-                    </div>
-
-                    <p className="text-xs text-slate-600 leading-relaxed line-clamp-2">
-                      {product.description || "Bespoke solid wood construction, finished with eco-friendly polishes."}
-                    </p>
-
-                    {/* Finish Swatch Selector */}
-                    <div className="pt-2 border-t border-amber-100 space-y-1.5">
-                      <span className="text-[11px] text-slate-500 font-semibold block">
-                        Select Wood Finish: <span className="text-amber-900 font-bold">{currentFinish}</span>
-                      </span>
-                      <div className="flex items-center gap-2">
-                        {FINISH_OPTIONS.map((finish) => {
-                          const isSelected = currentFinish === finish.name;
-                          return (
-                            <button
-                              key={finish.id}
-                              onClick={() => handleFinishChange(product.id, finish.name)}
-                              suppressHydrationWarning
-                              className={`w-6 h-6 rounded-full ${finish.color} border-2 transition-all ${
-                                isSelected ? "ring-2 ring-amber-600 scale-110" : "opacity-75 hover:opacity-100"
-                              }`}
-                              title={finish.name}
-                            />
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Price */}
-                    <div className="flex items-baseline gap-2 pt-2">
-                      <span className="text-xl font-extrabold text-slate-900">
-                        ₹{product.price?.toLocaleString("en-IN")}
-                      </span>
-                      {product.compareAtPrice && (
-                        <span className="text-xs text-slate-400 line-through">
-                          ₹{product.compareAtPrice?.toLocaleString("en-IN")}
-                        </span>
+                      {/* Button 2: Direct WhatsApp Inquiry */}
+                      {showInquiry && (
+                        <a
+                          href={getWhatsAppLink(product)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-800 via-amber-850 to-amber-900 hover:from-amber-700 hover:to-amber-850 text-amber-50 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-md hover:shadow-lg border border-amber-700/60 ${
+                            !showDetails ? "sm:col-span-2 py-3" : ""
+                          }`}
+                        >
+                          <MessageSquare className="w-3.5 h-3.5 text-amber-200" />
+                          <span>Direct Inquiry</span>
+                        </a>
                       )}
                     </div>
-                  </div>
-                </div>
 
-                {/* ============================================================== */}
-                {/* 🎯 ACTION BUTTONS WITH DIRECT PAGE LINK AND INQUIRY             */}
-                {/* ============================================================== */}
-                <div className="p-6 pt-0 space-y-2">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {/* Button 1: See Details -> Navigates to Separate Page */}
-                    {showDetails && (
-                      <Link
-                        href={`/products/${product.slug || product.id}`}
-                        className="w-full py-2.5 px-3 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-300 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-2xs hover:shadow-xs"
-                      >
-                        <Eye className="w-3.5 h-3.5 text-amber-800" />
-                        <span>See Details</span>
-                      </Link>
-                    )}
+                    {/* Action Row 2: Add to Cart / View Cart & Share */}
+                    <div className="grid grid-cols-2 gap-2">
+                      {(mounted && isInCart(product.id)) ? (
+                        <Link
+                          href="/cart"
+                          onClick={(e) => e.stopPropagation()}
+                          suppressHydrationWarning
+                          className="w-full py-2 px-3 rounded-xl bg-amber-700 hover:bg-amber-800 text-white border border-amber-800 text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs hover:scale-102"
+                          title="View this product in your shopping cart"
+                        >
+                          <ShoppingBag className="w-3.5 h-3.5 text-white" />
+                          <span>View Cart →</span>
+                        </Link>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            addToCart(product, { finishType: currentFinish });
+                          }}
+                          suppressHydrationWarning
+                          className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 border border-amber-400/80 text-[11px] font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs hover:shadow-md hover:scale-102"
+                          title="Add handcrafted piece to shopping cart"
+                        >
+                          <ShoppingCart className="w-3.5 h-3.5 text-slate-950" />
+                          <span>Add to Cart</span>
+                        </button>
+                      )}
 
-                    {/* Button 2: Direct WhatsApp Inquiry */}
-                    {showInquiry && (
-                      <a
-                        href={getWhatsAppLink(product)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-800 via-amber-850 to-amber-900 hover:from-amber-700 hover:to-amber-850 text-amber-50 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-md hover:shadow-lg border border-amber-700/60 ${
-                          !showDetails ? "sm:col-span-2 py-3" : ""
-                        }`}
-                      >
-                        <MessageSquare className="w-3.5 h-3.5 text-amber-200" />
-                        <span>Direct Inquiry</span>
-                      </a>
-                    )}
-                  </div>
-
-                  {/* Action Row 2: Add to Cart / View Cart & Share */}
-                  <div className="grid grid-cols-2 gap-2">
-                    {(mounted && isInCart(product.id)) ? (
-                      <Link
-                        href="/cart"
-                        onClick={(e) => e.stopPropagation()}
-                        suppressHydrationWarning
-                        className="w-full py-2 px-3 rounded-xl bg-amber-700 hover:bg-amber-800 text-white border border-amber-800 text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs hover:scale-102"
-                        title="View this product in your shopping cart"
-                      >
-                        <ShoppingBag className="w-3.5 h-3.5 text-white" />
-                        <span>View Cart →</span>
-                      </Link>
-                    ) : (
                       <button
                         type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          addToCart(product, { finishType: currentFinish });
-                        }}
+                        onClick={() => setSharingProduct(product)}
                         suppressHydrationWarning
-                        className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 border border-amber-400/80 text-[11px] font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs hover:shadow-md hover:scale-102"
-                        title="Add handcrafted piece to shopping cart"
+                        className="w-full py-2 px-3 rounded-xl bg-slate-50 hover:bg-amber-50 text-slate-700 hover:text-amber-950 border border-slate-200/90 hover:border-amber-300 text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
                       >
-                        <ShoppingCart className="w-3.5 h-3.5 text-slate-950" />
-                        <span>Add to Cart</span>
+                        <Share2 className="w-3.5 h-3.5 text-amber-800" />
+                        <span>Share Piece</span>
                       </button>
-                    )}
-
-                    <button
-                      type="button"
-                      onClick={() => setSharingProduct(product)}
-                      suppressHydrationWarning
-                      className="w-full py-2 px-3 rounded-xl bg-slate-50 hover:bg-amber-50 text-slate-700 hover:text-amber-950 border border-slate-200/90 hover:border-amber-300 text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 shadow-2xs"
-                    >
-                      <Share2 className="w-3 h-3 text-amber-800" />
-                      <span>Share Piece</span>
-                    </button>
+                    </div>
                   </div>
                 </div>
+              );
+            })}
+          </div>
+
+          {/* Pagination Controls (15 products per page) */}
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 pb-2 border-t border-amber-200/80">
+              <p className="text-xs text-slate-500 font-medium">
+                Showing <strong className="text-slate-900 font-bold">{startIndex + 1}</strong> to{" "}
+                <strong className="text-slate-900 font-bold">{endIndex}</strong> of{" "}
+                <strong className="text-amber-900 font-bold">{filteredProducts.length}</strong> handcrafted products
+              </p>
+
+              <div className="flex items-center gap-1.5 flex-wrap justify-center">
+                {/* Previous Page Button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCurrentPage((p) => Math.max(1, p - 1));
+                    window.scrollTo({ top: 250, behavior: "smooth" });
+                  }}
+                  disabled={currentPage === 1}
+                  className="px-3.5 py-2 rounded-xl bg-white border border-amber-200 text-slate-700 hover:bg-amber-50 disabled:opacity-40 disabled:hover:bg-white text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer disabled:cursor-not-allowed"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>Previous</span>
+                </button>
+
+                {/* Page Numbers */}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                  <button
+                    key={pageNum}
+                    type="button"
+                    onClick={() => {
+                      setCurrentPage(pageNum);
+                      window.scrollTo({ top: 250, behavior: "smooth" });
+                    }}
+                    className={`w-9 h-9 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs ${
+                      currentPage === pageNum
+                        ? "bg-amber-900 text-amber-50 shadow-md scale-105"
+                        : "bg-white border border-amber-200 text-slate-700 hover:bg-amber-50 hover:border-amber-400"
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                ))}
+
+                {/* Next Page Button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCurrentPage((p) => Math.min(totalPages, p + 1));
+                    window.scrollTo({ top: 250, behavior: "smooth" });
+                  }}
+                  disabled={currentPage === totalPages}
+                  className="px-3.5 py-2 rounded-xl bg-white border border-amber-200 text-slate-700 hover:bg-amber-50 disabled:opacity-40 disabled:hover:bg-white text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer disabled:cursor-not-allowed"
+                >
+                  <span>Next</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
               </div>
-            );
-          })}
+            </div>
+          )}
         </div>
       )}
 

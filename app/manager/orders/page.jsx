@@ -25,6 +25,8 @@ import {
   ArrowRightCircle,
   Eye,
   Printer,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import {
   getOrders,
@@ -74,7 +76,9 @@ export default function ManagerOrdersPage() {
   const [updatingId, setUpdatingId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [stageFilter, setStageFilter] = useState("ALL");
-  const [activeTab, setActiveTab] = useState("active"); // "active" | "archived"
+  const [activeTab, setActiveTab] = useState("active"); // "active" | "completed" | "archived" | "cancelled" | "all"
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
   // Validation error states
   const [createErrors, setCreateErrors] = useState({});
@@ -484,7 +488,7 @@ export default function ManagerOrdersPage() {
     { value: "DELIVERED", label: "Delivered & Installed", status: "DELIVERED" },
   ];
 
-  // Filter orders with archive tabs and custom stage filter
+  // Filter orders with tab status, custom stage filter, and search query
   const filteredOrders = orders.filter((ord) => {
     const matchesSearch =
       ord.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -507,12 +511,31 @@ export default function ManagerOrdersPage() {
       matchesStage = ord.productionStage === stageFilter;
     }
 
-    const matchesTab = activeTab === "archived" ? ord.isArchived === true : !ord.isArchived;
+    let matchesTab = true;
+    if (activeTab === "active") {
+      matchesTab = !ord.isArchived && ord.status !== "CANCELLED" && ord.productionStage !== "DELIVERED" && ord.status !== "DELIVERED";
+    } else if (activeTab === "completed") {
+      matchesTab = !ord.isArchived && (ord.productionStage === "DELIVERED" || ord.status === "DELIVERED");
+    } else if (activeTab === "archived") {
+      matchesTab = ord.isArchived === true;
+    } else if (activeTab === "cancelled") {
+      matchesTab = !ord.isArchived && (ord.status === "CANCELLED" || ord.productionStage === "CANCELLED");
+    } else if (activeTab === "all") {
+      matchesTab = true;
+    }
+
     return matchesSearch && matchesStage && matchesTab;
   });
 
-  const activeOrdersCount = orders.filter((o) => !o.isArchived).length;
+  const activeOrdersCount = orders.filter((o) => !o.isArchived && o.status !== "CANCELLED" && o.productionStage !== "DELIVERED" && o.status !== "DELIVERED").length;
+  const completedOrdersCount = orders.filter((o) => !o.isArchived && (o.productionStage === "DELIVERED" || o.status === "DELIVERED")).length;
   const archivedOrdersCount = orders.filter((o) => o.isArchived).length;
+  const cancelledOrdersCount = orders.filter((o) => !o.isArchived && (o.status === "CANCELLED" || o.productionStage === "CANCELLED")).length;
+  const allOrdersCount = orders.length;
+
+  const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE) || 1;
+  const safeCurrentPage = Math.min(Math.max(currentPage, 1), totalPages);
+  const paginatedOrders = filteredOrders.slice((safeCurrentPage - 1) * ITEMS_PER_PAGE, safeCurrentPage * ITEMS_PER_PAGE);
 
   if (!mounted) {
     return (
@@ -596,32 +619,70 @@ export default function ManagerOrdersPage() {
 
       {/* Tabs & Filter Bar */}
       <div className="bg-white p-4 rounded-2xl border border-amber-200/70 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4" suppressHydrationWarning>
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           <button
             suppressHydrationWarning
             type="button"
-            onClick={() => setActiveTab("active")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+            onClick={() => { setActiveTab("active"); setCurrentPage(1); }}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
               activeTab === "active"
                 ? "bg-amber-950 text-amber-50 shadow-sm"
                 : "bg-amber-50 text-slate-700 hover:bg-amber-100"
             }`}
           >
-            <ShoppingBag className="w-3.5 h-3.5" />
-            <span>Active Orders ({activeOrdersCount})</span>
+            <ShoppingBag className="w-3.5 h-3.5 text-amber-500" />
+            <span>Active ({activeOrdersCount})</span>
           </button>
 
           <button
             type="button"
-            onClick={() => setActiveTab("archived")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-              activeTab === "archived"
-                ? "bg-amber-950 text-amber-50 shadow-sm"
-                : "bg-amber-50 text-slate-700 hover:bg-amber-100"
+            onClick={() => { setActiveTab("completed"); setCurrentPage(1); }}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              activeTab === "completed"
+                ? "bg-emerald-950 text-emerald-100 shadow-sm"
+                : "bg-emerald-50 text-emerald-800 hover:bg-emerald-100"
             }`}
           >
-            <Archive className="w-3.5 h-3.5" />
-            <span>Archived Orders ({archivedOrdersCount})</span>
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Completed ({completedOrdersCount})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => { setActiveTab("cancelled"); setCurrentPage(1); }}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              activeTab === "cancelled"
+                ? "bg-red-950 text-red-100 shadow-sm"
+                : "bg-red-50 text-red-800 hover:bg-red-100"
+            }`}
+          >
+            <Ban className="w-3.5 h-3.5 text-red-600" />
+            <span>Cancelled ({cancelledOrdersCount})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => { setActiveTab("archived"); setCurrentPage(1); }}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              activeTab === "archived"
+                ? "bg-slate-900 text-slate-100 shadow-sm"
+                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+            }`}
+          >
+            <Archive className="w-3.5 h-3.5 text-slate-500" />
+            <span>Archived ({archivedOrdersCount})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => { setActiveTab("all"); setCurrentPage(1); }}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              activeTab === "all"
+                ? "bg-amber-900 text-amber-50 shadow-sm"
+                : "bg-amber-50/70 text-slate-600 hover:bg-amber-100"
+            }`}
+          >
+            <span>All ({allOrdersCount})</span>
           </button>
         </div>
 
@@ -632,7 +693,7 @@ export default function ManagerOrdersPage() {
               type="text"
               placeholder="Search order #, customer, phone..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
               className="w-full pl-9 pr-4 py-2 rounded-xl bg-amber-50/40 border border-amber-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-700"
             />
           </div>
@@ -642,7 +703,7 @@ export default function ManagerOrdersPage() {
               <Filter className="w-4 h-4 text-amber-800 shrink-0" />
               <select
                 value={stageFilter}
-                onChange={(e) => setStageFilter(e.target.value)}
+                onChange={(e) => { setStageFilter(e.target.value); setCurrentPage(1); }}
                 className="w-full sm:w-auto py-2 px-3 rounded-xl bg-amber-50/50 border border-amber-200 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-700"
               >
                 <option value="ALL">All Stages</option>
@@ -658,7 +719,7 @@ export default function ManagerOrdersPage() {
               <input
                 type="text"
                 value={customStageFilter}
-                onChange={(e) => setCustomStageFilter(e.target.value)}
+                onChange={(e) => { setCustomStageFilter(e.target.value); setCurrentPage(1); }}
                 placeholder="Type custom stage name..."
                 className="py-2 px-3 rounded-xl bg-amber-50 border border-amber-300 text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-700 w-full sm:w-48"
               />
@@ -691,14 +752,14 @@ export default function ManagerOrdersPage() {
                     Fetching manufacturer orders from database...
                   </td>
                 </tr>
-              ) : filteredOrders.length === 0 ? (
+              ) : paginatedOrders.length === 0 ? (
                 <tr>
                   <td colSpan="8" className="p-8 text-center text-slate-500">
                     No orders matching your filter. Click "Create Direct Customer Order" above.
                   </td>
                 </tr>
               ) : (
-                filteredOrders.map((ord) => {
+                paginatedOrders.map((ord) => {
                   const currentStage = ord.productionStage || "INQUIRY_RECEIVED";
                   const isUpdating = updatingId === ord.id;
                   const firstItem = ord.OrderItem?.[0];
@@ -953,6 +1014,67 @@ export default function ManagerOrdersPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Controls (10 orders per page) */}
+        {filteredOrders.length > ITEMS_PER_PAGE && (
+          <div className="p-4 bg-amber-50/60 border-t border-amber-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-700">
+            <div>
+              Showing <span className="font-bold text-slate-900">{(safeCurrentPage - 1) * ITEMS_PER_PAGE + 1}</span> to{" "}
+              <span className="font-bold text-slate-900">{Math.min(safeCurrentPage * ITEMS_PER_PAGE, filteredOrders.length)}</span> of{" "}
+              <span className="font-bold text-slate-900">{filteredOrders.length}</span> orders
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                disabled={safeCurrentPage <= 1}
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                className="px-3 py-1.5 rounded-lg border border-amber-300 bg-white hover:bg-amber-100 disabled:opacity-40 disabled:cursor-not-allowed font-bold inline-flex items-center gap-1 text-slate-800 transition-colors cursor-pointer"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+                <span>Prev</span>
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => {
+                if (
+                  num === 1 ||
+                  num === totalPages ||
+                  (num >= safeCurrentPage - 1 && num <= safeCurrentPage + 1)
+                ) {
+                  return (
+                    <button
+                      key={num}
+                      type="button"
+                      onClick={() => setCurrentPage(num)}
+                      className={`w-8 h-8 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                        safeCurrentPage === num
+                          ? "bg-amber-900 text-amber-50"
+                          : "bg-white border border-amber-300 hover:bg-amber-100 text-slate-800"
+                      }`}
+                    >
+                      {num}
+                    </button>
+                  );
+                }
+                if (num === safeCurrentPage - 2 || num === safeCurrentPage + 2) {
+                  return (
+                    <span key={num} className="px-1 text-slate-400">
+                      ...
+                    </span>
+                  );
+                }
+                return null;
+              })}
+              <button
+                type="button"
+                disabled={safeCurrentPage >= totalPages}
+                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                className="px-3 py-1.5 rounded-lg border border-amber-300 bg-white hover:bg-amber-100 disabled:opacity-40 disabled:cursor-not-allowed font-bold inline-flex items-center gap-1 text-slate-800 transition-colors cursor-pointer"
+              >
+                <span>Next</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ============================================================== */}

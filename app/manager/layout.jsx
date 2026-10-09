@@ -37,15 +37,14 @@ export default function ManagerLayout({ children }) {
     { title: "Order Management", url: "/manager/orders", icon: ShoppingBag },
     { title: "Workforce Directory", url: "/manager/employees", icon: Users },
     { title: "Customer Reviews", url: "/manager/reviews", icon: Star },
-    { title: "WhatsApp Customer Alerts", url: "/manager/whatsapp", icon: MessageSquare },
     { title: "Facility Settings", url: "/manager/settings", icon: Settings },
   ];
 
   return (
     <RoleGuard requiredRole="MANAGER">
       <div className="min-h-screen bg-stone-900 text-stone-100 flex flex-col md:flex-row">
-        {/* 1. Desktop Sidebar (Persistent on md and above) */}
-      <aside className="hidden md:flex md:w-64 bg-amber-950 text-amber-50 border-r border-amber-900/40 p-6 flex-col justify-between shrink-0 space-y-6">
+        {/* 1. Desktop Sidebar (Sticky on md and above) */}
+      <aside className="hidden md:flex md:w-64 bg-amber-950 text-amber-50 border-r border-amber-900/40 p-6 flex-col justify-between shrink-0 space-y-6 md:sticky md:top-0 md:h-screen md:overflow-y-auto">
         <div className="space-y-6">
           {/* Brand Header */}
           <div>

@@ -26,6 +26,8 @@ import {
   Printer,
   ArrowRightCircle,
   Eye,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import {
   getOrders,
@@ -66,7 +68,9 @@ export default function AdminOrdersPage() {
   const [updatingId, setUpdatingId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [stageFilter, setStageFilter] = useState("ALL");
-  const [activeTab, setActiveTab] = useState("active"); // "active" or "archived"
+  const [activeTab, setActiveTab] = useState("active"); // "active" | "completed" | "archived" | "cancelled" | "all"
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
   // Validation error states
   const [createErrors, setCreateErrors] = useState({});
@@ -474,7 +478,18 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
 
   // Filtering
   const filteredOrders = orders.filter((o) => {
-    const matchesTab = activeTab === "archived" ? o.isArchived === true : !o.isArchived;
+    let matchesTab = true;
+    if (activeTab === "active") {
+      matchesTab = !o.isArchived && o.status !== "CANCELLED" && o.productionStage !== "DELIVERED" && o.status !== "DELIVERED";
+    } else if (activeTab === "completed") {
+      matchesTab = !o.isArchived && (o.productionStage === "DELIVERED" || o.status === "DELIVERED");
+    } else if (activeTab === "archived") {
+      matchesTab = o.isArchived === true;
+    } else if (activeTab === "cancelled") {
+      matchesTab = !o.isArchived && (o.status === "CANCELLED" || o.productionStage === "CANCELLED");
+    } else if (activeTab === "all") {
+      matchesTab = true;
+    }
 
     let matchesStage = true;
     if (stageFilter === "ALL") {
@@ -500,6 +515,17 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
 
     return matchesTab && matchesStage && matchesSearch;
   });
+
+  const activeOrdersCount = orders.filter((o) => !o.isArchived && o.status !== "CANCELLED" && o.productionStage !== "DELIVERED" && o.status !== "DELIVERED").length;
+  const completedOrdersCount = orders.filter((o) => !o.isArchived && (o.productionStage === "DELIVERED" || o.status === "DELIVERED")).length;
+  const archivedOrdersCount = orders.filter((o) => o.isArchived).length;
+  const cancelledOrdersCount = orders.filter((o) => !o.isArchived && (o.status === "CANCELLED" || o.productionStage === "CANCELLED")).length;
+  const allOrdersCount = orders.length;
+
+  const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE) || 1;
+  const safeCurrentPage = Math.min(Math.max(currentPage, 1), totalPages);
+  const paginatedOrders = filteredOrders.slice((safeCurrentPage - 1) * ITEMS_PER_PAGE, safeCurrentPage * ITEMS_PER_PAGE);
+
 
   if (!mounted) {
     return (
@@ -564,30 +590,69 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
       {/* Tabs and Filters */}
       <div className="space-y-4" suppressHydrationWarning>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-3" suppressHydrationWarning>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               suppressHydrationWarning
-              onClick={() => setActiveTab("active")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
+              onClick={() => { setActiveTab("active"); setCurrentPage(1); }}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                 activeTab === "active"
                   ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/10"
                   : "bg-slate-900 text-slate-400 hover:text-slate-200"
               }`}
             >
               <ShoppingBag className="w-3.5 h-3.5" />
-              <span>Active Orders ({orders.filter((o) => !o.isArchived).length})</span>
+              <span>Active ({activeOrdersCount})</span>
             </button>
+
             <button
               suppressHydrationWarning
-              onClick={() => setActiveTab("archived")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
+              onClick={() => { setActiveTab("completed"); setCurrentPage(1); }}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                activeTab === "completed"
+                  ? "bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/10"
+                  : "bg-slate-900 text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Completed ({completedOrdersCount})</span>
+            </button>
+
+            <button
+              suppressHydrationWarning
+              onClick={() => { setActiveTab("cancelled"); setCurrentPage(1); }}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                activeTab === "cancelled"
+                  ? "bg-red-500 text-slate-950 shadow-md shadow-red-500/10"
+                  : "bg-slate-900 text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              <Ban className="w-3.5 h-3.5 text-red-400" />
+              <span>Cancelled ({cancelledOrdersCount})</span>
+            </button>
+
+            <button
+              suppressHydrationWarning
+              onClick={() => { setActiveTab("archived"); setCurrentPage(1); }}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                 activeTab === "archived"
-                  ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/10"
+                  ? "bg-slate-700 text-white shadow-md shadow-slate-700/10"
                   : "bg-slate-900 text-slate-400 hover:text-slate-200"
               }`}
             >
               <Archive className="w-3.5 h-3.5" />
-              <span>Archived Orders ({orders.filter((o) => o.isArchived).length})</span>
+              <span>Archived ({archivedOrdersCount})</span>
+            </button>
+
+            <button
+              suppressHydrationWarning
+              onClick={() => { setActiveTab("all"); setCurrentPage(1); }}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                activeTab === "all"
+                  ? "bg-amber-600 text-white shadow-md shadow-amber-600/10"
+                  : "bg-slate-900 text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              <span>All ({allOrdersCount})</span>
             </button>
           </div>
 
@@ -599,7 +664,7 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
                 type="text"
                 placeholder="Search by client, ID, phone..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
                 className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
               />
             </div>
@@ -608,7 +673,7 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
               <select
                 suppressHydrationWarning
                 value={stageFilter}
-                onChange={(e) => setStageFilter(e.target.value)}
+                onChange={(e) => { setStageFilter(e.target.value); setCurrentPage(1); }}
                 className="px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 text-xs focus:outline-none"
               >
                 <option value="ALL">All Production Stages</option>
@@ -624,7 +689,7 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
                   suppressHydrationWarning
                   type="text"
                   value={customStageFilter}
-                  onChange={(e) => setCustomStageFilter(e.target.value)}
+                  onChange={(e) => { setCustomStageFilter(e.target.value); setCurrentPage(1); }}
                   placeholder="Type custom stage name..."
                   className="px-3 py-2 rounded-xl bg-slate-900 border border-amber-600 text-slate-100 text-xs focus:outline-none w-44"
                 />
@@ -674,14 +739,14 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
                     Fetching orders from database...
                   </td>
                 </tr>
-              ) : filteredOrders.length === 0 ? (
+              ) : paginatedOrders.length === 0 ? (
                 <tr>
                   <td colSpan="7" className="p-8 text-center text-slate-500">
                     {activeTab === "archived" ? "No archived orders found." : "No orders found matching filter criteria."}
                   </td>
                 </tr>
               ) : (
-                filteredOrders.map((ord) => {
+                paginatedOrders.map((ord) => {
                   const currentStage = ord.productionStage || "INQUIRY_RECEIVED";
                   const isUpdating = updatingId === ord.id;
                   const canArchive = ord.status === "DELIVERED" || ord.status === "CANCELLED";
@@ -909,6 +974,67 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Controls (10 orders per page) */}
+        {filteredOrders.length > ITEMS_PER_PAGE && (
+          <div className="p-4 bg-slate-900 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+            <div>
+              Showing <span className="font-bold text-white">{(safeCurrentPage - 1) * ITEMS_PER_PAGE + 1}</span> to{" "}
+              <span className="font-bold text-white">{Math.min(safeCurrentPage * ITEMS_PER_PAGE, filteredOrders.length)}</span> of{" "}
+              <span className="font-bold text-white">{filteredOrders.length}</span> orders
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                disabled={safeCurrentPage <= 1}
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                className="px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-950 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed font-bold inline-flex items-center gap-1 text-slate-300 transition-colors cursor-pointer"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+                <span>Prev</span>
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => {
+                if (
+                  num === 1 ||
+                  num === totalPages ||
+                  (num >= safeCurrentPage - 1 && num <= safeCurrentPage + 1)
+                ) {
+                  return (
+                    <button
+                      key={num}
+                      type="button"
+                      onClick={() => setCurrentPage(num)}
+                      className={`w-8 h-8 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                        safeCurrentPage === num
+                          ? "bg-amber-500 text-slate-950 font-black"
+                          : "bg-slate-950 border border-slate-800 hover:bg-slate-800 text-slate-300"
+                      }`}
+                    >
+                      {num}
+                    </button>
+                  );
+                }
+                if (num === safeCurrentPage - 2 || num === safeCurrentPage + 2) {
+                  return (
+                    <span key={num} className="px-1 text-slate-500">
+                      ...
+                    </span>
+                  );
+                }
+                return null;
+              })}
+              <button
+                type="button"
+                disabled={safeCurrentPage >= totalPages}
+                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                className="px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-950 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed font-bold inline-flex items-center gap-1 text-slate-300 transition-colors cursor-pointer"
+              >
+                <span>Next</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Modal 1: Create Direct Order */}

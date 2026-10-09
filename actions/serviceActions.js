@@ -107,9 +107,68 @@ export async function updateInquiryStatus(id, status) {
     });
 
     revalidatePath("/admin");
+    revalidatePath("/admin/services");
     return { success: true, data: updated };
   } catch (error) {
     console.error("Error updating inquiry status:", error);
     return { success: false, error: error.message };
   }
 }
+
+/**
+ * Submit a customer inquiry from Contact Page
+ */
+export async function createContactInquiry(data) {
+  try {
+    const { name, phone, email, interest = "General Consultation", message = "" } = data;
+
+    if (!name || !phone) {
+      return { success: false, error: "Name and phone number are required." };
+    }
+
+    const inquiry = await db.serviceInquiry.create({
+      data: {
+        clientName: name,
+        clientPhone: phone,
+        clientEmail: email || null,
+        serviceType: `Contact: ${interest}`,
+        woodChoice: "General Contact Inquiry",
+        dimensions: "N/A",
+        roomType: "Contact Page",
+        notes: message,
+        status: "PENDING",
+      },
+    });
+
+    revalidatePath("/admin");
+    revalidatePath("/admin/services");
+    revalidatePath("/contact");
+
+    return {
+      success: true,
+      data: inquiry,
+    };
+  } catch (error) {
+    console.error("Error creating contact inquiry:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Delete inquiry
+ */
+export async function deleteServiceInquiry(id) {
+  try {
+    await db.serviceInquiry.delete({
+      where: { id },
+    });
+
+    revalidatePath("/admin");
+    revalidatePath("/admin/services");
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting inquiry:", error);
+    return { success: false, error: error.message };
+  }
+}
+

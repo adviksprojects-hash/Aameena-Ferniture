@@ -42,15 +42,14 @@ export default function AdminLayout({ children }) {
     { title: "Manager Management", url: "/admin/managers", icon: UserCheck },
     { title: "Employee Management", url: "/admin/employees", icon: Users },
     { title: "Sales Analysis", url: "/admin/analysis", icon: BarChart3 },
-    { title: "WhatsApp Automation", url: "/admin/whatsapp", icon: MessageSquare },
     { title: "Platform Settings", url: "/admin/settings", icon: Settings },
   ];
 
   return (
     <RoleGuard requiredRole="ADMIN">
       <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col md:flex-row">
-        {/* 1. Desktop Sidebar (Persistent on md and above) */}
-      <aside className="hidden md:flex md:w-64 bg-slate-950 border-r border-slate-800 p-6 flex-col justify-between shrink-0 space-y-6">
+        {/* 1. Desktop Sidebar (Sticky on md and above) */}
+      <aside className="hidden md:flex md:w-64 bg-slate-950 border-r border-slate-800 p-6 flex-col justify-between shrink-0 space-y-6 md:sticky md:top-0 md:h-screen md:overflow-y-auto">
         <div className="space-y-6">
           {/* Brand Header */}
           <div className="flex items-center justify-between">

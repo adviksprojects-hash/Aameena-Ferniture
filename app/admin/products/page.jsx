@@ -22,6 +22,8 @@ import {
   Edit3,
   ExternalLink,
   Box,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import {
   getProducts,
@@ -35,7 +37,7 @@ import {
   toggleProductVisibility,
 } from "@/actions/productActions";
 import SearchableSelect from "@/components/SearchableSelect";
-import { validateName, validateAmount } from "@/lib/validation";
+import { validateProductTitle, validateAmount } from "@/lib/validation";
 
 const CATEGORY_OPTIONS = [
   { value: "living", label: "Living Room" },
@@ -77,6 +79,9 @@ export default function AdminProductsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
   const [activeTab, setActiveTab] = useState("active"); // "active" or "archived"
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
   // Form error states
   const [addErrors, setAddErrors] = useState({});
@@ -145,7 +150,7 @@ export default function AdminProductsPage() {
 
   const loadProducts = async () => {
     setLoading(true);
-    const res = await getProducts();
+    const res = await getProducts({ includeArchived: true });
     if (res.success) {
       setProducts(res.data);
     }
@@ -155,6 +160,17 @@ export default function AdminProductsPage() {
   useEffect(() => {
     setMounted(true);
     loadProducts();
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const searchParam = params.get("search");
+      const tabParam = params.get("tab");
+      if (searchParam) {
+        setSearchQuery(searchParam);
+      }
+      if (tabParam) {
+        setActiveTab(tabParam);
+      }
+    }
   }, []);
 
   const handleImageUpload = (e) => {
@@ -188,7 +204,7 @@ export default function AdminProductsPage() {
   const handleAddProduct = async (e) => {
     e.preventDefault();
     const errors = {};
-    const nameCheck = validateName(newProduct.title, "Product title", 3);
+    const nameCheck = validateProductTitle(newProduct.title, "Product title");
     if (!nameCheck.valid) errors.title = nameCheck.error;
 
     if (!newProduct.categorySlug || !newProduct.categorySlug.trim()) {
@@ -297,7 +313,7 @@ export default function AdminProductsPage() {
   const handleUpdateProductSubmit = async (e) => {
     e.preventDefault();
     const errors = {};
-    const nameCheck = validateName(editingProduct.title, "Product title", 3);
+    const nameCheck = validateProductTitle(editingProduct.title, "Product title");
     if (!nameCheck.valid) errors.title = nameCheck.error;
 
     const priceCheck = validateAmount(editingProduct.price, "Price");
@@ -339,8 +355,11 @@ export default function AdminProductsPage() {
     if (!confirm(`Are you sure you want to archive "${title}"? It will be hidden from the public store catalog.`)) return;
     const res = await archiveProduct(productId);
     if (res.success) {
+      setProducts((prev) =>
+        prev.map((p) => (p.id === productId ? { ...p, isArchived: true } : p))
+      );
       setMessage({ type: "success", text: `Product "${title}" moved to archive.` });
-      loadProducts();
+      setTimeout(() => setMessage(null), 4000);
     } else {
       setMessage({ type: "error", text: res.error || "Failed to archive product." });
     }
@@ -349,8 +368,11 @@ export default function AdminProductsPage() {
   const handleRestore = async (productId, title) => {
     const res = await restoreProduct(productId);
     if (res.success) {
+      setProducts((prev) =>
+        prev.map((p) => (p.id === productId ? { ...p, isArchived: false } : p))
+      );
       setMessage({ type: "success", text: `Product "${title}" restored to active catalog.` });
-      loadProducts();
+      setTimeout(() => setMessage(null), 4000);
     } else {
       setMessage({ type: "error", text: res.error || "Failed to restore product." });
     }
@@ -410,9 +432,20 @@ export default function AdminProductsPage() {
     }
   };
 
-  const filteredProducts = products.filter((p) =>
-    activeTab === "archived" ? p.isArchived === true : !p.isArchived
-  );
+  const filteredProducts = products.filter((p) => {
+    const matchesTab = activeTab === "archived" ? p.isArchived === true : !p.isArchived;
+    const matchesSearch =
+      !searchQuery ||
+      p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.woodType?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.Category?.name?.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesTab && matchesSearch;
+  });
+
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE) || 1;
+  const safeCurrentPage = Math.min(Math.max(currentPage, 1), totalPages);
+  const paginatedProducts = filteredProducts.slice((safeCurrentPage - 1) * ITEMS_PER_PAGE, safeCurrentPage * ITEMS_PER_PAGE);
+
 
   if (!mounted) {
     return (
@@ -472,31 +505,45 @@ export default function AdminProductsPage() {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-800 pb-3" suppressHydrationWarning>
-        <button
-          suppressHydrationWarning
-          onClick={() => setActiveTab("active")}
-          className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
-            activeTab === "active"
-              ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/10"
-              : "bg-slate-900 text-slate-400 hover:text-slate-200"
-          }`}
-        >
-          <Package className="w-3.5 h-3.5" />
-          <span>Active Catalog ({products.filter((p) => !p.isArchived).length})</span>
-        </button>
-        <button
-          onClick={() => setActiveTab("archived")}
-          className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
-            activeTab === "archived"
-              ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/10"
-              : "bg-slate-900 text-slate-400 hover:text-slate-200"
-          }`}
-        >
-          <Archive className="w-3.5 h-3.5" />
-          <span>Archived Products ({products.filter((p) => p.isArchived).length})</span>
-        </button>
+      {/* Tabs & Search */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-800 pb-3" suppressHydrationWarning>
+        <div className="flex items-center gap-2">
+          <button
+            suppressHydrationWarning
+            onClick={() => { setActiveTab("active"); setCurrentPage(1); }}
+            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === "active"
+                ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/10"
+                : "bg-slate-900 text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            <Package className="w-3.5 h-3.5" />
+            <span>Active Catalog ({products.filter((p) => !p.isArchived).length})</span>
+          </button>
+          <button
+            onClick={() => { setActiveTab("archived"); setCurrentPage(1); }}
+            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === "archived"
+                ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/10"
+                : "bg-slate-900 text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            <Archive className="w-3.5 h-3.5" />
+            <span>Archived Products ({products.filter((p) => p.isArchived).length})</span>
+          </button>
+        </div>
+
+        <div className="relative w-full sm:w-72">
+          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            suppressHydrationWarning
+            type="text"
+            placeholder="Search by title, wood, category..."
+            value={searchQuery}
+            onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+            className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
+          />
+        </div>
       </div>
 
       {message && (
@@ -534,14 +581,14 @@ export default function AdminProductsPage() {
                     Loading products from Neon DB...
                   </td>
                 </tr>
-              ) : filteredProducts.length === 0 ? (
+              ) : paginatedProducts.length === 0 ? (
                 <tr>
                   <td colSpan="6" className="p-8 text-center text-slate-500">
-                    {activeTab === "archived" ? "No archived products." : "No active products found."}
+                    {activeTab === "archived" ? "No archived products." : "No active products found matching filter."}
                   </td>
                 </tr>
               ) : (
-                filteredProducts.map((prod) => (
+                paginatedProducts.map((prod) => (
                   <tr key={prod.id} className="hover:bg-slate-900/50 transition-colors">
                     <td className="p-4 font-bold text-white flex items-center gap-3">
                       <div className="flex -space-x-3 overflow-hidden">
@@ -684,347 +731,432 @@ export default function AdminProductsPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Controls (10 products per page) */}
+        {filteredProducts.length > ITEMS_PER_PAGE && (
+          <div className="p-4 bg-slate-900 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+            <div>
+              Showing <span className="font-bold text-white">{(safeCurrentPage - 1) * ITEMS_PER_PAGE + 1}</span> to{" "}
+              <span className="font-bold text-white">{Math.min(safeCurrentPage * ITEMS_PER_PAGE, filteredProducts.length)}</span> of{" "}
+              <span className="font-bold text-white">{filteredProducts.length}</span> products
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                disabled={safeCurrentPage <= 1}
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                className="px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-950 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed font-bold inline-flex items-center gap-1 text-slate-300 transition-colors cursor-pointer"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+                <span>Prev</span>
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => {
+                if (
+                  num === 1 ||
+                  num === totalPages ||
+                  (num >= safeCurrentPage - 1 && num <= safeCurrentPage + 1)
+                ) {
+                  return (
+                    <button
+                      key={num}
+                      type="button"
+                      onClick={() => setCurrentPage(num)}
+                      className={`w-8 h-8 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                        safeCurrentPage === num
+                          ? "bg-amber-500 text-slate-950 font-black"
+                          : "bg-slate-950 border border-slate-800 hover:bg-slate-800 text-slate-300"
+                      }`}
+                    >
+                      {num}
+                    </button>
+                  );
+                }
+                if (num === safeCurrentPage - 2 || num === safeCurrentPage + 2) {
+                  return (
+                    <span key={num} className="px-1 text-slate-500">
+                      ...
+                    </span>
+                  );
+                }
+                return null;
+              })}
+              <button
+                type="button"
+                disabled={safeCurrentPage >= totalPages}
+                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                className="px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-950 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed font-bold inline-flex items-center gap-1 text-slate-300 transition-colors cursor-pointer"
+              >
+                <span>Next</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Add Product Modal with Device / Camera Photo Upload */}
       {showAddModal && (
         <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-slate-800 space-y-4 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-bold font-serif text-white">Add New Handcrafted Furniture</h3>
-            <p className="text-xs text-slate-400">
-              Upload 1 to 3 device/camera photos, configure pricing, and select storefront buttons.
-            </p>
-
-            <form onSubmit={handleAddProduct} className="space-y-3 text-xs">
+          <div className="bg-slate-900 rounded-3xl max-w-xl w-full border border-slate-800 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden my-auto">
+            {/* Fixed Modal Header */}
+            <div className="p-6 pb-4 border-b border-slate-800 flex items-center justify-between shrink-0 bg-slate-900">
               <div>
-                <label className="text-slate-300 font-bold block mb-1">Furniture Title *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Royal Solapur Sagwan Teak 7-Seater Sofa Set"
-                  value={newProduct.title}
-                  onChange={(e) => {
-                    setNewProduct({ ...newProduct, title: e.target.value });
-                    if (addErrors.title) setAddErrors((prev) => ({ ...prev, title: null }));
-                  }}
-                  className={`w-full p-3 rounded-xl bg-slate-950 border ${
-                    addErrors.title ? "border-red-500" : "border-slate-800"
-                  } text-white focus:outline-none focus:ring-1 focus:ring-amber-500`}
-                />
-                {addErrors.title && <p className="text-red-400 text-[10px] mt-1">{addErrors.title}</p>}
+                <span className="text-[10px] uppercase font-bold tracking-widest text-amber-400">
+                  Inventory Catalog Entry
+                </span>
+                <h3 className="text-xl font-bold font-serif text-white mt-0.5">
+                  Add New Handcrafted Furniture
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Upload photos, set timber specifications, pricing, and 3D models.
+                </p>
               </div>
+              <button
+                type="button"
+                onClick={() => setShowAddModal(false)}
+                className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors cursor-pointer border border-slate-700"
+                title="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
 
-              {/* Photo Upload: 1 to 3 device/camera images */}
-              <div className="space-y-2">
-                <label className="text-slate-300 font-bold block">
-                  Product Photos (1 to 3 required from device/camera) *
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {newProduct.images.map((img, idx) => (
-                    <div key={idx} className="relative aspect-video rounded-xl overflow-hidden border border-slate-700 bg-slate-950 group">
-                      <img src={img} alt="preview" className="w-full h-full object-cover" />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(idx)}
-                        className="absolute top-1 right-1 p-1 bg-red-600 hover:bg-red-500 text-white rounded-full shadow"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
+            {/* Scrollable Form Body */}
+            <form onSubmit={handleAddProduct} className="flex flex-col flex-1 overflow-hidden">
+              <div className="p-6 overflow-y-auto space-y-4 flex-1 scrollbar-thin scrollbar-thumb-amber-500/40 scrollbar-track-slate-950 pr-4 text-xs">
+                <div>
+                  <label className="text-slate-300 font-bold block mb-1">Furniture Title *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Royal Solapur Sagwan Teak 7-Seater Sofa Set"
+                    value={newProduct.title}
+                    onChange={(e) => {
+                      setNewProduct({ ...newProduct, title: e.target.value });
+                      if (addErrors.title) setAddErrors((prev) => ({ ...prev, title: null }));
+                    }}
+                    className={`w-full p-3 rounded-xl bg-slate-950 border ${
+                      addErrors.title ? "border-red-500" : "border-slate-800"
+                    } text-white focus:outline-none focus:ring-1 focus:ring-amber-500`}
+                  />
+                  {addErrors.title && <p className="text-red-400 text-[10px] mt-1">{addErrors.title}</p>}
+                </div>
+
+                {/* Photo Upload: 1 to 3 device/camera images */}
+                <div className="space-y-2">
+                  <label className="text-slate-300 font-bold block">
+                    Product Photos (1 to 3 required from device/camera) *
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {newProduct.images.map((img, idx) => (
+                      <div key={idx} className="relative aspect-video rounded-xl overflow-hidden border border-slate-700 bg-slate-950 group">
+                        <img src={img} alt="preview" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(idx)}
+                          className="absolute top-1 right-1 p-1 bg-red-600 hover:bg-red-500 text-white rounded-full shadow cursor-pointer"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+
+                    {newProduct.images.length < 3 && (
+                      <label className="border-2 border-dashed border-slate-700 hover:border-amber-500 rounded-xl aspect-video flex flex-col items-center justify-center cursor-pointer bg-slate-950/60 hover:bg-slate-950 transition-all text-slate-400 hover:text-amber-400">
+                        <Camera className="w-5 h-5 mb-1" />
+                        <span className="text-[10px] font-bold text-center px-1">Take/Pick Photo</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          capture="environment"
+                          multiple
+                          className="hidden"
+                          onChange={handleImageUpload}
+                        />
+                      </label>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-slate-500">
+                    {newProduct.images.length}/3 photos added. Photos are saved directly into the database.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <SearchableSelect
+                      label="Category *"
+                      options={CATEGORY_OPTIONS}
+                      value={newProduct.categorySlug}
+                      onChange={(val) => {
+                        setNewProduct({ ...newProduct, categorySlug: val });
+                        if (addErrors.categorySlug) setAddErrors((prev) => ({ ...prev, categorySlug: null }));
+                      }}
+                      placeholder="-- Select Category (Required) --"
+                      error={addErrors.categorySlug}
+                      allowOther={true}
+                      dark={true}
+                      required={true}
+                    />
+                    {addErrors.categorySlug && <p className="text-red-400 text-[10px] mt-1">{addErrors.categorySlug}</p>}
+                  </div>
+
+                  <div>
+                    <SearchableSelect
+                      label="Wood / Fabric Material *"
+                      options={WOOD_OPTIONS}
+                      value={newProduct.woodType}
+                      onChange={(val) => {
+                        setNewProduct({ ...newProduct, woodType: val });
+                        if (addErrors.woodType) setAddErrors((prev) => ({ ...prev, woodType: null }));
+                      }}
+                      placeholder="-- Select Material (Required) --"
+                      error={addErrors.woodType}
+                      allowOther={true}
+                      dark={true}
+                      required={true}
+                    />
+                    {addErrors.woodType && <p className="text-red-400 text-[10px] mt-1">{addErrors.woodType}</p>}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-slate-300 font-bold block mb-1">
+                    Material / Timber Purity & Authenticity (%)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 100% Pure Cotton, 100% Grade-A Sagwan Teak, 95% Organic Cotton"
+                    value={newProduct.materialPurity}
+                    onChange={(e) => setNewProduct({ ...newProduct, materialPurity: e.target.value })}
+                    className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  />
+                  <p className="text-[10px] text-slate-500 mt-1">
+                    Optional badge (e.g. "✓ 100% Pure Cotton" or "✓ 100% Genuine Sagwan"). Left blank if unspecified.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-slate-300 font-bold block mb-1">Price (₹) *</label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="e.g. 85000"
+                      value={newProduct.price}
+                      onChange={(e) => {
+                        setNewProduct({ ...newProduct, price: e.target.value });
+                        if (addErrors.price) setAddErrors((prev) => ({ ...prev, price: null }));
+                      }}
+                      className={`w-full p-3 rounded-xl bg-slate-950 border ${
+                        addErrors.price ? "border-red-500" : "border-slate-800"
+                      } text-white focus:outline-none`}
+                    />
+                    {addErrors.price && <p className="text-red-400 text-[10px] mt-1">{addErrors.price}</p>}
+                  </div>
+
+                  <div>
+                    <label className="text-slate-300 font-bold block mb-1">Original Price (₹) (Optional)</label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 110000 (Optional)"
+                      value={newProduct.compareAtPrice}
+                      onChange={(e) => setNewProduct({ ...newProduct, compareAtPrice: e.target.value })}
+                      className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-slate-300 font-bold block mb-1">Stock Level *</label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="e.g. 5"
+                      value={newProduct.stock}
+                      onChange={(e) => {
+                        setNewProduct({ ...newProduct, stock: e.target.value });
+                        if (addErrors.stock) setAddErrors((prev) => ({ ...prev, stock: null }));
+                      }}
+                      className={`w-full p-3 rounded-xl bg-slate-950 border ${
+                        addErrors.stock ? "border-red-500" : "border-slate-800"
+                      } text-white focus:outline-none`}
+                    />
+                    {addErrors.stock && <p className="text-red-400 text-[10px] mt-1">{addErrors.stock}</p>}
+                  </div>
+
+                  <div>
+                    <label className="text-slate-300 font-bold block mb-1">Dimensions (Optional)</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 78L x 36W x 34H inches"
+                      value={newProduct.dimensions}
+                      onChange={(e) => setNewProduct({ ...newProduct, dimensions: e.target.value })}
+                      className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <SearchableSelect
+                    label="Polish / Finish Type (Optional)"
+                    options={[
+                      { value: "", label: "-- None / Natural Unfinished --" },
+                      ...FINISH_OPTIONS,
+                    ]}
+                    value={newProduct.finishType}
+                    onChange={(val) => setNewProduct({ ...newProduct, finishType: val })}
+                    placeholder="-- Select Polish / Finish (Optional) --"
+                    allowOther={true}
+                    dark={true}
+                  />
+                </div>
+
+                {/* 3D & Augmented Reality Model (.glb file) */}
+                <div className="p-3.5 bg-slate-950 rounded-2xl border border-amber-500/40 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-amber-400 font-bold text-xs">
+                      <Box className="w-4 h-4 text-amber-400" />
+                      <span>3D Model & AR Asset (.glb / .gltf)</span>
                     </div>
-                  ))}
+                    <span className="text-[10px] text-amber-300/90 bg-amber-950 px-2 py-0.5 rounded border border-amber-800 font-bold">
+                      Interactive 360° & AR
+                    </span>
+                  </div>
 
-                  {newProduct.images.length < 3 && (
-                    <label className="border-2 border-dashed border-slate-700 hover:border-amber-500 rounded-xl aspect-video flex flex-col items-center justify-center cursor-pointer bg-slate-950/60 hover:bg-slate-950 transition-all text-slate-400 hover:text-amber-400">
-                      <Camera className="w-5 h-5 mb-1" />
-                      <span className="text-[10px] font-bold text-center px-1">Take/Pick Photo</span>
+                  {/* Upload Button from System */}
+                  <div className="flex items-center gap-2">
+                    <label
+                      className={`flex-1 py-2.5 px-3 rounded-xl border border-dashed text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                        uploading3D
+                          ? "bg-amber-950/60 text-amber-300 border-amber-500 animate-pulse"
+                          : "bg-slate-900 hover:bg-slate-800 text-amber-400 border-amber-500/50 hover:border-amber-400"
+                      }`}
+                    >
+                      <Upload className="w-4 h-4 text-amber-400" />
+                      <span>{uploading3D ? "Uploading 3D Model from PC..." : "Upload .GLB from System / PC"}</span>
                       <input
                         type="file"
-                        accept="image/*"
-                        capture="environment"
-                        multiple
+                        accept=".glb,.gltf,.usdz"
+                        disabled={uploading3D}
+                        onChange={(e) => {
+                          if (e.target.files?.[0]) handleUpload3DModel(e.target.files[0], false);
+                        }}
                         className="hidden"
-                        onChange={handleImageUpload}
                       />
                     </label>
-                  )}
-                </div>
-                <p className="text-[10px] text-slate-500">
-                  {newProduct.images.length}/3 photos added. Photos are saved directly into the database.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <SearchableSelect
-                    label="Category *"
-                    options={CATEGORY_OPTIONS}
-                    value={newProduct.categorySlug}
-                    onChange={(val) => {
-                      setNewProduct({ ...newProduct, categorySlug: val });
-                      if (addErrors.categorySlug) setAddErrors((prev) => ({ ...prev, categorySlug: null }));
-                    }}
-                    placeholder="-- Select Category (Required) --"
-                    error={addErrors.categorySlug}
-                    allowOther={true}
-                    dark={true}
-                    required={true}
-                  />
-                  {addErrors.categorySlug && <p className="text-red-400 text-[10px] mt-1">{addErrors.categorySlug}</p>}
-                </div>
-
-                <div>
-                  <SearchableSelect
-                    label="Wood / Fabric Material *"
-                    options={WOOD_OPTIONS}
-                    value={newProduct.woodType}
-                    onChange={(val) => {
-                      setNewProduct({ ...newProduct, woodType: val });
-                      if (addErrors.woodType) setAddErrors((prev) => ({ ...prev, woodType: null }));
-                    }}
-                    placeholder="-- Select Material (Required) --"
-                    error={addErrors.woodType}
-                    allowOther={true}
-                    dark={true}
-                    required={true}
-                  />
-                  {addErrors.woodType && <p className="text-red-400 text-[10px] mt-1">{addErrors.woodType}</p>}
-                </div>
-              </div>
-
-              <div>
-                <label className="text-slate-300 font-bold block mb-1">
-                  Material / Timber Purity & Authenticity (%)
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. 100% Pure Cotton, 100% Grade-A Sagwan Teak, 95% Organic Cotton"
-                  value={newProduct.materialPurity}
-                  onChange={(e) => setNewProduct({ ...newProduct, materialPurity: e.target.value })}
-                  className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:ring-1 focus:ring-amber-500"
-                />
-                <p className="text-[10px] text-slate-500 mt-1">
-                  Optional badge (e.g. "✓ 100% Pure Cotton" or "✓ 100% Genuine Sagwan"). Left blank if unspecified.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-slate-300 font-bold block mb-1">Price (₹) *</label>
-                  <input
-                    type="number"
-                    required
-                    placeholder="e.g. 85000"
-                    value={newProduct.price}
-                    onChange={(e) => {
-                      setNewProduct({ ...newProduct, price: e.target.value });
-                      if (addErrors.price) setAddErrors((prev) => ({ ...prev, price: null }));
-                    }}
-                    className={`w-full p-3 rounded-xl bg-slate-950 border ${
-                      addErrors.price ? "border-red-500" : "border-slate-800"
-                    } text-white focus:outline-none`}
-                  />
-                  {addErrors.price && <p className="text-red-400 text-[10px] mt-1">{addErrors.price}</p>}
-                </div>
-
-                <div>
-                  <label className="text-slate-300 font-bold block mb-1">Original Price (₹) (Optional)</label>
-                  <input
-                    type="number"
-                    placeholder="e.g. 110000 (Optional)"
-                    value={newProduct.compareAtPrice}
-                    onChange={(e) => setNewProduct({ ...newProduct, compareAtPrice: e.target.value })}
-                    className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-slate-300 font-bold block mb-1">Stock Level *</label>
-                  <input
-                    type="number"
-                    required
-                    placeholder="e.g. 5"
-                    value={newProduct.stock}
-                    onChange={(e) => {
-                      setNewProduct({ ...newProduct, stock: e.target.value });
-                      if (addErrors.stock) setAddErrors((prev) => ({ ...prev, stock: null }));
-                    }}
-                    className={`w-full p-3 rounded-xl bg-slate-950 border ${
-                      addErrors.stock ? "border-red-500" : "border-slate-800"
-                    } text-white focus:outline-none`}
-                  />
-                  {addErrors.stock && <p className="text-red-400 text-[10px] mt-1">{addErrors.stock}</p>}
-                </div>
-
-                <div>
-                  <label className="text-slate-300 font-bold block mb-1">Dimensions (Optional)</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. 78L x 36W x 34H inches"
-                    value={newProduct.dimensions}
-                    onChange={(e) => setNewProduct({ ...newProduct, dimensions: e.target.value })}
-                    className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <SearchableSelect
-                  label="Polish / Finish Type (Optional)"
-                  options={[
-                    { value: "", label: "-- None / Natural Unfinished --" },
-                    ...FINISH_OPTIONS,
-                  ]}
-                  value={newProduct.finishType}
-                  onChange={(val) => setNewProduct({ ...newProduct, finishType: val })}
-                  placeholder="-- Select Polish / Finish (Optional) --"
-                  allowOther={true}
-                  dark={true}
-                />
-              </div>
-
-              {/* 3D & Augmented Reality Model (.glb file) */}
-              <div className="p-3 bg-slate-950 rounded-xl border border-amber-500/40 space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-amber-400 font-bold text-xs">
-                    <Box className="w-4 h-4 text-amber-400" />
-                    <span>3D Model & AR Asset (.glb / .gltf)</span>
                   </div>
-                  <span className="text-[10px] text-amber-300/90 bg-amber-950 px-2 py-0.5 rounded border border-amber-800 font-bold">
-                    Interactive 360° & AR
-                  </span>
-                </div>
 
-                {/* Upload Button from System */}
-                <div className="flex items-center gap-2">
-                  <label
-                    className={`flex-1 py-2.5 px-3 rounded-xl border border-dashed text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                      uploading3D
-                        ? "bg-amber-950/60 text-amber-300 border-amber-500 animate-pulse"
-                        : "bg-slate-900 hover:bg-slate-800 text-amber-400 border-amber-500/50 hover:border-amber-400"
-                    }`}
-                  >
-                    <Upload className="w-4 h-4 text-amber-400" />
-                    <span>{uploading3D ? "Uploading 3D Model from PC..." : "Upload .GLB from System / PC"}</span>
+                  {/* URL or Local Path Input */}
+                  <div>
+                    <label className="text-[10px] text-slate-400 font-semibold block mb-1">
+                      Or Enter 3D Model Path / Direct URL:
+                    </label>
                     <input
-                      type="file"
-                      accept=".glb,.gltf,.usdz"
-                      disabled={uploading3D}
-                      onChange={(e) => {
-                        if (e.target.files?.[0]) handleUpload3DModel(e.target.files[0], false);
-                      }}
-                      className="hidden"
+                      type="text"
+                      placeholder="e.g. /models/sofa.glb or /uploads/models/custom.glb"
+                      value={newProduct.model3dUrl}
+                      onChange={(e) => setNewProduct({ ...newProduct, model3dUrl: e.target.value })}
+                      className="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white font-mono text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
                     />
-                  </label>
-                </div>
+                  </div>
 
-                {/* URL or Local Path Input */}
-                <div>
-                  <label className="text-[10px] text-slate-400 font-semibold block mb-1">
-                    Or Enter 3D Model Path / Direct URL:
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. /models/sofa.glb or /uploads/models/custom.glb"
-                    value={newProduct.model3dUrl}
-                    onChange={(e) => setNewProduct({ ...newProduct, model3dUrl: e.target.value })}
-                    className="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white font-mono text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
-                  />
-                </div>
-
-                {/* Quick Presets & Clear */}
-                <div className="flex items-center gap-2 pt-0.5 flex-wrap">
-                  <span className="text-[10px] text-slate-400 font-medium">Quick Presets:</span>
-                  <button
-                    type="button"
-                    onClick={() => setNewProduct({ ...newProduct, model3dUrl: "/models/sofa.glb" })}
-                    className="px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 text-[10px] font-semibold text-amber-300 border border-slate-700 transition cursor-pointer"
-                  >
-                    🛋️ Sofa Model
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setNewProduct({ ...newProduct, model3dUrl: "/models/chair.glb" })}
-                    className="px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 text-[10px] font-semibold text-amber-300 border border-slate-700 transition cursor-pointer"
-                  >
-                    🪑 Chair Model
-                  </button>
-                  {newProduct.model3dUrl && (
+                  {/* Quick Presets & Clear */}
+                  <div className="flex items-center gap-2 pt-0.5 flex-wrap">
+                    <span className="text-[10px] text-slate-400 font-medium">Quick Presets:</span>
                     <button
                       type="button"
-                      onClick={() => setNewProduct({ ...newProduct, model3dUrl: "" })}
-                      className="px-2 py-1 rounded bg-red-950/60 hover:bg-red-900 text-[10px] font-semibold text-red-300 border border-red-800 transition cursor-pointer"
+                      onClick={() => setNewProduct({ ...newProduct, model3dUrl: "/models/sofa.glb" })}
+                      className="px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 text-[10px] font-semibold text-amber-300 border border-slate-700 transition cursor-pointer"
                     >
-                      Clear
+                      🛋️ Sofa Model
                     </button>
-                  )}
-                </div>
-
-                {newProduct.model3dUrl && (
-                  <div className="p-2 rounded-lg bg-emerald-950/60 border border-emerald-800 text-[11px] text-emerald-300 flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                    <span className="truncate">3D Model Linked: {newProduct.model3dUrl}</span>
+                    <button
+                      type="button"
+                      onClick={() => setNewProduct({ ...newProduct, model3dUrl: "/models/chair.glb" })}
+                      className="px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 text-[10px] font-semibold text-amber-300 border border-slate-700 transition cursor-pointer"
+                    >
+                      🪑 Chair Model
+                    </button>
+                    {newProduct.model3dUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setNewProduct({ ...newProduct, model3dUrl: "" })}
+                        className="px-2 py-1 rounded bg-red-950/60 hover:bg-red-900 text-[10px] font-semibold text-red-300 border border-red-800 transition cursor-pointer"
+                      >
+                        Clear
+                      </button>
+                    )}
                   </div>
-                )}
 
-                <p className="text-[10px] text-slate-400">
-                  Enables 360° interactive turntable rotation and live room placement with smartphone AR.
-                </p>
-              </div>
+                  {newProduct.model3dUrl && (
+                    <div className="p-2 rounded-lg bg-emerald-950/60 border border-emerald-800 text-[11px] text-emerald-300 flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      <span className="truncate">3D Model Linked: {newProduct.model3dUrl}</span>
+                    </div>
+                  )}
 
-              {/* Display Options for Product Card */}
-              <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
-                <span className="text-[11px] font-bold text-slate-300 block">
-                  Product Card Display Options (Storefront):
-                </span>
-                <div className="grid grid-cols-2 gap-2">
-                  <label className="flex items-center gap-2 cursor-pointer text-slate-300">
-                    <input
-                      type="checkbox"
-                      checked={newProduct.showDetailsBtn}
-                      onChange={(e) => setNewProduct({ ...newProduct, showDetailsBtn: e.target.checked })}
-                      className="rounded accent-amber-500"
-                    />
-                    <span>"See Details" Button</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer text-slate-300">
-                    <input
-                      type="checkbox"
-                      checked={newProduct.showInquiryBtn}
-                      onChange={(e) => setNewProduct({ ...newProduct, showInquiryBtn: e.target.checked })}
-                      className="rounded accent-emerald-500"
-                    />
-                    <span>"Direct Inquiry" Button</span>
-                  </label>
+                  <p className="text-[10px] text-slate-400">
+                    Enables 360° interactive turntable rotation and live room placement with smartphone AR.
+                  </p>
+                </div>
+
+                {/* Display Options for Product Card */}
+                <div className="p-3.5 bg-slate-950 rounded-2xl border border-slate-800 space-y-2">
+                  <span className="text-[11px] font-bold text-slate-300 block uppercase tracking-wide">
+                    Product Card Display Options (Storefront):
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <label className="flex items-center gap-2 cursor-pointer text-slate-300">
+                      <input
+                        type="checkbox"
+                        checked={newProduct.showDetailsBtn}
+                        onChange={(e) => setNewProduct({ ...newProduct, showDetailsBtn: e.target.checked })}
+                        className="rounded accent-amber-500 w-4 h-4"
+                      />
+                      <span className="font-semibold">"See Details" Button</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer text-slate-300">
+                      <input
+                        type="checkbox"
+                        checked={newProduct.showInquiryBtn}
+                        onChange={(e) => setNewProduct({ ...newProduct, showInquiryBtn: e.target.checked })}
+                        className="rounded accent-emerald-500 w-4 h-4"
+                      />
+                      <span className="font-semibold">"Direct Inquiry" Button</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-slate-300 font-bold block mb-1">Description</label>
+                  <textarea
+                    rows="3"
+                    placeholder="Artisanal solid wood construction, 40D foam cushioning..."
+                    value={newProduct.description}
+                    onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                    className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  ></textarea>
                 </div>
               </div>
 
-              <div>
-                <label className="text-slate-300 font-bold block mb-1">Description</label>
-                <textarea
-                  rows="3"
-                  placeholder="Artisanal solid wood construction, 40D foam cushioning..."
-                  value={newProduct.description}
-                  onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
-                  className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none"
-                ></textarea>
-              </div>
-
-              <div className="flex items-center gap-3 pt-2">
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex-1 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold transition-colors disabled:opacity-50"
-                >
-                  {submitting ? "Saving to Database..." : "Save Product"}
-                </button>
+              {/* Fixed Modal Footer with Cancel & Save Buttons */}
+              <div className="p-4 sm:p-5 border-t border-slate-800 flex items-center justify-end gap-3 bg-slate-900/90 backdrop-blur-sm shrink-0">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold"
+                  className="py-2.5 px-5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold text-xs transition-colors flex items-center gap-1.5 cursor-pointer border border-slate-700"
                 >
-                  Cancel
+                  <X className="w-3.5 h-3.5 text-slate-400" />
+                  <span>Cancel</span>
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="py-2.5 px-6 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-all shadow-md flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>{submitting ? "Saving to Database..." : "Save Product"}</span>
                 </button>
               </div>
             </form>
@@ -1035,21 +1167,33 @@ export default function AdminProductsPage() {
       {/* Edit Product Modal */}
       {showEditModal && editingProduct && (
         <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-slate-800 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between">
+          <div className="bg-slate-900 rounded-3xl max-w-xl w-full border border-slate-800 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden my-auto">
+            {/* Fixed Modal Header */}
+            <div className="p-6 pb-4 border-b border-slate-800 flex items-center justify-between shrink-0 bg-slate-900">
               <div>
-                <h3 className="text-xl font-bold font-serif text-white">Edit Handcrafted Product</h3>
-                <p className="text-xs text-slate-400">Update specifications, stock, photos, and storefront display toggles.</p>
+                <span className="text-[10px] uppercase font-bold tracking-widest text-amber-400">
+                  Update Catalog Specifications
+                </span>
+                <h3 className="text-xl font-bold font-serif text-white mt-0.5">
+                  Edit Handcrafted Product
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Update specifications, stock levels, photos, and storefront visibility.
+                </p>
               </div>
               <button
+                type="button"
                 onClick={() => setShowEditModal(false)}
-                className="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white"
+                className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors cursor-pointer border border-slate-700"
+                title="Close"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleUpdateProductSubmit} className="space-y-3 text-xs">
+            {/* Scrollable Form Body */}
+            <form onSubmit={handleUpdateProductSubmit} className="flex flex-col flex-1 overflow-hidden">
+              <div className="p-6 overflow-y-auto space-y-4 flex-1 scrollbar-thin scrollbar-thumb-amber-500/40 scrollbar-track-slate-950 pr-4 text-xs">
               <div>
                 <label className="text-slate-300 font-bold block mb-1">Furniture Title *</label>
                 <input
@@ -1325,21 +1469,25 @@ export default function AdminProductsPage() {
                   className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none"
                 ></textarea>
               </div>
+            </div>
 
-              <div className="flex items-center gap-3 pt-2">
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex-1 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold transition-colors disabled:opacity-50 shadow-md"
-                >
-                  {submitting ? "Updating..." : "Save Changes"}
-                </button>
+              {/* Fixed Modal Footer with Cancel & Save Buttons */}
+              <div className="p-4 sm:p-5 border-t border-slate-800 flex items-center justify-end gap-3 bg-slate-900/90 backdrop-blur-sm shrink-0">
                 <button
                   type="button"
                   onClick={() => setShowEditModal(false)}
-                  className="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold"
+                  className="py-2.5 px-5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold text-xs transition-colors flex items-center gap-1.5 cursor-pointer border border-slate-700"
                 >
-                  Cancel
+                  <X className="w-3.5 h-3.5 text-slate-400" />
+                  <span>Cancel</span>
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="py-2.5 px-6 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-all shadow-md flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>{submitting ? "Updating Database..." : "Save Changes"}</span>
                 </button>
               </div>
             </form>

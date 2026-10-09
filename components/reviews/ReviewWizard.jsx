@@ -84,6 +84,7 @@ export default function ReviewWizard() {
 
   const [reviewText, setReviewText] = useState("");
   const [authorName, setAuthorName] = useState("");
+  const [authorError, setAuthorError] = useState(null);
   const [phone, setPhone] = useState("");
   const [phoneError, setPhoneError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -463,7 +464,9 @@ export default function ReviewWizard() {
     setAdditionalFeedback("");
     setReviewText("");
     setAuthorName("");
+    setAuthorError(null);
     setPhone("");
+    setPhoneError(null);
     setSubmissionSuccess(false);
     setSelectedPrompt(null);
     setSelectedPromptIndex(null);
@@ -471,6 +474,12 @@ export default function ReviewWizard() {
 
   // Phase 8.5.3: Direct Submit Review into PostgreSQL (CustomerReviewSubmission)
   const handleDirectSubmitReview = async () => {
+    if (!authorName || !authorName.trim()) {
+      setAuthorError("Please enter your Customer Name (Compulsory).");
+      return;
+    }
+    setAuthorError(null);
+
     if (phone.trim()) {
       const phoneCheck = validatePhone(phone);
       if (!phoneCheck.valid) {
@@ -1002,9 +1011,16 @@ export default function ReviewWizard() {
                 reviewText={reviewText}
                 onReviewTextChange={setReviewText}
                 author={authorName}
-                onAuthorChange={setAuthorName}
+                onAuthorChange={(val) => {
+                  setAuthorName(val);
+                  if (authorError) setAuthorError(null);
+                }}
+                authorError={authorError}
                 phone={phone}
-                onPhoneChange={setPhone}
+                onPhoneChange={(val) => {
+                  setPhone(val);
+                  if (phoneError) setPhoneError(null);
+                }}
                 phoneError={phoneError}
               />
 
