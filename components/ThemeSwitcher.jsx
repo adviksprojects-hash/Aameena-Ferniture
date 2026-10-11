@@ -77,8 +77,9 @@ export default function ThemeSwitcher({ className = "" }) {
 
   const applyTheme = (theme) => {
     if (typeof document === "undefined") return;
-    document.documentElement.setAttribute("data-theme", theme);
-    if (theme === "dark" || theme === "emerald") {
+    const normalized = theme === "emerald" ? "royal" : theme === "teak" ? "warm" : theme;
+    document.documentElement.setAttribute("data-theme", normalized);
+    if (normalized === "dark") {
       document.documentElement.classList.add("dark");
     } else {
       document.documentElement.classList.remove("dark");

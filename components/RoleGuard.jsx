@@ -85,7 +85,7 @@ export default function RoleGuard({ requiredRole = "ADMIN", children }) {
               Verifying {requiredRole === "ADMIN" ? "Administrator" : "Showroom Manager"} Access
             </h2>
             <p className="text-xs text-slate-400">
-              Authenticating role permissions against Aameena Furniture security records...
+              Authenticating role permissions for furniture catalog, Device Photo Upload, order management, and Archive records...
             </p>
           </div>
         </div>

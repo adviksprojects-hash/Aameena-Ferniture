@@ -35,8 +35,9 @@ export default function RootLayout({ children }) {
               __html: `
                 try {
                   const t = localStorage.getItem('aameena_theme') || 'warm';
-                  document.documentElement.setAttribute('data-theme', t);
-                  if (t === 'dark') document.documentElement.classList.add('dark');
+                  const n = t === 'emerald' ? 'royal' : t === 'teak' ? 'warm' : t;
+                  document.documentElement.setAttribute('data-theme', n);
+                  if (n === 'dark') document.documentElement.classList.add('dark');
                 } catch(e) {}
               `,
             }}

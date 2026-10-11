@@ -165,7 +165,7 @@
 }
 
 [data-theme="dark"] body,
-.dark body {
+.dark:not([data-theme="royal"]):not([data-theme="emerald"]) body {
   background-color: oklch(0.12 0.015 50) !important;
   color: oklch(0.98 0.01 75) !important;
 }
@@ -552,17 +552,91 @@
 
 /* ===================================================================
    👑 4. ROYAL EMERALD THEME (Imperial British Racing Green & Champagne Gold)
-   The Ultimate High-End Furniture Luxury Aesthetic
+   Gemstone Malachite, Deep Jewel Emerald, Jade Glow & Brushed 24K Brass
    =================================================================== */
-[data-theme="royal"] {
+[data-theme="royal"],
+[data-theme="emerald"] {
   color-scheme: dark;
 }
 
-[data-theme="royal"] body {
-  background: radial-gradient(circle at 50% -15%, #0e4435 0%, #08281e 35%, #03140e 100%) !important;
-  background-color: #03140e !important;
-  color: #f0fdf4 !important;
+[data-theme="royal"] body,
+[data-theme="emerald"] body {
+  background: radial-gradient(circle at 50% -10%, #064e3b 0%, #032b20 28%, #021a13 65%, #01120d 100%) !important;
+  background-color: #01120d !important;
+  color: #ecfdf5 !important;
   min-height: 100vh;
+}
+
+/* Homepage Hero Section: Deep Jewel Emerald Twilight & Jade Glow */
+[data-theme="royal"] section.relative.bg-gradient-to-b,
+[data-theme="emerald"] section.relative.bg-gradient-to-b {
+  background: radial-gradient(circle at 50% -15%, #065f46 0%, #043e30 30%, #02231b 65%, #01120d 100%) !important;
+}
+
+[data-theme="royal"] section.relative.bg-gradient-to-b > div.pointer-events-none,
+[data-theme="emerald"] section.relative.bg-gradient-to-b > div.pointer-events-none {
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.45) 0%, rgba(5, 150, 105, 0.25) 45%, transparent 75%) !important;
+  opacity: 0.55 !important;
+  animation: emeraldAuroraGlow 8s ease-in-out infinite alternate !important;
+}
+
+/* Homepage Hero CTAs in Royal Emerald */
+[data-theme="royal"] a[href="/products"].rounded-full,
+[data-theme="emerald"] a[href="/products"].rounded-full {
+  background: linear-gradient(135deg, #059669 0%, #10b981 50%, #047857 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.45), 0 8px 25px rgba(0, 0, 0, 0.6) !important;
+  border: 1px solid rgba(167, 243, 208, 0.4) !important;
+}
+[data-theme="royal"] a[href="/products"].rounded-full:hover,
+[data-theme="emerald"] a[href="/products"].rounded-full:hover {
+  box-shadow: 0 0 42px rgba(16, 185, 129, 0.65), 0 10px 30px rgba(0, 0, 0, 0.7) !important;
+  transform: translateY(-2px) scale(1.03) !important;
+}
+
+[data-theme="royal"] a[href="/contact"].rounded-full,
+[data-theme="emerald"] a[href="/contact"].rounded-full {
+  background: rgba(6, 78, 59, 0.65) !important;
+  border: 1px solid rgba(52, 211, 153, 0.45) !important;
+  color: #d1fae5 !important;
+  backdrop-filter: blur(12px) !important;
+}
+[data-theme="royal"] a[href="/contact"].rounded-full:hover,
+[data-theme="emerald"] a[href="/contact"].rounded-full:hover {
+  background: rgba(6, 95, 70, 0.85) !important;
+  border-color: rgba(52, 211, 153, 0.7) !important;
+  color: #ffffff !important;
+}
+
+/* Hero Trust Statistics Bar */
+[data-theme="royal"] .border-t.border-amber-800\/40 {
+  border-color: rgba(52, 211, 153, 0.25) !important;
+}
+[data-theme="royal"] .text-amber-300\/70 {
+  color: #a7f3d0 !important;
+}
+
+/* Value Props Icons & Sections in Royal Emerald */
+[data-theme="royal"] .w-12.h-12.rounded-xl.bg-amber-100 {
+  background: linear-gradient(135deg, #065f46 0%, #047857 100%) !important;
+  color: #fde047 !important;
+  border: 1px solid rgba(52, 211, 153, 0.35) !important;
+  box-shadow: 0 4px 15px rgba(6, 78, 59, 0.5) !important;
+}
+
+/* Bestsellers and Curated Collections */
+[data-theme="royal"] section.bg-amber-900\/5 {
+  background: radial-gradient(circle at 50% 50%, rgba(6, 78, 59, 0.22) 0%, rgba(2, 44, 34, 0.4) 100%) !important;
+  border-color: rgba(52, 211, 153, 0.25) !important;
+}
+
+/* Category card highlights */
+[data-theme="royal"] .border-amber-200\/60,
+[data-theme="royal"] .border-amber-200\/70 {
+  border-color: rgba(52, 211, 153, 0.22) !important;
+}
+[data-theme="royal"] .text-amber-800 {
+  color: #34d399 !important;
 }
 
 /* Luxury Royal Emerald Cards */
@@ -570,11 +644,11 @@
 [data-theme="royal"] .dark\:bg-stone-900,
 [data-theme="royal"] .bg-white\/95,
 [data-theme="royal"] .bg-white\/90 {
-  background: linear-gradient(165deg, rgba(14, 46, 36, 0.94) 0%, rgba(8, 28, 22, 0.98) 100%) !important;
-  backdrop-filter: blur(16px) !important;
+  background: linear-gradient(155deg, rgba(6, 78, 59, 0.55) 0%, rgba(2, 44, 34, 0.88) 55%, rgba(1, 26, 20, 0.98) 100%) !important;
+  backdrop-filter: blur(18px) !important;
   color: #f0fdf4 !important;
-  border: 1px solid rgba(234, 179, 8, 0.32) !important;
-  box-shadow: 0 16px 45px -12px rgba(0, 0, 0, 0.8), 0 0 24px rgba(16, 185, 129, 0.14), inset 0 1px 0 rgba(254, 240, 138, 0.22) !important;
+  border: 1px solid rgba(52, 211, 153, 0.32) !important;
+  box-shadow: 0 16px 45px -12px rgba(0, 0, 0, 0.8), 0 0 28px rgba(16, 185, 129, 0.18), inset 0 1px 0 rgba(167, 243, 208, 0.25) !important;
 }
 
 /* Secondary cards, review cards, and subtle panels */
@@ -593,27 +667,27 @@
 [data-theme="royal"] .dark\:bg-stone-800,
 [data-theme="royal"] .dark\:bg-stone-800\/60,
 [data-theme="royal"] .dark\:bg-stone-800\/80 {
-  background: linear-gradient(145deg, rgba(16, 54, 42, 0.9) 0%, rgba(10, 36, 28, 0.95) 100%) !important;
-  border-color: rgba(234, 179, 8, 0.25) !important;
+  background: linear-gradient(145deg, rgba(6, 78, 59, 0.6) 0%, rgba(3, 45, 34, 0.85) 100%) !important;
+  border-color: rgba(52, 211, 153, 0.28) !important;
   color: #e2f4ea !important;
 }
 
 /* Selected prompt cards in Royal theme: Glowing Emerald Velvet & Gold Rim */
 [data-theme="royal"] .bg-amber-50\/90,
 [data-theme="royal"] .dark\:bg-amber-950\/40 {
-  background: linear-gradient(135deg, rgba(19, 75, 58, 0.96) 0%, rgba(13, 58, 44, 0.98) 100%) !important;
-  border: 1.5px solid #eab308 !important;
-  box-shadow: 0 0 22px rgba(234, 179, 8, 0.35), inset 0 0 16px rgba(16, 185, 129, 0.2) !important;
+  background: linear-gradient(135deg, rgba(6, 95, 70, 0.95) 0%, rgba(4, 60, 46, 0.98) 100%) !important;
+  border: 1.5px solid #10b981 !important;
+  box-shadow: 0 0 24px rgba(16, 185, 129, 0.45), inset 0 0 16px rgba(52, 211, 153, 0.25) !important;
 }
 
 /* Badges & Chips */
 [data-theme="royal"] .bg-amber-100,
 [data-theme="royal"] .bg-amber-200,
 [data-theme="royal"] .dark\:bg-amber-950\/80 {
-  background: linear-gradient(135deg, #0f4031 0%, #175e47 100%) !important;
+  background: linear-gradient(135deg, #065f46 0%, #047857 50%, #059669 100%) !important;
   color: #fef08a !important;
-  border: 1px solid rgba(234, 179, 8, 0.5) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35) !important;
+  border: 1px solid rgba(52, 211, 153, 0.5) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35) !important;
 }
 
 /* High-contrast headings and body in Royal theme */
@@ -652,18 +726,18 @@
 [data-theme="royal"] .btn-tactile,
 [data-theme="royal"] .bg-gradient-to-r.from-amber-600,
 [data-theme="royal"] button.bg-gradient-to-r {
-  background: linear-gradient(135deg, #d97706 0%, #facc15 50%, #ca8a04 100%) !important;
-  color: #03140e !important;
+  background: linear-gradient(135deg, #059669 0%, #10b981 50%, #d97706 100%) !important;
+  color: #ffffff !important;
   font-weight: 900 !important;
-  box-shadow: 0 12px 30px -5px rgba(234, 179, 8, 0.45), 0 0 20px rgba(250, 204, 21, 0.35) !important;
-  border: 1px solid rgba(254, 240, 138, 0.6) !important;
+  box-shadow: 0 12px 30px -5px rgba(16, 185, 129, 0.45), 0 0 22px rgba(250, 204, 21, 0.3) !important;
+  border: 1px solid rgba(167, 243, 208, 0.6) !important;
 }
 
 /* Secondary Button in Royal mode */
 [data-theme="royal"] .border-amber-300.bg-amber-50\/60,
 [data-theme="royal"] button[class*="border-amber-300"] {
-  background: linear-gradient(135deg, #0f3d30 0%, #155442 100%) !important;
-  border: 1.5px solid rgba(234, 179, 8, 0.5) !important;
+  background: linear-gradient(135deg, #044333 0%, #065f46 100%) !important;
+  border: 1.5px solid rgba(52, 211, 153, 0.5) !important;
   color: #fef08a !important;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35) !important;
 }
@@ -672,50 +746,50 @@
 [data-theme="royal"] input:not([type="checkbox"]):not([type="radio"]),
 [data-theme="royal"] textarea,
 [data-theme="royal"] select {
-  background-color: #08261d !important;
+  background-color: #032b20 !important;
   color: #f0fdf4 !important;
-  border: 1.5px solid rgba(234, 179, 8, 0.35) !important;
+  border: 1.5px solid rgba(52, 211, 153, 0.4) !important;
 }
 
 [data-theme="royal"] input:focus,
 [data-theme="royal"] textarea:focus,
 [data-theme="royal"] select:focus {
-  border-color: #facc15 !important;
-  box-shadow: 0 0 14px rgba(250, 204, 21, 0.3) !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.4) !important;
 }
 
 [data-theme="royal"] input::placeholder,
 [data-theme="royal"] textarea::placeholder {
-  color: #79a691 !important;
+  color: #6ee7b7 !important;
 }
 
 /* Royal Mode: Admin & Manager Portal Integration */
 [data-theme="royal"] aside,
 [data-theme="royal"] aside.bg-slate-950,
 [data-theme="royal"] aside.bg-amber-950 {
-  background: linear-gradient(180deg, #02120d 0%, #051b14 50%, #03140e 100%) !important;
-  border-right: 1px solid rgba(234, 179, 8, 0.28) !important;
+  background: linear-gradient(180deg, #01140e 0%, #02261b 50%, #01140e 100%) !important;
+  border-right: 1px solid rgba(52, 211, 153, 0.3) !important;
 }
 
 [data-theme="royal"] .bg-slate-950,
 [data-theme="royal"] .bg-amber-950,
 [data-theme="royal"] .bg-stone-950 {
-  background-color: #03140e !important;
-  border-color: rgba(234, 179, 8, 0.28) !important;
+  background-color: #01170f !important;
+  border-color: rgba(52, 211, 153, 0.3) !important;
 }
 
 [data-theme="royal"] .bg-slate-900,
 [data-theme="royal"] .bg-stone-900,
 [data-theme="royal"] .bg-amber-900\/60,
 [data-theme="royal"] .bg-amber-900\/40 {
-  background: linear-gradient(165deg, rgba(14, 46, 36, 0.95) 0%, rgba(8, 28, 22, 0.98) 100%) !important;
-  border-color: rgba(234, 179, 8, 0.24) !important;
+  background: linear-gradient(165deg, rgba(6, 78, 59, 0.6) 0%, rgba(2, 38, 28, 0.95) 100%) !important;
+  border-color: rgba(52, 211, 153, 0.28) !important;
 }
 
 [data-theme="royal"] .bg-slate-800,
 [data-theme="royal"] .bg-stone-800 {
-  background-color: #0e382c !important;
-  border-color: rgba(234, 179, 8, 0.25) !important;
+  background-color: #043e30 !important;
+  border-color: rgba(52, 211, 153, 0.28) !important;
 }
 
 [data-theme="royal"] .border-slate-800,
@@ -724,14 +798,14 @@
 [data-theme="royal"] .border-amber-900\/60,
 [data-theme="royal"] .border-amber-900\/40,
 [data-theme="royal"] .border-stone-800 {
-  border-color: rgba(234, 179, 8, 0.25) !important;
+  border-color: rgba(52, 211, 153, 0.28) !important;
 }
 
 /* Royal Emerald Table Styling */
 [data-theme="royal"] table thead,
 [data-theme="royal"] table thead tr {
-  background: #052017 !important;
-  border-bottom: 1.5px solid rgba(234, 179, 8, 0.3) !important;
+  background: #02231b !important;
+  border-bottom: 1.5px solid rgba(52, 211, 153, 0.35) !important;
 }
 [data-theme="royal"] table thead th {
   color: #fde047 !important;
@@ -739,10 +813,221 @@
   letter-spacing: 0.05em;
 }
 [data-theme="royal"] table tbody tr {
-  border-color: rgba(234, 179, 8, 0.16) !important;
+  border-color: rgba(52, 211, 153, 0.18) !important;
 }
 [data-theme="royal"] table tbody tr:hover {
-  background-color: rgba(16, 54, 42, 0.45) !important;
+  background-color: rgba(6, 95, 70, 0.4) !important;
+}
+
+/* ===================================================================
+   ✨ HOMEPAGE TAGLINE DESIGN ANIMATIONS
+   "Generations of Artisanal Woodcraft Excellence"
+   "Crafting Timeless Elegance for Your Home"
+   =================================================================== */
+
+/* 1. Tagline Pill Badge */
+.hero-tagline-pill {
+  background: linear-gradient(135deg, rgba(146, 64, 14, 0.45) 0%, rgba(92, 40, 9, 0.6) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  color: #fef08a;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35), 0 0 20px rgba(245, 158, 11, 0.15);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+
+.hero-tagline-pill:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.4), 0 0 28px rgba(245, 158, 11, 0.28);
+}
+
+/* Shimmer beam that sweeps across the badge */
+.hero-shimmer-sweep {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.05) 30%,
+    rgba(255, 255, 255, 0.45) 50%,
+    rgba(255, 255, 255, 0.05) 70%,
+    transparent 100%
+  );
+  transform: translateX(-150%) skewX(-20deg);
+  animation: heroShimmerBeam 4.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
+
+@keyframes heroShimmerBeam {
+  0% {
+    transform: translateX(-150%) skewX(-20deg);
+  }
+  35%, 100% {
+    transform: translateX(250%) skewX(-20deg);
+  }
+}
+
+/* Twinkling rotating star in badge */
+.hero-sparkle-icon {
+  animation: heroStarTwinkle 3.2s ease-in-out infinite;
+}
+
+@keyframes heroStarTwinkle {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.85;
+    filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.6));
+  }
+  50% {
+    transform: scale(1.28) rotate(18deg);
+    opacity: 1;
+    filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.95));
+  }
+}
+
+/* 2. "Timeless Elegance" Text Metallic Flow */
+.hero-timeless-elegance {
+  display: inline-block;
+  background: linear-gradient(
+    90deg,
+    #f59e0b 0%,
+    #fef08a 25%,
+    #f59e0b 50%,
+    #fef08a 75%,
+    #f59e0b 100%
+  );
+  background-size: 200% auto;
+  animation: heroMetallicFlow 6s linear infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 10px rgba(245, 158, 11, 0.25));
+}
+
+@keyframes heroMetallicFlow {
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+/* 3. Elegance flourish accent bar beneath the text */
+.hero-elegance-bar {
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(245, 158, 11, 0.4) 15%,
+    #fef08a 50%,
+    rgba(245, 158, 11, 0.4) 85%,
+    transparent 100%
+  );
+  animation: heroFlourishPulse 3.8s ease-in-out infinite;
+}
+
+@keyframes heroFlourishPulse {
+  0%, 100% {
+    transform: scaleX(0.85);
+    opacity: 0.7;
+    filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.3));
+  }
+  50% {
+    transform: scaleX(1.05);
+    opacity: 1;
+    filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.8));
+  }
+}
+
+@keyframes emeraldAuroraGlow {
+  0%, 100% {
+    opacity: 0.4;
+    transform: translate(-50%, 0%) scale(1);
+  }
+  50% {
+    opacity: 0.65;
+    transform: translate(-50%, -5%) scale(1.1);
+  }
+}
+
+/* Theme adaptation for Hero Tagline elements */
+[data-theme="royal"] .hero-tagline-pill,
+[data-theme="emerald"] .hero-tagline-pill {
+  background: linear-gradient(135deg, rgba(6, 95, 70, 0.9) 0%, rgba(4, 120, 87, 0.75) 50%, rgba(5, 150, 105, 0.9) 100%) !important;
+  border: 1.5px solid rgba(52, 211, 153, 0.65) !important;
+  color: #ecfdf5 !important;
+  box-shadow: 0 0 28px rgba(16, 185, 129, 0.4), inset 0 1px 0 rgba(167, 243, 208, 0.35) !important;
+}
+
+[data-theme="royal"] .hero-tagline-pill:hover,
+[data-theme="emerald"] .hero-tagline-pill:hover {
+  box-shadow: 0 0 38px rgba(16, 185, 129, 0.6), inset 0 1px 0 rgba(167, 243, 208, 0.5) !important;
+}
+
+[data-theme="royal"] .hero-sparkle-icon,
+[data-theme="emerald"] .hero-sparkle-icon {
+  color: #fde047 !important;
+  filter: drop-shadow(0 0 8px rgba(52, 211, 153, 0.9)) !important;
+}
+
+[data-theme="royal"] .hero-timeless-elegance,
+[data-theme="emerald"] .hero-timeless-elegance {
+  background: linear-gradient(
+    90deg,
+    #fde047 0%,
+    #34d399 25%,
+    #6ee7b7 50%,
+    #facc15 75%,
+    #fde047 100%
+  ) !important;
+  background-size: 200% auto !important;
+  animation: heroMetallicFlow 5s linear infinite !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  filter: drop-shadow(0 2px 14px rgba(16, 185, 129, 0.4)) !important;
+}
+
+[data-theme="royal"] .hero-elegance-bar,
+[data-theme="emerald"] .hero-elegance-bar {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #059669 15%,
+    #34d399 40%,
+    #fde047 50%,
+    #34d399 60%,
+    #059669 85%,
+    transparent 100%
+  ) !important;
+  box-shadow: 0 0 12px rgba(52, 211, 153, 0.8), 0 0 4px rgba(253, 224, 71, 0.6) !important;
+  height: 2.5px !important;
+}
+
+[data-theme="light"] .hero-tagline-pill {
+  background: rgba(254, 243, 199, 0.95) !important;
+  border-color: rgba(217, 119, 6, 0.35) !important;
+  color: #92400e !important;
+  box-shadow: 0 4px 15px rgba(217, 119, 6, 0.12) !important;
+}
+
+[data-theme="light"] .hero-timeless-elegance {
+  background: linear-gradient(90deg, #b45309 0%, #d97706 35%, #92400e 70%, #b45309 100%) !important;
+  background-size: 200% auto !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+[data-theme="dark"] .hero-tagline-pill {
+  background: rgba(28, 18, 12, 0.85) !important;
+  border-color: rgba(245, 158, 11, 0.4) !important;
+  color: #fde047 !important;
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.2) !important;
 }
 
 /* Dark Mode: Admin & Manager Portal Integration */

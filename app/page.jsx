@@ -431,17 +431,28 @@ export default function Home() {
         <div className="container mx-auto px-4 md:px-8 pt-8 sm:pt-10 pb-12 relative z-10">
           <div className="max-w-3xl mx-auto text-center space-y-6">
             <AnimatedSection delay={0.05}>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-800/60 border border-amber-700/50 text-amber-300 text-xs font-medium">
-                <Sparkles className="w-4 h-4 text-amber-400" />
-                <span>Generations of Artisanal Woodcraft Excellence</span>
+              <div className="hero-tagline-pill inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full text-xs font-semibold relative overflow-hidden backdrop-blur-md shadow-lg cursor-default select-none group">
+                <span className="hero-sparkle-glow shrink-0">
+                  <Sparkles className="w-4 h-4 text-amber-400 hero-sparkle-icon" />
+                </span>
+                <span className="tracking-wider uppercase font-semibold text-[11px] sm:text-xs">
+                  Generations of Artisanal Woodcraft Excellence
+                </span>
+                {/* Continuous luxury light beam sweep */}
+                <span className="hero-shimmer-sweep" aria-hidden="true" />
               </div>
             </AnimatedSection>
 
             <AnimatedSection delay={0.12}>
-              <h1 className="text-4xl sm:text-5xl xl:text-7xl font-extrabold tracking-tight leading-none">
+              <h1 className="text-4xl sm:text-5xl xl:text-7xl font-extrabold tracking-tight leading-tight sm:leading-none hero-main-heading">
                 Crafting{" "}
-                <span className="font-serif italic text-amber-400">Timeless Elegance</span>
-                <br />for Your Home
+                <span className="relative inline-block font-serif italic font-bold">
+                  <span className="hero-timeless-elegance">Timeless Elegance</span>
+                  {/* Artisanal dynamic elegance accent flourish bar */}
+                  <span className="hero-elegance-bar" aria-hidden="true" />
+                </span>
+                <br />
+                <span className="hero-home-subtext">for Your Home</span>
               </h1>
             </AnimatedSection>
 
