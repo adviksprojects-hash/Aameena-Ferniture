@@ -83,6 +83,7 @@ export async function createProduct(productData) {
       model3dUrl,
       showInquiryBtn = true,
       showDetailsBtn = true,
+      showArBtn = false,
     } = productData;
 
     if (!title || !price) {
@@ -164,6 +165,7 @@ export async function createProduct(productData) {
         images: safeImages,
         showInquiryBtn: Boolean(showInquiryBtn),
         showDetailsBtn: Boolean(showDetailsBtn),
+        showArBtn: Boolean(showArBtn),
         isArchived: false,
       },
     });
@@ -249,6 +251,9 @@ export async function updateProduct(id, updateData) {
       cleanData.model3dUrl = updateData.model3dUrl && String(updateData.model3dUrl).trim()
         ? String(updateData.model3dUrl).trim()
         : null;
+    }
+    if (updateData.showArBtn !== undefined) {
+      cleanData.showArBtn = Boolean(updateData.showArBtn);
     }
     if (Array.isArray(updateData.images)) {
       cleanData.images = updateData.images.slice(0, 3);
@@ -376,11 +381,12 @@ export async function deleteProduct(id) {
 /**
  * Update storefront button display options for a product
  */
-export async function updateProductDisplayOptions(id, { showInquiryBtn, showDetailsBtn }) {
+export async function updateProductDisplayOptions(id, { showInquiryBtn, showDetailsBtn, showArBtn }) {
   try {
     const dataToUpdate = {};
     if (showInquiryBtn !== undefined) dataToUpdate.showInquiryBtn = showInquiryBtn;
     if (showDetailsBtn !== undefined) dataToUpdate.showDetailsBtn = showDetailsBtn;
+    if (showArBtn !== undefined) dataToUpdate.showArBtn = Boolean(showArBtn);
 
     const updated = await db.product.update({
       where: { id },

@@ -353,6 +353,11 @@ export default function PricingPage() {
               const price = categoryModel.price || "₹1,50,000";
               const isPopular = key === "simple";
               const isTeak = key === "premium";
+              const timber = categoryModel.timber || spec.timberShort || spec.timber || "Premium Solid Timber";
+              const finish = categoryModel.finish || spec.finishShort || spec.finish || "Premium PU Polish";
+              const hardware = categoryModel.hardware || spec.hardwareShort || spec.hardware || "Soft-Close Fittings";
+              const warranty = categoryModel.warranty || spec.warrantyShort || spec.warranty || "10-Year Guarantee";
+              const inclusions = (Array.isArray(categoryModel.inclusions) && categoryModel.inclusions.length > 0) ? categoryModel.inclusions : (spec.inclusions || []);
 
               return (
                 <div
@@ -451,7 +456,7 @@ export default function PricingPage() {
                             🪵 Timber Core
                           </span>
                           <span className="text-[11px] font-bold text-slate-800 dark:text-neutral-200 mt-1 leading-snug line-clamp-2">
-                            {spec.timberShort || spec.timber}
+                            {timber}
                           </span>
                         </div>
 
@@ -461,7 +466,7 @@ export default function PricingPage() {
                             🎨 Finish & Polish
                           </span>
                           <span className="text-[11px] font-bold text-slate-800 dark:text-neutral-200 mt-1 leading-snug line-clamp-2">
-                            {spec.finishShort || spec.finish}
+                            {finish}
                           </span>
                         </div>
 
@@ -471,7 +476,7 @@ export default function PricingPage() {
                             ⚙️ Hardware
                           </span>
                           <span className="text-[11px] font-bold text-slate-800 dark:text-neutral-200 mt-1 leading-snug line-clamp-2">
-                            {spec.hardwareShort || spec.hardware}
+                            {hardware}
                           </span>
                         </div>
 
@@ -481,7 +486,7 @@ export default function PricingPage() {
                             🛡️ Warranty
                           </span>
                           <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-300 mt-1 leading-snug line-clamp-2">
-                            {spec.warrantyShort || spec.warranty}
+                            {warranty}
                           </span>
                         </div>
                       </div>
@@ -495,12 +500,12 @@ export default function PricingPage() {
                           <span>Included in {activeCategory?.name}:</span>
                         </span>
                         <span className="text-[10px] text-slate-400 dark:text-neutral-500">
-                          {spec.inclusions.length} Elements
+                          {inclusions.length} Elements
                         </span>
                       </div>
 
                       <ul className="space-y-2.5 text-xs text-slate-700 dark:text-neutral-300">
-                        {spec.inclusions.map((inc, i) => (
+                        {inclusions.map((inc, i) => (
                           <li key={i} className="flex items-start gap-2.5">
                             <span className="w-4 h-4 rounded-full bg-amber-100 dark:bg-amber-500/10 border border-amber-300 dark:border-amber-500/30 text-amber-800 dark:text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
                               <Check className="w-2.5 h-2.5" />

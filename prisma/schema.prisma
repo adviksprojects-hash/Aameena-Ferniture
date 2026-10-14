@@ -126,6 +126,7 @@ model Product {
   showInquiryBtn Boolean     @default(true)
   showDetailsBtn Boolean     @default(true)
   model3dUrl     String?
+  showArBtn      Boolean     @default(false)
   images         String[]    @default([])
   categoryId     String
   createdAt      DateTime    @default(now())

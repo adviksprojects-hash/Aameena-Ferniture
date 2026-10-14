@@ -126,8 +126,8 @@ export default function SearchableSelect({
                   ? "bg-slate-950 border-red-500 text-white focus:ring-red-400"
                   : "bg-slate-950 border-slate-800 text-slate-100 hover:border-slate-700 focus:ring-2 focus:ring-amber-500"
                 : error
-                ? "bg-amber-50/50 border-red-400 focus:ring-red-300"
-                : "bg-amber-50/50 border-amber-200 hover:border-amber-300 focus:ring-2 focus:ring-amber-500"
+                ? "bg-amber-50/50 border-red-400 focus:ring-red-300 text-slate-900"
+                : "bg-amber-50/50 border-amber-200 hover:border-amber-300 focus:ring-2 focus:ring-amber-500 text-slate-900"
             }`}
           >
             <span className={value ? (dark ? "text-white font-bold" : "text-slate-900 font-bold") : "text-slate-400"}>
@@ -151,7 +151,7 @@ export default function SearchableSelect({
                   onChange={(e) => setSearch(e.target.value)}
                   autoFocus
                   className={`w-full pl-8 pr-3 py-2 text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-500 ${
-                    dark ? "bg-slate-950 border border-slate-800 text-slate-100" : "bg-slate-50 border border-slate-200 text-slate-800"
+                    dark ? "bg-slate-950 border border-slate-800 text-white placeholder:text-slate-400" : "bg-white border border-slate-300 text-slate-900 placeholder:text-slate-500"
                   }`}
                 />
               </div>
@@ -216,8 +216,8 @@ export default function SearchableSelect({
             placeholder={otherPlaceholder}
             className={`w-full p-3 pr-9 rounded-xl border text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500 ${
               dark
-                ? error ? "bg-slate-950 border-red-500 text-white" : "bg-slate-950 border-slate-700 text-white"
-                : error ? "bg-amber-50/70 border-red-400 text-slate-900" : "bg-amber-50/70 border-amber-300 text-slate-900"
+                ? error ? "bg-slate-950 border-red-500 text-white placeholder:text-slate-400" : "bg-slate-950 border-slate-700 text-white placeholder:text-slate-400"
+                : error ? "bg-amber-50/70 border-red-400 text-slate-900 placeholder:text-slate-500" : "bg-amber-50/70 border-amber-300 text-slate-900 placeholder:text-slate-500"
             }`}
           />
           <button

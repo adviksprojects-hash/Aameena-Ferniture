@@ -106,6 +106,7 @@ export default function ManagerProductsPage() {
     description: "",
     finishType: "",
     model3dUrl: "",
+    showArBtn: false,
     showInquiryBtn: true,
     showDetailsBtn: true,
   });
@@ -122,6 +123,7 @@ export default function ManagerProductsPage() {
     dimensions: "",
     description: "",
     model3dUrl: "",
+    showArBtn: false,
     finishType: "Natural Teak Honey Polish",
     showInquiryBtn: true,
     showDetailsBtn: true,
@@ -313,6 +315,7 @@ export default function ManagerProductsPage() {
       finishType: product.finishType || "Natural Teak Honey Polish",
       showInquiryBtn: product.showInquiryBtn !== false,
       showDetailsBtn: product.showDetailsBtn !== false,
+      showArBtn: Boolean(product.showArBtn),
     });
     setShowEditModal(true);
   };
@@ -419,6 +422,7 @@ export default function ManagerProductsPage() {
         description: "",
         finishType: "",
         model3dUrl: "",
+    showArBtn: false,
         showInquiryBtn: true,
         showDetailsBtn: true,
       });
@@ -1133,16 +1137,65 @@ export default function ManagerProductsPage() {
                     )}
                   </div>
 
-                  {newProduct.model3dUrl && (
-                    <div className="p-2 rounded-lg bg-emerald-50 border border-emerald-300 text-[11px] text-emerald-900 flex items-center gap-1.5 font-medium">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
-                      <span className="truncate">3D Model Linked: {newProduct.model3dUrl}</span>
-                    </div>
-                  )}
+                  {newProduct.model3dUrl ? (
+                    <div className="space-y-2 pt-2 border-t border-slate-200">
+                      <div className="p-2.5 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <Box className="w-4 h-4 text-amber-700 shrink-0" />
+                          <span className="text-xs text-slate-800 font-mono truncate">
+                            {newProduct.model3dUrl}
+                          </span>
+                        </div>
+                        <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 shrink-0">
+                          File Ready
+                        </span>
+                      </div>
 
-                  <p className="text-[10px] text-slate-500">
-                    Enables customers to inspect this exact product in 360° and test it on their room floor using phone AR.
-                  </p>
+                      {/* Checkbox button to display 3D/AR in product details */}
+                      <label className="flex items-start gap-2.5 p-3 rounded-xl bg-white border border-slate-300 hover:border-amber-600 transition-colors cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={Boolean(newProduct.showArBtn)}
+                          onChange={(e) => setNewProduct({ ...newProduct, showArBtn: e.target.checked })}
+                          className="rounded accent-amber-600 w-4 h-4 mt-0.5 cursor-pointer shrink-0"
+                        />
+                        <div className="space-y-0.5">
+                          <span className="text-xs font-bold text-slate-900 block">
+                            Show &quot;3D &amp; AR View (360°)&quot; Button in Product Details
+                          </span>
+                          <span className="text-[11px] text-slate-600 block leading-tight">
+                            Check this box to enable the 3D studio, 360° interactive view, and phone AR placement button on the product details page.
+                          </span>
+                        </div>
+                      </label>
+
+                      {/* Warning when 3D model is attached but checkbox is NOT selected */}
+                      {!newProduct.showArBtn ? (
+                        <div className="p-2.5 rounded-xl bg-amber-100/80 border border-amber-400 text-amber-950 text-xs flex items-start gap-2.5 animate-in fade-in">
+                          <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                          <div className="leading-tight space-y-0.5">
+                            <strong className="text-amber-900 font-bold block text-xs">
+                              ⚠️ Warning: 3D AR Button is Not Enabled
+                            </strong>
+                            <span className="text-[11px] text-amber-800 block">
+                              3D model is attached, but the checkbox above is unchecked. The 3D AR view button will <strong>NOT appear</strong> in the product details section. Please select the checkbox if you want customers to view this 3D model.
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="p-2 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs flex items-center gap-2 animate-in fade-in">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
+                          <span className="text-[11px] font-semibold">
+                            ✓ Confirmed: &quot;3D &amp; AR View&quot; button will appear in the product details section.
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-[10px] text-slate-500">
+                      Upload a .glb / .gltf file to enable 360° interactive turntable rotation and live room placement with smartphone AR.
+                    </p>
+                  )}
                 </div>
 
                 {/* 🎛️ Storefront Buttons Controls */}
@@ -1476,16 +1529,65 @@ export default function ManagerProductsPage() {
                     )}
                   </div>
 
-                  {editProductData.model3dUrl && (
-                    <div className="p-2 rounded-lg bg-emerald-50 border border-emerald-300 text-[11px] text-emerald-900 flex items-center gap-1.5 font-medium">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
-                      <span className="truncate">3D Model Linked: {editProductData.model3dUrl}</span>
-                    </div>
-                  )}
+                  {editProductData.model3dUrl ? (
+                    <div className="space-y-2 pt-2 border-t border-slate-200">
+                      <div className="p-2.5 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <Box className="w-4 h-4 text-amber-700 shrink-0" />
+                          <span className="text-xs text-slate-800 font-mono truncate">
+                            {editProductData.model3dUrl}
+                          </span>
+                        </div>
+                        <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 shrink-0">
+                          File Ready
+                        </span>
+                      </div>
 
-                  <p className="text-[10px] text-slate-500">
-                    Enables customers to inspect this exact product in 360° and test it on their room floor using phone AR.
-                  </p>
+                      {/* Checkbox button to display 3D/AR in product details */}
+                      <label className="flex items-start gap-2.5 p-3 rounded-xl bg-white border border-slate-300 hover:border-amber-600 transition-colors cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={Boolean(editProductData.showArBtn)}
+                          onChange={(e) => setEditProductData({ ...editProductData, showArBtn: e.target.checked })}
+                          className="rounded accent-amber-600 w-4 h-4 mt-0.5 cursor-pointer shrink-0"
+                        />
+                        <div className="space-y-0.5">
+                          <span className="text-xs font-bold text-slate-900 block">
+                            Show &quot;3D &amp; AR View (360°)&quot; Button in Product Details
+                          </span>
+                          <span className="text-[11px] text-slate-600 block leading-tight">
+                            Check this box to enable the 3D studio, 360° interactive view, and phone AR placement button on the product details page.
+                          </span>
+                        </div>
+                      </label>
+
+                      {/* Warning when 3D model is attached but checkbox is NOT selected */}
+                      {!editProductData.showArBtn ? (
+                        <div className="p-2.5 rounded-xl bg-amber-100/80 border border-amber-400 text-amber-950 text-xs flex items-start gap-2.5 animate-in fade-in">
+                          <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                          <div className="leading-tight space-y-0.5">
+                            <strong className="text-amber-900 font-bold block text-xs">
+                              ⚠️ Warning: 3D AR Button is Not Enabled
+                            </strong>
+                            <span className="text-[11px] text-amber-800 block">
+                              3D model is attached, but the checkbox above is unchecked. The 3D AR view button will <strong>NOT appear</strong> in the product details section. Please select the checkbox if you want customers to view this 3D model.
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="p-2 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs flex items-center gap-2 animate-in fade-in">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
+                          <span className="text-[11px] font-semibold">
+                            ✓ Confirmed: &quot;3D &amp; AR View&quot; button will appear in the product details section.
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-[10px] text-slate-500">
+                      Upload a .glb / .gltf file to enable 360° interactive turntable rotation and live room placement with smartphone AR.
+                    </p>
+                  )}
                 </div>
 
                 {/* 🎛️ Storefront Buttons Controls */}

@@ -44,6 +44,7 @@ export default function ProductDetailView({ product, relatedProducts = [] }) {
 
   const [activeImage, setActiveImage] = useState(images[0]);
   const [viewMode, setViewMode] = useState("photo"); // "photo" | "3d"
+  const hasArView = Boolean(product.model3dUrl && (product.showArBtn === true || product.showArBtn === "true" || product.showArBtn === 1));
   const [selectedFinish, setSelectedFinish] = useState(product.finishType || "Natural Honey Teak");
   const { addToCart, isInCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
@@ -165,6 +166,7 @@ export default function ProductDetailView({ product, relatedProducts = [] }) {
         {/* ============================================================== */}
         <div className="lg:col-span-5 space-y-4 lg:sticky lg:top-24">
           {/* View Mode Switcher: Photo Gallery vs 3D & AR View */}
+          {hasArView && (
           <div className="flex items-center justify-between bg-amber-100/70 p-1.5 rounded-2xl border border-amber-200/80 shadow-xs">
             <button
               type="button"
@@ -195,8 +197,9 @@ export default function ProductDetailView({ product, relatedProducts = [] }) {
               </span>
             </button>
           </div>
+          )}
 
-          {viewMode === "3d" ? (
+          {hasArView && viewMode === "3d" ? (
             <div className="space-y-2">
               <Furniture3DViewer product={product} />
               <button
@@ -236,6 +239,7 @@ export default function ProductDetailView({ product, relatedProducts = [] }) {
                 })}
 
                 {/* 3D Model Dedicated Thumbnail Trigger */}
+                {hasArView && (
                 <button
                   type="button"
                   onClick={() => setViewMode("3d")}
@@ -247,6 +251,7 @@ export default function ProductDetailView({ product, relatedProducts = [] }) {
                     3D • AR
                   </span>
                 </button>
+                )}
               </div>
 
               {/* Main High-Resolution Preview Image with Hover-Zoom */}
@@ -300,6 +305,7 @@ export default function ProductDetailView({ product, relatedProducts = [] }) {
                   </div>
 
                   {/* Quick 3D View Overlay Pill */}
+                  {hasArView && (
                   <button
                     type="button"
                     onClick={() => setViewMode("3d")}
@@ -308,6 +314,7 @@ export default function ProductDetailView({ product, relatedProducts = [] }) {
                     <Box className="w-3.5 h-3.5 text-amber-400" />
                     <span>View in 3D (360°) & AR</span>
                   </button>
+                  )}
 
                   {/* Hover Lens Hint */}
                   {!isZooming && (
