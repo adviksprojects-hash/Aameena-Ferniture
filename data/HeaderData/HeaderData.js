@@ -3,6 +3,7 @@ export const navLinks = [
     { id: 2, title: 'Products', url: '/products' },
     { id: 3, title: 'Services', url: '/services' },
     { id: 4, title: 'Pricing', url: '/pricing' },
+    { id: 10, title: 'Blog', url: '/blog' },
     { id: 5, title: 'Orders', url: '/orders' },
     { id: 6, title: 'About Us', url: '/about' },
     { id: 7, title: 'Contact', url: '/contact' },

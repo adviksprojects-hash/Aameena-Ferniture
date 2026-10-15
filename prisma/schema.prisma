@@ -894,3 +894,37 @@ model AutomationExecutionLog {
   @@index([executedAt])
 }
 
+
+
+// ==========================================
+// BLOG & SEO CONTENT MANAGEMENT
+// ==========================================
+
+model BlogPost {
+  id                String    @id @default(dbgenerated("gen_random_uuid()"))
+  title             String
+  slug              String    @unique
+  excerpt           String
+  content           String    @db.Text
+  coverImage        String?
+  category          String    @default("Woodcraft & Design")
+  tags              String[]  @default([])
+  authorName        String    @default("Aameena Furniture Artisans")
+  authorRole        String    @default("Master Craftsman")
+  readTimeMinutes   Int       @default(4)
+  isFeatured        Boolean   @default(false)
+  isPublished       Boolean   @default(true)
+  publishedAt       DateTime  @default(now())
+  seoTitle          String?
+  seoDesc           String?
+  seoKeywords       String?
+  relatedProductIds String[]  @default([])
+  viewsCount        Int       @default(0)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @default(now()) @updatedAt
+
+  @@index([slug])
+  @@index([category])
+  @@index([isPublished])
+  @@index([isFeatured])
+}

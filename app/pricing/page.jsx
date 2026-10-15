@@ -397,7 +397,7 @@ export default function PricingPage() {
                             : "bg-stone-100 dark:bg-stone-800 text-slate-700 dark:text-neutral-400 border border-stone-200 dark:border-stone-700"
                         }`}
                       >
-                        {spec.badge}
+                        {categoryModel.badge || spec.badge}
                       </span>
 
                       <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-neutral-500">
@@ -406,11 +406,11 @@ export default function PricingPage() {
                     </div>
 
                     <h4 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-serif tracking-tight">
-                      {spec.name}
+                      {categoryModel.name || spec.name}
                     </h4>
 
                     <p className="text-xs text-slate-600 dark:text-stone-300 mt-1.5 mb-6 min-h-[36px] leading-relaxed">
-                      {spec.subtitle}
+                      {categoryModel.subtitle || spec.subtitle}
                     </p>
 
                     {/* Price Card Box */}

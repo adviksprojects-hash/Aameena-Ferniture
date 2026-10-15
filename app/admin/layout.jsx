@@ -15,6 +15,7 @@ import {
   Settings, 
   ArrowLeft,
   DollarSign,
+  BookOpen,
   Star,
   ExternalLink,
   Menu,
@@ -38,6 +39,7 @@ export default function AdminLayout({ children }) {
     { title: "Order Management", url: "/admin/orders", icon: ShoppingBag },
     { title: "Service Management", url: "/admin/services", icon: Settings },
     { title: "Pricing & PDF Catalog", url: "/admin/pricing", icon: DollarSign },
+    { title: "Blog & SEO Articles", url: "/admin/blogs", icon: BookOpen },
     { title: "Customer Reviews", url: "/admin/reviews", icon: Star },
     { title: "Manager Management", url: "/admin/managers", icon: UserCheck },
     { title: "Employee Management", url: "/admin/employees", icon: Users },
@@ -47,7 +49,7 @@ export default function AdminLayout({ children }) {
 
   return (
     <RoleGuard requiredRole="ADMIN">
-      <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col md:flex-row">
+      <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col md:flex-row admin-layout-shell">
         {/* 1. Desktop Sidebar (Sticky on md and above) */}
       <aside className="hidden md:flex md:w-64 bg-slate-950 border-r border-slate-800 p-6 flex-col justify-between shrink-0 space-y-6 md:sticky md:top-0 md:h-screen md:overflow-y-auto">
         <div className="space-y-6">
@@ -185,7 +187,7 @@ export default function AdminLayout({ children }) {
       {/* 3. Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top Header Bar with Mobile Menu Toggle */}
-        <header className="h-14 sm:h-16 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 px-4 sm:px-6 flex items-center justify-between shrink-0">
+        <header className="h-14 sm:h-16 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 px-4 sm:px-6 flex items-center justify-between shrink-0 admin-header">
           <div className="flex items-center gap-3">
             {/* Mobile Menu Toggle Button */}
             <button

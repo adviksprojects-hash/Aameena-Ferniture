@@ -39,6 +39,7 @@ export default function Footer() {
               <li><Link href="/products" className="hover:text-amber-400 transition-colors">Furniture Catalog</Link></li>
               <li><Link href="/services" className="hover:text-amber-400 transition-colors">Custom Crafting Services</Link></li>
               <li><Link href="/pricing" className="hover:text-amber-400 transition-colors">Packages & Estimator</Link></li>
+              <li><Link href="/blog" className="hover:text-amber-400 transition-colors">Woodcraft Blog & Guides</Link></li>
               <li><Link href="/contact" className="hover:text-amber-400 transition-colors">Book Showroom Visit</Link></li>
               <li><Link href="/ai-reviews" className="hover:text-amber-400 transition-colors">Showroom Reviews & Ratings</Link></li>
               <li><Link href="/careers" className="hover:text-amber-400 transition-colors">Join Our Team</Link></li>
