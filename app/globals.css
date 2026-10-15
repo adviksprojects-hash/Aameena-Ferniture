@@ -1,260 +1,456 @@
-/* 3. WARM ROYAL TEAK THEME (Signature Sagwan & Amber Luxury)
-   User-side & Admin/Manager portals harmonized with warm wood studio aesthetics
-   =================================================================== */
-[data-theme="warm"],
-[data-theme="teak"] {
-  color-scheme: light;
-}
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-[data-theme="warm"] body,
-[data-theme="teak"] body {
-  background-color: #faf7f2 !important;
-  color: #2d1808 !important;
-}
+@custom-variant dark (&:is(.dark *));
 
-[data-theme="warm"] .bg-white,
-[data-theme="teak"] .bg-white {
-  background-color: #ffffff !important;
-  color: #2d1808 !important;
-}
-
-[data-theme="warm"] .text-slate-900,
-[data-theme="warm"] .text-slate-800,
-[data-theme="teak"] .text-slate-900,
-[data-theme="teak"] .text-slate-800 {
-  color: #261505 !important;
-}
-
-[data-theme="warm"] .text-slate-700,
-[data-theme="warm"] .text-slate-600,
-[data-theme="teak"] .text-slate-700,
-[data-theme="teak"] .text-slate-600 {
-  color: #4a2810 !important;
-}
-
-[data-theme="warm"] .text-slate-500,
-[data-theme="warm"] .text-slate-400,
-[data-theme="teak"] .text-slate-500,
-[data-theme="teak"] .text-slate-400 {
-  color: #6b4020 !important;
-}
-
-[data-theme="warm"] .text-amber-950,
-[data-theme="teak"] .text-amber-950 {
-  color: #451a03 !important;
-}
-
-[data-theme="warm"] .text-amber-900,
-[data-theme="teak"] .text-amber-900 {
-  color: #78350f !important;
-}
-
-[data-theme="warm"] .text-amber-800,
-[data-theme="teak"] .text-amber-800 {
-  color: #92400e !important;
-}
-
-[data-theme="warm"] .bg-amber-50,
-[data-theme="warm"] .bg-amber-50\/70,
-[data-theme="warm"] .bg-amber-50\/80,
-[data-theme="teak"] .bg-amber-50,
-[data-theme="teak"] .bg-amber-50\/70,
-[data-theme="teak"] .bg-amber-50\/80 {
-  background-color: #fef3c735 !important;
-}
-
-[data-theme="warm"] .border-amber-200,
-[data-theme="warm"] .border-amber-200\/80,
-[data-theme="teak"] .border-amber-200,
-[data-theme="teak"] .border-amber-200\/80 {
-  border-color: #fde68a !important;
-}
-
-[data-theme="warm"] input:not([type="checkbox"]):not([type="radio"]),
-[data-theme="warm"] textarea,
-[data-theme="warm"] select,
-[data-theme="teak"] input:not([type="checkbox"]):not([type="radio"]),
-[data-theme="teak"] textarea,
-[data-theme="teak"] select {
-  background-color: #ffffff !important;
-  color: #2d1808 !important;
-  border-color: #fcd34d !important;
-}
-
-[data-theme="warm"] input::placeholder,
-[data-theme="warm"] textarea::placeholder,
-[data-theme="teak"] input::placeholder,
-[data-theme="teak"] textarea::placeholder {
-  color: #b49377 !important;
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  
+  /* 50% reduced border-radius for refined architectural luxury */
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.7);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.2);
+  --radius-2xl: calc(var(--radius) * 1.5);
+  --radius-3xl: calc(var(--radius) * 1.8);
+  --radius-4xl: calc(var(--radius) * 2.2);
 }
 
 /* ===================================================================
-   Warm & Teak Mode: Admin & Manager Portals (Same as User Storefront)
+   🎨 MULTI-THEME DESIGN SYSTEM (Warm Royal Teak, Crisp Light, Obsidian Dark)
    =================================================================== */
 
-/* Workspace Shell & Main Area */
-[data-theme="warm"] .admin-layout-shell,
-[data-theme="teak"] .admin-layout-shell,
-[data-theme="warm"] .manager-layout-shell,
-[data-theme="teak"] .manager-layout-shell,
-[data-theme="warm"] .admin-layout-shell main,
-[data-theme="teak"] .admin-layout-shell main,
-[data-theme="warm"] .manager-layout-shell main,
-[data-theme="teak"] .manager-layout-shell main {
-  background-color: #faf7f2 !important;
-  color: #2d1808 !important;
+/* 1. WARM ROYAL TEAK (Current Signature Default) */
+:root, [data-theme="warm"], [data-theme="teak"] {
+  --background: oklch(0.985 0.012 75);
+  --foreground: oklch(0.18 0.03 55);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.03 55);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.03 55);
+  --primary: oklch(0.35 0.1 50);
+  --primary-foreground: oklch(0.985 0.01 75);
+  --secondary: oklch(0.95 0.02 75);
+  --secondary-foreground: oklch(0.25 0.05 50);
+  --muted: oklch(0.95 0.01 75);
+  --muted-foreground: oklch(0.5 0.03 55);
+  --accent: oklch(0.94 0.03 75);
+  --accent-foreground: oklch(0.25 0.05 50);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.88 0.02 75);
+  --input: oklch(0.88 0.02 75);
+  --ring: oklch(0.65 0.15 65);
+  --radius: 0.5rem; /* Cut by 50% for tailored luxury */
 }
 
-/* Sidebar: Solid CP Sagwan Teak Wood with Gold Accents */
-[data-theme="warm"] aside,
-[data-theme="teak"] aside,
-[data-theme="warm"] aside.admin-sidebar,
-[data-theme="teak"] aside.admin-sidebar,
-[data-theme="warm"] aside.manager-sidebar,
-[data-theme="teak"] aside.manager-sidebar,
-[data-theme="warm"] aside.bg-slate-950,
-[data-theme="teak"] aside.bg-slate-950,
-[data-theme="warm"] aside.bg-amber-950,
-[data-theme="teak"] aside.bg-amber-950 {
-  background: linear-gradient(180deg, #24140b 0%, #2f190e 50%, #24140b 100%) !important;
-  border-right: 1px solid rgba(217, 119, 6, 0.35) !important;
-  color: #fef3c7 !important;
+/* 2. CRISP STUDIO LIGHT (Clean Minimalist White & Pearl) */
+[data-theme="light"] {
+  --background: oklch(0.985 0.005 240);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.96 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.45 0 0);
+  --accent: oklch(0.95 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.9 0 0);
+  --input: oklch(0.9 0 0);
+  --ring: oklch(0.4 0 0);
+  --radius: 0.5rem;
 }
 
-[data-theme="warm"] aside nav a:not([class*="bg-amber-500"]),
-[data-theme="teak"] aside nav a:not([class*="bg-amber-500"]) {
+/* 3. OBSIDIAN MIDNIGHT (Deep Dark Luxury Teak & Gold) */
+[data-theme="dark"], .dark {
+  --background: oklch(0.12 0.015 50);
+  --foreground: oklch(0.98 0.01 75);
+  --card: oklch(0.17 0.02 50);
+  --card-foreground: oklch(0.98 0.01 75);
+  --popover: oklch(0.17 0.02 50);
+  --popover-foreground: oklch(0.98 0.01 75);
+  --primary: oklch(0.75 0.15 75);
+  --primary-foreground: oklch(0.12 0.015 50);
+  --secondary: oklch(0.24 0.025 50);
+  --secondary-foreground: oklch(0.98 0.01 75);
+  --muted: oklch(0.22 0.02 50);
+  --muted-foreground: oklch(0.7 0.02 75);
+  --accent: oklch(0.25 0.03 50);
+  --accent-foreground: oklch(0.98 0.01 75);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(0.3 0.03 50);
+  --input: oklch(0.28 0.025 50);
+  --ring: oklch(0.75 0.15 75);
+  --radius: 0.5rem;
+}
+
+/* 4. ROYAL HERITAGE (Imperial Forest Emerald & Brushed Champagne Brass) */
+[data-theme="royal"], [data-theme="emerald"] {
+  --background: oklch(0.14 0.04 155);
+  --foreground: oklch(0.98 0.015 150);
+  --card: oklch(0.18 0.045 155);
+  --card-foreground: oklch(0.98 0.015 150);
+  --popover: oklch(0.18 0.045 155);
+  --popover-foreground: oklch(0.98 0.015 150);
+  --primary: oklch(0.78 0.16 85);
+  --primary-foreground: oklch(0.12 0.03 155);
+  --secondary: oklch(0.24 0.05 155);
+  --secondary-foreground: oklch(0.98 0.015 150);
+  --muted: oklch(0.22 0.035 155);
+  --muted-foreground: oklch(0.75 0.03 150);
+  --accent: oklch(0.28 0.06 155);
+  --accent-foreground: oklch(0.98 0.015 150);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(0.32 0.06 155);
+  --input: oklch(0.22 0.04 155);
+  --ring: oklch(0.78 0.16 85);
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+  html {
+    @apply font-sans;
+    scroll-behavior: smooth;
+  }
+}
+
+/* ===================================================================
+   🌓 AUTOMATIC THEME ADAPTATION (Dark, Light, Warm)
+   =================================================================== */
+
+/* 1. OBSIDIAN MIDNIGHT DARK THEME */
+[data-theme="dark"], .dark {
+  color-scheme: dark;
+}
+
+[data-theme="dark"] body,
+.dark:not([data-theme="royal"]):not([data-theme="emerald"]) body {
+  background-color: oklch(0.12 0.015 50) !important;
+  color: oklch(0.98 0.01 75) !important;
+}
+
+[data-theme="dark"] .bg-white,
+.dark .bg-white {
+  background-color: oklch(0.17 0.02 50) !important;
+  color: oklch(0.98 0.01 75) !important;
+}
+
+[data-theme="dark"] .bg-white\/95,
+[data-theme="dark"] .bg-white\/90,
+.dark .bg-white\/95,
+.dark .bg-white\/90 {
+  background-color: oklch(0.18 0.02 50 / 0.95) !important;
+  color: oklch(0.98 0.01 75) !important;
+}
+
+/* Light background containers convert to rich dark espresso cards */
+[data-theme="dark"] .bg-amber-50\/20,
+[data-theme="dark"] .bg-amber-50\/30,
+[data-theme="dark"] .bg-amber-50\/50,
+[data-theme="dark"] .bg-amber-50\/60,
+[data-theme="dark"] .bg-amber-50\/70,
+[data-theme="dark"] .bg-amber-50\/80,
+[data-theme="dark"] .bg-amber-50,
+.dark .bg-amber-50 {
+  background-color: oklch(0.20 0.025 50) !important;
+}
+
+[data-theme="dark"] .bg-amber-100,
+[data-theme="dark"] .bg-amber-100\/80,
+[data-theme="dark"] .bg-amber-200,
+[data-theme="dark"] .bg-amber-200\/80,
+.dark .bg-amber-100,
+.dark .bg-amber-200 {
+  background-color: oklch(0.24 0.035 50) !important;
   color: #fde68a !important;
+  border-color: oklch(0.35 0.05 55) !important;
 }
 
-[data-theme="warm"] aside nav a:not([class*="bg-amber-500"]):hover,
-[data-theme="teak"] aside nav a:not([class*="bg-amber-500"]):hover {
-  color: #ffffff !important;
-  background-color: rgba(180, 83, 9, 0.35) !important;
+[data-theme="dark"] .bg-stone-50,
+[data-theme="dark"] .bg-slate-50,
+[data-theme="dark"] .bg-stone-100,
+[data-theme="dark"] .bg-slate-100,
+.dark .bg-stone-50,
+.dark .bg-slate-50 {
+  background-color: oklch(0.15 0.015 50) !important;
 }
 
-[data-theme="warm"] aside p.tracking-widest,
-[data-theme="teak"] aside p.tracking-widest {
-  color: #facc15 !important;
+/* Crisp, high-contrast dark mode text colors */
+[data-theme="dark"] .text-slate-900,
+[data-theme="dark"] .text-slate-800,
+.dark .text-slate-900,
+.dark .text-slate-800 {
+  color: oklch(0.98 0.01 75) !important;
 }
 
-/* Header: Matching Solid Teak Bar */
-[data-theme="warm"] header.admin-header,
-[data-theme="teak"] header.admin-header,
-[data-theme="warm"] header.manager-header,
-[data-theme="teak"] header.manager-header,
-[data-theme="warm"] header.bg-slate-950\/90,
-[data-theme="teak"] header.bg-slate-950\/90,
-[data-theme="warm"] header.bg-amber-950,
-[data-theme="teak"] header.bg-amber-950 {
-  background-color: #24140b !important;
-  border-bottom: 1px solid rgba(217, 119, 6, 0.35) !important;
-  color: #fef3c7 !important;
+[data-theme="dark"] .text-slate-700,
+[data-theme="dark"] .text-slate-600,
+.dark .text-slate-700,
+.dark .text-slate-600 {
+  color: oklch(0.85 0.015 75) !important;
 }
 
-/* Cards & Content Surfaces inside Admin & Manager */
-[data-theme="warm"] .admin-layout-shell .bg-slate-900,
-[data-theme="teak"] .admin-layout-shell .bg-slate-900,
-[data-theme="warm"] .admin-layout-shell .bg-slate-950,
-[data-theme="teak"] .admin-layout-shell .bg-slate-950,
-[data-theme="warm"] .manager-layout-shell .bg-amber-950,
-[data-theme="teak"] .manager-layout-shell .bg-amber-950,
-[data-theme="warm"] .manager-layout-shell .bg-stone-900,
-[data-theme="teak"] .manager-layout-shell .bg-stone-900,
-[data-theme="warm"] .manager-layout-shell .bg-stone-950,
-[data-theme="teak"] .manager-layout-shell .bg-stone-950 {
+[data-theme="dark"] .text-slate-500,
+[data-theme="dark"] .text-slate-400,
+.dark .text-slate-500,
+.dark .text-slate-400 {
+  color: oklch(0.70 0.02 75) !important;
+}
+
+/* Transform dark brown text to luminous honey gold on dark backgrounds */
+[data-theme="dark"] .text-amber-950,
+[data-theme="dark"] .text-amber-900,
+.dark .text-amber-950,
+.dark .text-amber-900 {
+  color: #fef08a !important; /* Luminous Warm Honey Gold */
+}
+
+[data-theme="dark"] .text-amber-800,
+[data-theme="dark"] .text-amber-700,
+.dark .text-amber-800,
+.dark .text-amber-700 {
+  color: #fde047 !important; /* Radiant Amber Yellow */
+}
+
+[data-theme="dark"] .text-stone-900,
+[data-theme="dark"] .text-stone-800,
+.dark .text-stone-900,
+.dark .text-stone-800 {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .text-stone-700,
+[data-theme="dark"] .text-stone-600,
+.dark .text-stone-700,
+.dark .text-stone-600 {
+  color: #e2e8f0 !important;
+}
+
+/* Dark mode architectural borders */
+[data-theme="dark"] .border-amber-200,
+[data-theme="dark"] .border-amber-200\/60,
+[data-theme="dark"] .border-amber-200\/70,
+[data-theme="dark"] .border-amber-200\/80,
+[data-theme="dark"] .border-amber-200\/90,
+[data-theme="dark"] .border-amber-100,
+[data-theme="dark"] .border-slate-200,
+[data-theme="dark"] .border-slate-100,
+.dark .border-amber-200,
+.dark .border-slate-200 {
+  border-color: oklch(0.28 0.03 50) !important;
+}
+
+/* Dark mode inputs and form controls */
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]),
+[data-theme="dark"] textarea,
+[data-theme="dark"] select,
+.dark input:not([type="checkbox"]):not([type="radio"]),
+.dark textarea,
+.dark select {
+  background-color: oklch(0.14 0.015 50) !important;
+  color: #f8fafc !important;
+  border-color: oklch(0.30 0.03 50) !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder,
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: oklch(0.60 0.02 75) !important;
+}
+
+/* 2. CRISP STUDIO LIGHT THEME */
+[data-theme="light"] {
+  color-scheme: light;
+}
+
+[data-theme="light"] body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .bg-white {
   background-color: #ffffff !important;
-  border-color: #fde68a !important;
-  color: #2d1808 !important;
-  box-shadow: 0 4px 20px -2px rgba(180, 83, 9, 0.08) !important;
+  color: #0f172a !important;
 }
 
-/* Sub-panels, stat boxes, inner item containers */
-[data-theme="warm"] .admin-layout-shell .bg-slate-800,
-[data-theme="teak"] .admin-layout-shell .bg-slate-800,
-[data-theme="warm"] .manager-layout-shell .bg-amber-900\/60,
-[data-theme="teak"] .manager-layout-shell .bg-amber-900\/60,
-[data-theme="warm"] .manager-layout-shell .bg-amber-900\/40,
-[data-theme="teak"] .manager-layout-shell .bg-amber-900\/40,
-[data-theme="warm"] .manager-layout-shell .bg-stone-800,
-[data-theme="teak"] .manager-layout-shell .bg-stone-800 {
-  background-color: #fffbeb !important;
-  border-color: #fef08a !important;
+[data-theme="light"] .text-slate-900,
+[data-theme="light"] .text-slate-800 {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .text-slate-700,
+[data-theme="light"] .text-slate-600 {
+  color: #334155 !important;
+}
+
+[data-theme="light"] .text-slate-500,
+[data-theme="light"] .text-slate-400 {
+  color: #475569 !important; /* Enhanced readability, never washed out */
+}
+
+[data-theme="light"] .text-amber-950 {
   color: #451a03 !important;
 }
 
-/* Borders */
-[data-theme="warm"] .admin-layout-shell .border-slate-800,
-[data-theme="teak"] .admin-layout-shell .border-slate-800,
-[data-theme="warm"] .admin-layout-shell .border-slate-700,
-[data-theme="teak"] .admin-layout-shell .border-slate-700,
-[data-theme="warm"] .manager-layout-shell .border-amber-900,
-[data-theme="teak"] .manager-layout-shell .border-amber-900,
-[data-theme="warm"] .manager-layout-shell .border-amber-900\/60,
-[data-theme="teak"] .manager-layout-shell .border-amber-900\/60,
-[data-theme="warm"] .manager-layout-shell .border-amber-900\/40,
-[data-theme="teak"] .manager-layout-shell .border-amber-900\/40,
-[data-theme="warm"] .manager-layout-shell .border-stone-800,
-[data-theme="teak"] .manager-layout-shell .border-stone-800 {
-  border-color: #fde68a !important;
-}
-
-/* Text Hierarchy in Main Content */
-[data-theme="warm"] main h1.text-white,
-[data-theme="teak"] main h1.text-white,
-[data-theme="warm"] main h2.text-white,
-[data-theme="teak"] main h2.text-white,
-[data-theme="warm"] main h3.text-white,
-[data-theme="teak"] main h3.text-white,
-[data-theme="warm"] main h4.text-white,
-[data-theme="teak"] main h4.text-white,
-[data-theme="warm"] main p.text-white,
-[data-theme="teak"] main p.text-white,
-[data-theme="warm"] main span.text-white,
-[data-theme="teak"] main span.text-white,
-[data-theme="warm"] main td.text-white,
-[data-theme="teak"] main td.text-white,
-[data-theme="warm"] main div.text-white,
-[data-theme="teak"] main div.text-white {
-  color: #261505 !important;
-}
-
-[data-theme="warm"] main .text-slate-400,
-[data-theme="teak"] main .text-slate-400,
-[data-theme="warm"] main .text-amber-200,
-[data-theme="teak"] main .text-amber-200,
-[data-theme="warm"] main .text-amber-300,
-[data-theme="teak"] main .text-amber-300 {
+[data-theme="light"] .text-amber-900 {
   color: #78350f !important;
 }
 
-/* Tables inside Admin & Manager */
-[data-theme="warm"] table thead,
-[data-theme="teak"] table thead,
-[data-theme="warm"] table thead tr,
-[data-theme="teak"] table thead tr {
-  background-color: #fef3c7 !important;
-  border-bottom: 1.5px solid #fde68a !important;
+[data-theme="light"] .text-amber-800 {
+  color: #92400e !important;
 }
 
-[data-theme="warm"] table thead th,
-[data-theme="teak"] table thead th {
-  color: #78350f !important;
+[data-theme="light"] .bg-amber-50,
+[data-theme="light"] .bg-amber-50\/50,
+[data-theme="light"] .bg-amber-50\/70,
+[data-theme="light"] .bg-amber-50\/80 {
+  background-color: #fefce8 !important;
+}
+
+[data-theme="light"] .bg-amber-100,
+[data-theme="light"] .bg-amber-100\/80 {
+  background-color: #fef9c3 !important;
+}
+
+[data-theme="light"] .border-amber-200,
+[data-theme="light"] .border-amber-200\/80,
+[data-theme="light"] .border-amber-100 {
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]),
+[data-theme="light"] textarea,
+[data-theme="light"] select {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Light Mode: Admin & Manager Portal Integration */
+[data-theme="light"] aside,
+[data-theme="light"] aside.bg-slate-950,
+[data-theme="light"] aside.bg-amber-950 {
+  background-color: #ffffff !important;
+  border-right-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .bg-slate-900,
+[data-theme="light"] .bg-stone-900 {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .bg-slate-950,
+[data-theme="light"] .bg-amber-950,
+[data-theme="light"] .bg-stone-950 {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .bg-slate-800,
+[data-theme="light"] .bg-stone-800 {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .border-slate-800,
+[data-theme="light"] .border-slate-700,
+[data-theme="light"] .border-amber-900,
+[data-theme="light"] .border-amber-900\/60,
+[data-theme="light"] .border-amber-900\/40,
+[data-theme="light"] .border-stone-800 {
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] header.bg-slate-950\/90,
+[data-theme="light"] header.bg-amber-950 {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+  border-bottom-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] aside nav a:not([class*="bg-amber-500"]) {
+  color: #475569 !important;
+}
+[data-theme="light"] aside nav a:not([class*="bg-amber-500"]):hover {
+  color: #0f172a !important;
+  background-color: #f1f5f9 !important;
+}
+
+[data-theme="light"] h1.text-white,
+[data-theme="light"] h2.text-white,
+[data-theme="light"] h3.text-white,
+[data-theme="light"] p.text-white,
+[data-theme="light"] span.text-white,
+[data-theme="light"] td.text-white,
+[data-theme="light"] div.text-white {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] table thead,
+[data-theme="light"] table thead tr {
+  background-color: #f8fafc !important;
+  border-bottom: 1.5px solid #e2e8f0 !important;
+}
+[data-theme="light"] table thead th {
+  color: #334155 !important;
   font-weight: 700 !important;
 }
-
-[data-theme="warm"] table tbody tr,
-[data-theme="teak"] table tbody tr {
-  border-color: #fef3c7 !important;
+[data-theme="light"] table tbody tr {
+  border-color: #f1f5f9 !important;
 }
-
-[data-theme="warm"] table tbody tr:hover,
-[data-theme="teak"] table tbody tr:hover {
-  background-color: #fffbeb !important;
-}
-
-[data-theme="warm"] table tbody td,
-[data-theme="teak"] table tbody td {
-  color: #261505 !important;
+[data-theme="light"] table tbody tr:hover {
+  background-color: #f8fafc !important;
 }
 
 /* 3. WARM ROYAL TEAK THEME */
@@ -323,35 +519,193 @@
   color: #b49377 !important;
 }
 
-/* Warm Mode: Admin Portal Integration */
-[data-theme="warm"] aside.bg-slate-950 {
-  background-color: #17110b !important;
-  border-right-color: rgba(180, 83, 9, 0.35) !important;
+/* Warm & Teak Mode: Admin & Manager Portals (Strictly Scoped to Admin/Manager Shells) */
+[data-theme="warm"] .admin-layout-shell,
+[data-theme="teak"] .admin-layout-shell,
+[data-theme="warm"] .manager-layout-shell,
+[data-theme="teak"] .manager-layout-shell,
+[data-theme="warm"] .admin-layout-shell main,
+[data-theme="teak"] .admin-layout-shell main,
+[data-theme="warm"] .manager-layout-shell main,
+[data-theme="teak"] .manager-layout-shell main {
+  background-color: #faf7f2 !important;
+  color: #2d1808 !important;
 }
 
-[data-theme="warm"] header.bg-slate-950\/90 {
-  background-color: rgba(23, 17, 11, 0.95) !important;
-  border-bottom-color: rgba(180, 83, 9, 0.35) !important;
+/* Sidebars strictly scoped to Admin & Manager portals */
+[data-theme="warm"] aside.admin-sidebar,
+[data-theme="teak"] aside.admin-sidebar,
+[data-theme="warm"] aside.manager-sidebar,
+[data-theme="teak"] aside.manager-sidebar,
+[data-theme="warm"] .admin-layout-shell aside,
+[data-theme="teak"] .admin-layout-shell aside,
+[data-theme="warm"] .manager-layout-shell aside,
+[data-theme="teak"] .manager-layout-shell aside {
+  background: linear-gradient(180deg, #24140b 0%, #2f190e 50%, #24140b 100%) !important;
+  border-right: 1px solid rgba(217, 119, 6, 0.35) !important;
+  color: #fef3c7 !important;
 }
 
-[data-theme="warm"] .bg-slate-950 {
-  background-color: #17110b !important;
-  border-color: rgba(180, 83, 9, 0.35) !important;
+[data-theme="warm"] aside.admin-sidebar nav a:not([class*="bg-amber-500"]),
+[data-theme="teak"] aside.admin-sidebar nav a:not([class*="bg-amber-500"]),
+[data-theme="warm"] aside.manager-sidebar nav a:not([class*="bg-amber-500"]),
+[data-theme="teak"] aside.manager-sidebar nav a:not([class*="bg-amber-500"]),
+[data-theme="warm"] .admin-layout-shell aside nav a:not([class*="bg-amber-500"]),
+[data-theme="teak"] .admin-layout-shell aside nav a:not([class*="bg-amber-500"]),
+[data-theme="warm"] .manager-layout-shell aside nav a:not([class*="bg-amber-500"]),
+[data-theme="teak"] .manager-layout-shell aside nav a:not([class*="bg-amber-500"]) {
+  color: #fde68a !important;
 }
 
-[data-theme="warm"] .bg-slate-900 {
-  background-color: #211912 !important;
-  border-color: rgba(180, 83, 9, 0.3) !important;
+[data-theme="warm"] aside.admin-sidebar nav a:not([class*="bg-amber-500"]):hover,
+[data-theme="teak"] aside.admin-sidebar nav a:not([class*="bg-amber-500"]):hover,
+[data-theme="warm"] aside.manager-sidebar nav a:not([class*="bg-amber-500"]):hover,
+[data-theme="teak"] aside.manager-sidebar nav a:not([class*="bg-amber-500"]):hover,
+[data-theme="warm"] .admin-layout-shell aside nav a:not([class*="bg-amber-500"]):hover,
+[data-theme="teak"] .admin-layout-shell aside nav a:not([class*="bg-amber-500"]):hover,
+[data-theme="warm"] .manager-layout-shell aside nav a:not([class*="bg-amber-500"]):hover,
+[data-theme="teak"] .manager-layout-shell aside nav a:not([class*="bg-amber-500"]):hover {
+  color: #ffffff !important;
+  background-color: rgba(180, 83, 9, 0.35) !important;
 }
 
-[data-theme="warm"] .bg-slate-800 {
-  background-color: #2d2118 !important;
-  border-color: rgba(180, 83, 9, 0.35) !important;
+[data-theme="warm"] aside.admin-sidebar p.tracking-widest,
+[data-theme="teak"] aside.admin-sidebar p.tracking-widest,
+[data-theme="warm"] aside.manager-sidebar p.tracking-widest,
+[data-theme="teak"] aside.manager-sidebar p.tracking-widest {
+  color: #facc15 !important;
 }
 
-[data-theme="warm"] .border-slate-800,
-[data-theme="warm"] .border-slate-700 {
-  border-color: rgba(180, 83, 9, 0.35) !important;
+/* Headers strictly scoped to Admin & Manager portals */
+[data-theme="warm"] header.admin-header,
+[data-theme="teak"] header.admin-header,
+[data-theme="warm"] header.manager-header,
+[data-theme="teak"] header.manager-header,
+[data-theme="warm"] .admin-layout-shell header,
+[data-theme="teak"] .admin-layout-shell header,
+[data-theme="warm"] .manager-layout-shell header,
+[data-theme="teak"] .manager-layout-shell header {
+  background-color: #24140b !important;
+  border-bottom: 1px solid rgba(217, 119, 6, 0.35) !important;
+  color: #fef3c7 !important;
+}
+
+/* Cards & Content Surfaces inside Admin & Manager Portals */
+[data-theme="warm"] .admin-layout-shell .bg-slate-900,
+[data-theme="teak"] .admin-layout-shell .bg-slate-900,
+[data-theme="warm"] .admin-layout-shell .bg-slate-950,
+[data-theme="teak"] .admin-layout-shell .bg-slate-950,
+[data-theme="warm"] .manager-layout-shell .bg-amber-950,
+[data-theme="teak"] .manager-layout-shell .bg-amber-950,
+[data-theme="warm"] .manager-layout-shell .bg-stone-900,
+[data-theme="teak"] .manager-layout-shell .bg-stone-900,
+[data-theme="warm"] .manager-layout-shell .bg-stone-950,
+[data-theme="teak"] .manager-layout-shell .bg-stone-950 {
+  background-color: #ffffff !important;
+  border-color: #fde68a !important;
+  color: #2d1808 !important;
+  box-shadow: 0 4px 20px -2px rgba(180, 83, 9, 0.08) !important;
+}
+
+/* Sub-panels, stat boxes, inner item containers */
+[data-theme="warm"] .admin-layout-shell .bg-slate-800,
+[data-theme="teak"] .admin-layout-shell .bg-slate-800,
+[data-theme="warm"] .manager-layout-shell .bg-amber-900\/60,
+[data-theme="teak"] .manager-layout-shell .bg-amber-900\/60,
+[data-theme="warm"] .manager-layout-shell .bg-amber-900\/40,
+[data-theme="teak"] .manager-layout-shell .bg-amber-900\/40,
+[data-theme="warm"] .manager-layout-shell .bg-stone-800,
+[data-theme="teak"] .manager-layout-shell .bg-stone-800 {
+  background-color: #fffbeb !important;
+  border-color: #fef08a !important;
+  color: #451a03 !important;
+}
+
+/* Borders in Admin & Manager */
+[data-theme="warm"] .admin-layout-shell .border-slate-800,
+[data-theme="teak"] .admin-layout-shell .border-slate-800,
+[data-theme="warm"] .admin-layout-shell .border-slate-700,
+[data-theme="teak"] .admin-layout-shell .border-slate-700,
+[data-theme="warm"] .manager-layout-shell .border-amber-900,
+[data-theme="teak"] .manager-layout-shell .border-amber-900,
+[data-theme="warm"] .manager-layout-shell .border-amber-900\/60,
+[data-theme="teak"] .manager-layout-shell .border-amber-900\/60,
+[data-theme="warm"] .manager-layout-shell .border-amber-900\/40,
+[data-theme="teak"] .manager-layout-shell .border-amber-900\/40,
+[data-theme="warm"] .manager-layout-shell .border-stone-800,
+[data-theme="teak"] .manager-layout-shell .border-stone-800 {
+  border-color: #fde68a !important;
+}
+
+/* Text Hierarchy strictly inside Admin & Manager Content */
+[data-theme="warm"] .admin-layout-shell main h1.text-white,
+[data-theme="teak"] .admin-layout-shell main h1.text-white,
+[data-theme="warm"] .admin-layout-shell main h2.text-white,
+[data-theme="teak"] .admin-layout-shell main h2.text-white,
+[data-theme="warm"] .admin-layout-shell main h3.text-white,
+[data-theme="teak"] .admin-layout-shell main h3.text-white,
+[data-theme="warm"] .admin-layout-shell main h4.text-white,
+[data-theme="teak"] .admin-layout-shell main h4.text-white,
+[data-theme="warm"] .manager-layout-shell main h1.text-white,
+[data-theme="teak"] .manager-layout-shell main h1.text-white,
+[data-theme="warm"] .manager-layout-shell main h2.text-white,
+[data-theme="teak"] .manager-layout-shell main h2.text-white,
+[data-theme="warm"] .manager-layout-shell main h3.text-white,
+[data-theme="teak"] .manager-layout-shell main h3.text-white,
+[data-theme="warm"] .manager-layout-shell main h4.text-white,
+[data-theme="teak"] .manager-layout-shell main h4.text-white {
+  color: #261505 !important;
+}
+
+[data-theme="warm"] .admin-layout-shell main .text-slate-400,
+[data-theme="teak"] .admin-layout-shell main .text-slate-400,
+[data-theme="warm"] .manager-layout-shell main .text-amber-200,
+[data-theme="teak"] .manager-layout-shell main .text-amber-200,
+[data-theme="warm"] .manager-layout-shell main .text-slate-400,
+[data-theme="teak"] .manager-layout-shell main .text-slate-400 {
+  color: #78350f !important;
+}
+
+/* Tables strictly inside Admin & Manager */
+[data-theme="warm"] .admin-layout-shell table thead,
+[data-theme="teak"] .admin-layout-shell table thead,
+[data-theme="warm"] .manager-layout-shell table thead,
+[data-theme="teak"] .manager-layout-shell table thead,
+[data-theme="warm"] .admin-layout-shell table thead tr,
+[data-theme="teak"] .admin-layout-shell table thead tr,
+[data-theme="warm"] .manager-layout-shell table thead tr,
+[data-theme="teak"] .manager-layout-shell table thead tr {
+  background-color: #fef3c7 !important;
+  border-bottom: 1.5px solid #fde68a !important;
+}
+
+[data-theme="warm"] .admin-layout-shell table thead th,
+[data-theme="teak"] .admin-layout-shell table thead th,
+[data-theme="warm"] .manager-layout-shell table thead th,
+[data-theme="teak"] .manager-layout-shell table thead th {
+  color: #78350f !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="warm"] .admin-layout-shell table tbody tr,
+[data-theme="teak"] .admin-layout-shell table tbody tr,
+[data-theme="warm"] .manager-layout-shell table tbody tr,
+[data-theme="teak"] .manager-layout-shell table tbody tr {
+  border-color: #fef3c7 !important;
+}
+
+[data-theme="warm"] .admin-layout-shell table tbody tr:hover,
+[data-theme="teak"] .admin-layout-shell table tbody tr:hover,
+[data-theme="warm"] .manager-layout-shell table tbody tr:hover,
+[data-theme="teak"] .manager-layout-shell table tbody tr:hover {
+  background-color: #fffbeb !important;
+}
+
+[data-theme="warm"] .admin-layout-shell table tbody td,
+[data-theme="teak"] .admin-layout-shell table tbody td,
+[data-theme="warm"] .manager-layout-shell table tbody td,
+[data-theme="teak"] .manager-layout-shell table tbody td {
+  color: #261505 !important;
 }
 
 /* ===================================================================

@@ -42,10 +42,10 @@ const BLOG_CATEGORIES = [
 ];
 
 const IMAGE_PRESETS = [
-  { label: "Living Room Teak", url: "/images/categories/living.jpg" },
-  { label: "Master Bedroom", url: "/images/categories/bedroom.jpg" },
-  { label: "Dining Suite", url: "/images/categories/dining.jpg" },
-  { label: "Office & Study", url: "/images/categories/office.jpg" },
+  { label: "Living Room Teak", url: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1200&q=80" },
+  { label: "Master Bedroom", url: "https://images.unsplash.com/photo-1540518614846-7ede433c4550?auto=format&fit=crop&w=1200&q=80" },
+  { label: "Dining Suite", url: "https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=1200&q=80" },
+  { label: "Office & Study", url: "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=1200&q=80" },
 ];
 
 export default function BlogManagementView({ userRole = "ADMIN" }) {
