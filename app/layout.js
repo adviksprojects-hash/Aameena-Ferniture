@@ -22,7 +22,7 @@ export default function RootLayout({ children }) {
     <ClerkProvider>
       <html
         lang="en"
-        data-theme="warm"
+        data-theme="light"
         data-scroll-behavior="smooth"
         suppressHydrationWarning
         className={inter.className}
@@ -34,8 +34,8 @@ export default function RootLayout({ children }) {
             dangerouslySetInnerHTML={{
               __html: `
                 try {
-                  const t = localStorage.getItem('aameena_theme') || 'warm';
-                  const n = t === 'emerald' ? 'royal' : t === 'teak' ? 'warm' : t;
+                  const t = localStorage.getItem('aameena_theme') || 'light';
+                  const n = (t === 'teak' || t === 'warm') ? 'light' : t === 'emerald' ? 'royal' : t;
                   document.documentElement.setAttribute('data-theme', n);
                   if (n === 'dark') document.documentElement.classList.add('dark');
                 } catch(e) {}

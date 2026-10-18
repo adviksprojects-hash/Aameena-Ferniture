@@ -35,45 +35,23 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
   
-  /* 50% reduced border-radius for refined architectural luxury */
-  --radius-sm: calc(var(--radius) * 0.5);
-  --radius-md: calc(var(--radius) * 0.7);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.2);
-  --radius-2xl: calc(var(--radius) * 1.5);
-  --radius-3xl: calc(var(--radius) * 1.8);
-  --radius-4xl: calc(var(--radius) * 2.2);
+  /* 50% reduced border-radius tokens for modern architectural luxury */
+  --radius-xs: 0.0625rem;
+  --radius-sm: 0.0625rem;
+  --radius-md: 0.1875rem;
+  --radius-lg: 0.25rem;
+  --radius-xl: 0.375rem;
+  --radius-2xl: 0.5rem;
+  --radius-3xl: 0.75rem;
+  --radius-4xl: 1rem;
 }
 
 /* ===================================================================
-   🎨 MULTI-THEME DESIGN SYSTEM (Warm Royal Teak, Crisp Light, Obsidian Dark)
+   🎨 MULTI-THEME DESIGN SYSTEM (Crisp Studio Light, Obsidian Dark, Royal Emerald)
    =================================================================== */
 
-/* 1. WARM ROYAL TEAK (Current Signature Default) */
-:root, [data-theme="warm"], [data-theme="teak"] {
-  --background: oklch(0.985 0.012 75);
-  --foreground: oklch(0.18 0.03 55);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.03 55);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.03 55);
-  --primary: oklch(0.35 0.1 50);
-  --primary-foreground: oklch(0.985 0.01 75);
-  --secondary: oklch(0.95 0.02 75);
-  --secondary-foreground: oklch(0.25 0.05 50);
-  --muted: oklch(0.95 0.01 75);
-  --muted-foreground: oklch(0.5 0.03 55);
-  --accent: oklch(0.94 0.03 75);
-  --accent-foreground: oklch(0.25 0.05 50);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.88 0.02 75);
-  --input: oklch(0.88 0.02 75);
-  --ring: oklch(0.65 0.15 65);
-  --radius: 0.5rem; /* Cut by 50% for tailored luxury */
-}
-
-/* 2. CRISP STUDIO LIGHT (Clean Minimalist White & Pearl) */
-[data-theme="light"] {
+/* 1. CRISP STUDIO LIGHT (Default Primary Theme) */
+:root, [data-theme="light"] {
   --background: oklch(0.985 0.005 240);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -92,10 +70,10 @@
   --border: oklch(0.9 0 0);
   --input: oklch(0.9 0 0);
   --ring: oklch(0.4 0 0);
-  --radius: 0.5rem;
+  --radius: 0.25rem;
 }
 
-/* 3. OBSIDIAN MIDNIGHT (Deep Dark Luxury Teak & Gold) */
+/* 2. OBSIDIAN MIDNIGHT (Deep Dark Luxury Teak & Gold) */
 [data-theme="dark"], .dark {
   --background: oklch(0.12 0.015 50);
   --foreground: oklch(0.98 0.01 75);
@@ -115,10 +93,10 @@
   --border: oklch(0.3 0.03 50);
   --input: oklch(0.28 0.025 50);
   --ring: oklch(0.75 0.15 75);
-  --radius: 0.5rem;
+  --radius: 0.25rem;
 }
 
-/* 4. ROYAL HERITAGE (Imperial Forest Emerald & Brushed Champagne Brass) */
+/* 3. ROYAL HERITAGE (Imperial Forest Emerald & Brushed Champagne Brass) */
 [data-theme="royal"], [data-theme="emerald"] {
   --background: oklch(0.14 0.04 155);
   --foreground: oklch(0.98 0.015 150);
@@ -138,7 +116,7 @@
   --border: oklch(0.32 0.06 155);
   --input: oklch(0.22 0.04 155);
   --ring: oklch(0.78 0.16 85);
-  --radius: 0.5rem;
+  --radius: 0.25rem;
 }
 
 @layer base {
@@ -356,6 +334,9 @@
 
 [data-theme="light"] .border-amber-200,
 [data-theme="light"] .border-amber-200\/80,
+[data-theme="light"] .border-amber-200\/70,
+[data-theme="light"] .border-amber-200\/60,
+[data-theme="light"] .border-amber-300,
 [data-theme="light"] .border-amber-100 {
   border-color: #e2e8f0 !important;
 }
@@ -427,14 +408,29 @@
   background-color: #f1f5f9 !important;
 }
 
-[data-theme="light"] h1.text-white,
-[data-theme="light"] h2.text-white,
-[data-theme="light"] h3.text-white,
-[data-theme="light"] p.text-white,
-[data-theme="light"] span.text-white,
+[data-theme="light"] h1.text-white:not([class*="dark:"]):not([class*="bg-"]):not([data-dark-bg="true"]),
+[data-theme="light"] h2.text-white:not([class*="dark:"]):not([class*="bg-"]):not([data-dark-bg="true"]),
+[data-theme="light"] h3.text-white:not([class*="dark:"]):not([class*="bg-"]):not([data-dark-bg="true"]),
+[data-theme="light"] p.text-white:not([class*="dark:"]):not([class*="bg-"]):not([data-dark-bg="true"]),
+[data-theme="light"] span.text-white:not([class*="dark:"]):not([class*="bg-"]):not([data-dark-bg="true"]),
 [data-theme="light"] td.text-white,
-[data-theme="light"] div.text-white {
+[data-theme="light"] div.text-white:not([class*="dark:"]):not([class*="bg-"]):not([data-dark-bg="true"]) {
   color: #0f172a !important;
+}
+
+/* Maintain crisp white text on explicitly dark background elements in light mode */
+[data-theme="light"] [class*="amber-950"] .text-white,
+[data-theme="light"] [class*="amber-900"] .text-white,
+[data-theme="light"] [class*="slate-950"] .text-white,
+[data-theme="light"] [class*="bg-slate-950"] .text-white,
+[data-theme="light"] [class*="bg-slate-900"] .text-white,
+[data-theme="light"] [class*="bg-emerald-600"] .text-white,
+[data-theme="light"] [class*="bg-amber-600"] .text-white,
+[data-theme="light"] [class*="bg-amber-500"] .text-white,
+[data-theme="light"] .bg-gradient-to-b .text-white,
+[data-theme="light"] .bg-gradient-to-r .text-white,
+[data-theme="light"] .bg-gradient-to-tr .text-white {
+  color: #ffffff !important;
 }
 
 [data-theme="light"] table thead,
@@ -453,260 +449,6 @@
   background-color: #f8fafc !important;
 }
 
-/* 3. WARM ROYAL TEAK THEME */
-[data-theme="warm"] {
-  color-scheme: light;
-}
-
-[data-theme="warm"] body {
-  background-color: #faf7f2 !important;
-  color: #2d1808 !important;
-}
-
-[data-theme="warm"] .bg-white {
-  background-color: #ffffff !important;
-  color: #2d1808 !important;
-}
-
-[data-theme="warm"] .text-slate-900,
-[data-theme="warm"] .text-slate-800 {
-  color: #261505 !important;
-}
-
-[data-theme="warm"] .text-slate-700,
-[data-theme="warm"] .text-slate-600 {
-  color: #4a2810 !important;
-}
-
-[data-theme="warm"] .text-slate-500,
-[data-theme="warm"] .text-slate-400 {
-  color: #6b4020 !important;
-}
-
-[data-theme="warm"] .text-amber-950 {
-  color: #451a03 !important;
-}
-
-[data-theme="warm"] .text-amber-900 {
-  color: #78350f !important;
-}
-
-[data-theme="warm"] .text-amber-800 {
-  color: #92400e !important;
-}
-
-[data-theme="warm"] .bg-amber-50,
-[data-theme="warm"] .bg-amber-50\/70,
-[data-theme="warm"] .bg-amber-50\/80 {
-  background-color: #fef3c735 !important;
-}
-
-[data-theme="warm"] .border-amber-200,
-[data-theme="warm"] .border-amber-200\/80 {
-  border-color: #fde68a !important;
-}
-
-[data-theme="warm"] input:not([type="checkbox"]):not([type="radio"]),
-[data-theme="warm"] textarea,
-[data-theme="warm"] select {
-  background-color: #ffffff !important;
-  color: #2d1808 !important;
-  border-color: #fcd34d !important;
-}
-
-[data-theme="warm"] input::placeholder,
-[data-theme="warm"] textarea::placeholder {
-  color: #b49377 !important;
-}
-
-/* Warm & Teak Mode: Admin & Manager Portals (Strictly Scoped to Admin/Manager Shells) */
-[data-theme="warm"] .admin-layout-shell,
-[data-theme="teak"] .admin-layout-shell,
-[data-theme="warm"] .manager-layout-shell,
-[data-theme="teak"] .manager-layout-shell,
-[data-theme="warm"] .admin-layout-shell main,
-[data-theme="teak"] .admin-layout-shell main,
-[data-theme="warm"] .manager-layout-shell main,
-[data-theme="teak"] .manager-layout-shell main {
-  background-color: #faf7f2 !important;
-  color: #2d1808 !important;
-}
-
-/* Sidebars strictly scoped to Admin & Manager portals */
-[data-theme="warm"] aside.admin-sidebar,
-[data-theme="teak"] aside.admin-sidebar,
-[data-theme="warm"] aside.manager-sidebar,
-[data-theme="teak"] aside.manager-sidebar,
-[data-theme="warm"] .admin-layout-shell aside,
-[data-theme="teak"] .admin-layout-shell aside,
-[data-theme="warm"] .manager-layout-shell aside,
-[data-theme="teak"] .manager-layout-shell aside {
-  background: linear-gradient(180deg, #24140b 0%, #2f190e 50%, #24140b 100%) !important;
-  border-right: 1px solid rgba(217, 119, 6, 0.35) !important;
-  color: #fef3c7 !important;
-}
-
-[data-theme="warm"] aside.admin-sidebar nav a:not([class*="bg-amber-500"]),
-[data-theme="teak"] aside.admin-sidebar nav a:not([class*="bg-amber-500"]),
-[data-theme="warm"] aside.manager-sidebar nav a:not([class*="bg-amber-500"]),
-[data-theme="teak"] aside.manager-sidebar nav a:not([class*="bg-amber-500"]),
-[data-theme="warm"] .admin-layout-shell aside nav a:not([class*="bg-amber-500"]),
-[data-theme="teak"] .admin-layout-shell aside nav a:not([class*="bg-amber-500"]),
-[data-theme="warm"] .manager-layout-shell aside nav a:not([class*="bg-amber-500"]),
-[data-theme="teak"] .manager-layout-shell aside nav a:not([class*="bg-amber-500"]) {
-  color: #fde68a !important;
-}
-
-[data-theme="warm"] aside.admin-sidebar nav a:not([class*="bg-amber-500"]):hover,
-[data-theme="teak"] aside.admin-sidebar nav a:not([class*="bg-amber-500"]):hover,
-[data-theme="warm"] aside.manager-sidebar nav a:not([class*="bg-amber-500"]):hover,
-[data-theme="teak"] aside.manager-sidebar nav a:not([class*="bg-amber-500"]):hover,
-[data-theme="warm"] .admin-layout-shell aside nav a:not([class*="bg-amber-500"]):hover,
-[data-theme="teak"] .admin-layout-shell aside nav a:not([class*="bg-amber-500"]):hover,
-[data-theme="warm"] .manager-layout-shell aside nav a:not([class*="bg-amber-500"]):hover,
-[data-theme="teak"] .manager-layout-shell aside nav a:not([class*="bg-amber-500"]):hover {
-  color: #ffffff !important;
-  background-color: rgba(180, 83, 9, 0.35) !important;
-}
-
-[data-theme="warm"] aside.admin-sidebar p.tracking-widest,
-[data-theme="teak"] aside.admin-sidebar p.tracking-widest,
-[data-theme="warm"] aside.manager-sidebar p.tracking-widest,
-[data-theme="teak"] aside.manager-sidebar p.tracking-widest {
-  color: #facc15 !important;
-}
-
-/* Headers strictly scoped to Admin & Manager portals */
-[data-theme="warm"] header.admin-header,
-[data-theme="teak"] header.admin-header,
-[data-theme="warm"] header.manager-header,
-[data-theme="teak"] header.manager-header,
-[data-theme="warm"] .admin-layout-shell header,
-[data-theme="teak"] .admin-layout-shell header,
-[data-theme="warm"] .manager-layout-shell header,
-[data-theme="teak"] .manager-layout-shell header {
-  background-color: #24140b !important;
-  border-bottom: 1px solid rgba(217, 119, 6, 0.35) !important;
-  color: #fef3c7 !important;
-}
-
-/* Cards & Content Surfaces inside Admin & Manager Portals */
-[data-theme="warm"] .admin-layout-shell .bg-slate-900,
-[data-theme="teak"] .admin-layout-shell .bg-slate-900,
-[data-theme="warm"] .admin-layout-shell .bg-slate-950,
-[data-theme="teak"] .admin-layout-shell .bg-slate-950,
-[data-theme="warm"] .manager-layout-shell .bg-amber-950,
-[data-theme="teak"] .manager-layout-shell .bg-amber-950,
-[data-theme="warm"] .manager-layout-shell .bg-stone-900,
-[data-theme="teak"] .manager-layout-shell .bg-stone-900,
-[data-theme="warm"] .manager-layout-shell .bg-stone-950,
-[data-theme="teak"] .manager-layout-shell .bg-stone-950 {
-  background-color: #ffffff !important;
-  border-color: #fde68a !important;
-  color: #2d1808 !important;
-  box-shadow: 0 4px 20px -2px rgba(180, 83, 9, 0.08) !important;
-}
-
-/* Sub-panels, stat boxes, inner item containers */
-[data-theme="warm"] .admin-layout-shell .bg-slate-800,
-[data-theme="teak"] .admin-layout-shell .bg-slate-800,
-[data-theme="warm"] .manager-layout-shell .bg-amber-900\/60,
-[data-theme="teak"] .manager-layout-shell .bg-amber-900\/60,
-[data-theme="warm"] .manager-layout-shell .bg-amber-900\/40,
-[data-theme="teak"] .manager-layout-shell .bg-amber-900\/40,
-[data-theme="warm"] .manager-layout-shell .bg-stone-800,
-[data-theme="teak"] .manager-layout-shell .bg-stone-800 {
-  background-color: #fffbeb !important;
-  border-color: #fef08a !important;
-  color: #451a03 !important;
-}
-
-/* Borders in Admin & Manager */
-[data-theme="warm"] .admin-layout-shell .border-slate-800,
-[data-theme="teak"] .admin-layout-shell .border-slate-800,
-[data-theme="warm"] .admin-layout-shell .border-slate-700,
-[data-theme="teak"] .admin-layout-shell .border-slate-700,
-[data-theme="warm"] .manager-layout-shell .border-amber-900,
-[data-theme="teak"] .manager-layout-shell .border-amber-900,
-[data-theme="warm"] .manager-layout-shell .border-amber-900\/60,
-[data-theme="teak"] .manager-layout-shell .border-amber-900\/60,
-[data-theme="warm"] .manager-layout-shell .border-amber-900\/40,
-[data-theme="teak"] .manager-layout-shell .border-amber-900\/40,
-[data-theme="warm"] .manager-layout-shell .border-stone-800,
-[data-theme="teak"] .manager-layout-shell .border-stone-800 {
-  border-color: #fde68a !important;
-}
-
-/* Text Hierarchy strictly inside Admin & Manager Content */
-[data-theme="warm"] .admin-layout-shell main h1.text-white,
-[data-theme="teak"] .admin-layout-shell main h1.text-white,
-[data-theme="warm"] .admin-layout-shell main h2.text-white,
-[data-theme="teak"] .admin-layout-shell main h2.text-white,
-[data-theme="warm"] .admin-layout-shell main h3.text-white,
-[data-theme="teak"] .admin-layout-shell main h3.text-white,
-[data-theme="warm"] .admin-layout-shell main h4.text-white,
-[data-theme="teak"] .admin-layout-shell main h4.text-white,
-[data-theme="warm"] .manager-layout-shell main h1.text-white,
-[data-theme="teak"] .manager-layout-shell main h1.text-white,
-[data-theme="warm"] .manager-layout-shell main h2.text-white,
-[data-theme="teak"] .manager-layout-shell main h2.text-white,
-[data-theme="warm"] .manager-layout-shell main h3.text-white,
-[data-theme="teak"] .manager-layout-shell main h3.text-white,
-[data-theme="warm"] .manager-layout-shell main h4.text-white,
-[data-theme="teak"] .manager-layout-shell main h4.text-white {
-  color: #261505 !important;
-}
-
-[data-theme="warm"] .admin-layout-shell main .text-slate-400,
-[data-theme="teak"] .admin-layout-shell main .text-slate-400,
-[data-theme="warm"] .manager-layout-shell main .text-amber-200,
-[data-theme="teak"] .manager-layout-shell main .text-amber-200,
-[data-theme="warm"] .manager-layout-shell main .text-slate-400,
-[data-theme="teak"] .manager-layout-shell main .text-slate-400 {
-  color: #78350f !important;
-}
-
-/* Tables strictly inside Admin & Manager */
-[data-theme="warm"] .admin-layout-shell table thead,
-[data-theme="teak"] .admin-layout-shell table thead,
-[data-theme="warm"] .manager-layout-shell table thead,
-[data-theme="teak"] .manager-layout-shell table thead,
-[data-theme="warm"] .admin-layout-shell table thead tr,
-[data-theme="teak"] .admin-layout-shell table thead tr,
-[data-theme="warm"] .manager-layout-shell table thead tr,
-[data-theme="teak"] .manager-layout-shell table thead tr {
-  background-color: #fef3c7 !important;
-  border-bottom: 1.5px solid #fde68a !important;
-}
-
-[data-theme="warm"] .admin-layout-shell table thead th,
-[data-theme="teak"] .admin-layout-shell table thead th,
-[data-theme="warm"] .manager-layout-shell table thead th,
-[data-theme="teak"] .manager-layout-shell table thead th {
-  color: #78350f !important;
-  font-weight: 700 !important;
-}
-
-[data-theme="warm"] .admin-layout-shell table tbody tr,
-[data-theme="teak"] .admin-layout-shell table tbody tr,
-[data-theme="warm"] .manager-layout-shell table tbody tr,
-[data-theme="teak"] .manager-layout-shell table tbody tr {
-  border-color: #fef3c7 !important;
-}
-
-[data-theme="warm"] .admin-layout-shell table tbody tr:hover,
-[data-theme="teak"] .admin-layout-shell table tbody tr:hover,
-[data-theme="warm"] .manager-layout-shell table tbody tr:hover,
-[data-theme="teak"] .manager-layout-shell table tbody tr:hover {
-  background-color: #fffbeb !important;
-}
-
-[data-theme="warm"] .admin-layout-shell table tbody td,
-[data-theme="teak"] .admin-layout-shell table tbody td,
-[data-theme="warm"] .manager-layout-shell table tbody td,
-[data-theme="teak"] .manager-layout-shell table tbody td {
-  color: #261505 !important;
-}
 
 /* ===================================================================
    👑 4. ROYAL EMERALD THEME (Imperial British Racing Green & Champagne Gold)
@@ -775,7 +517,8 @@
 }
 
 /* Value Props Icons & Sections in Royal Emerald */
-[data-theme="royal"] .w-12.h-12.rounded-xl.bg-amber-100 {
+[data-theme="royal"] .w-12.h-12.rounded-xl.bg-amber-100,
+[data-theme="emerald"] .w-12.h-12.rounded-xl.bg-amber-100 {
   background: linear-gradient(135deg, #065f46 0%, #047857 100%) !important;
   color: #fde047 !important;
   border: 1px solid rgba(52, 211, 153, 0.35) !important;
@@ -783,17 +526,21 @@
 }
 
 /* Bestsellers and Curated Collections */
-[data-theme="royal"] section.bg-amber-900\/5 {
+[data-theme="royal"] section.bg-amber-900\/5,
+[data-theme="emerald"] section.bg-amber-900\/5 {
   background: radial-gradient(circle at 50% 50%, rgba(6, 78, 59, 0.22) 0%, rgba(2, 44, 34, 0.4) 100%) !important;
   border-color: rgba(52, 211, 153, 0.25) !important;
 }
 
 /* Category card highlights */
 [data-theme="royal"] .border-amber-200\/60,
-[data-theme="royal"] .border-amber-200\/70 {
+[data-theme="royal"] .border-amber-200\/70,
+[data-theme="emerald"] .border-amber-200\/60,
+[data-theme="emerald"] .border-amber-200\/70 {
   border-color: rgba(52, 211, 153, 0.22) !important;
 }
-[data-theme="royal"] .text-amber-800 {
+[data-theme="royal"] .text-amber-800,
+[data-theme="emerald"] .text-amber-800 {
   color: #34d399 !important;
 }
 
@@ -801,7 +548,11 @@
 [data-theme="royal"] .bg-white,
 [data-theme="royal"] .dark\:bg-stone-900,
 [data-theme="royal"] .bg-white\/95,
-[data-theme="royal"] .bg-white\/90 {
+[data-theme="royal"] .bg-white\/90,
+[data-theme="emerald"] .bg-white,
+[data-theme="emerald"] .dark\:bg-stone-900,
+[data-theme="emerald"] .bg-white\/95,
+[data-theme="emerald"] .bg-white\/90 {
   background: linear-gradient(155deg, rgba(6, 78, 59, 0.55) 0%, rgba(2, 44, 34, 0.88) 55%, rgba(1, 26, 20, 0.98) 100%) !important;
   backdrop-filter: blur(18px) !important;
   color: #f0fdf4 !important;
@@ -824,15 +575,32 @@
 [data-theme="royal"] .bg-slate-100,
 [data-theme="royal"] .dark\:bg-stone-800,
 [data-theme="royal"] .dark\:bg-stone-800\/60,
-[data-theme="royal"] .dark\:bg-stone-800\/80 {
+[data-theme="royal"] .dark\:bg-stone-800\/80,
+[data-theme="emerald"] .bg-amber-50,
+[data-theme="emerald"] .bg-amber-50\/20,
+[data-theme="emerald"] .bg-amber-50\/30,
+[data-theme="emerald"] .bg-amber-50\/40,
+[data-theme="emerald"] .bg-amber-50\/50,
+[data-theme="emerald"] .bg-amber-50\/60,
+[data-theme="emerald"] .bg-amber-50\/70,
+[data-theme="emerald"] .bg-amber-50\/80,
+[data-theme="emerald"] .bg-stone-50,
+[data-theme="emerald"] .bg-slate-50,
+[data-theme="emerald"] .bg-stone-100,
+[data-theme="emerald"] .bg-slate-100,
+[data-theme="emerald"] .dark\:bg-stone-800,
+[data-theme="emerald"] .dark\:bg-stone-800\/60,
+[data-theme="emerald"] .dark\:bg-stone-800\/80 {
   background: linear-gradient(145deg, rgba(6, 78, 59, 0.6) 0%, rgba(3, 45, 34, 0.85) 100%) !important;
   border-color: rgba(52, 211, 153, 0.28) !important;
   color: #e2f4ea !important;
 }
 
-/* Selected prompt cards in Royal theme: Glowing Emerald Velvet & Gold Rim */
+/* Selected prompt cards in Royal & Emerald theme: Glowing Emerald Velvet & Gold Rim */
 [data-theme="royal"] .bg-amber-50\/90,
-[data-theme="royal"] .dark\:bg-amber-950\/40 {
+[data-theme="royal"] .dark\:bg-amber-950\/40,
+[data-theme="emerald"] .bg-amber-50\/90,
+[data-theme="emerald"] .dark\:bg-amber-950\/40 {
   background: linear-gradient(135deg, rgba(6, 95, 70, 0.95) 0%, rgba(4, 60, 46, 0.98) 100%) !important;
   border: 1.5px solid #10b981 !important;
   box-shadow: 0 0 24px rgba(16, 185, 129, 0.45), inset 0 0 16px rgba(52, 211, 153, 0.25) !important;
@@ -841,18 +609,25 @@
 /* Badges & Chips */
 [data-theme="royal"] .bg-amber-100,
 [data-theme="royal"] .bg-amber-200,
-[data-theme="royal"] .dark\:bg-amber-950\/80 {
+[data-theme="royal"] .dark\:bg-amber-950\/80,
+[data-theme="emerald"] .bg-amber-100,
+[data-theme="emerald"] .bg-amber-200,
+[data-theme="emerald"] .dark\:bg-amber-950\/80 {
   background: linear-gradient(135deg, #065f46 0%, #047857 50%, #059669 100%) !important;
   color: #fef08a !important;
   border: 1px solid rgba(52, 211, 153, 0.5) !important;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35) !important;
 }
 
-/* High-contrast headings and body in Royal theme */
+/* High-contrast headings and body in Royal & Emerald theme */
 [data-theme="royal"] .text-slate-900,
 [data-theme="royal"] .text-stone-900,
 [data-theme="royal"] .text-slate-800,
-[data-theme="royal"] .text-stone-800 {
+[data-theme="royal"] .text-stone-800,
+[data-theme="emerald"] .text-slate-900,
+[data-theme="emerald"] .text-stone-900,
+[data-theme="emerald"] .text-slate-800,
+[data-theme="emerald"] .text-stone-800 {
   color: #ffffff !important;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
@@ -860,14 +635,22 @@
 [data-theme="royal"] .text-slate-700,
 [data-theme="royal"] .text-stone-700,
 [data-theme="royal"] .text-slate-600,
-[data-theme="royal"] .text-stone-600 {
+[data-theme="royal"] .text-stone-600,
+[data-theme="emerald"] .text-slate-700,
+[data-theme="emerald"] .text-stone-700,
+[data-theme="emerald"] .text-slate-600,
+[data-theme="emerald"] .text-stone-600 {
   color: #d1fae5 !important;
 }
 
 [data-theme="royal"] .text-slate-500,
 [data-theme="royal"] .text-stone-500,
 [data-theme="royal"] .text-slate-400,
-[data-theme="royal"] .text-stone-400 {
+[data-theme="royal"] .text-stone-400,
+[data-theme="emerald"] .text-slate-500,
+[data-theme="emerald"] .text-stone-500,
+[data-theme="emerald"] .text-slate-400,
+[data-theme="emerald"] .text-stone-400 {
   color: #a7f3d0 !important;
 }
 
@@ -876,14 +659,22 @@
 [data-theme="royal"] .text-amber-900,
 [data-theme="royal"] .text-amber-800,
 [data-theme="royal"] .text-amber-700,
-[data-theme="royal"] .text-amber-600 {
+[data-theme="royal"] .text-amber-600,
+[data-theme="emerald"] .text-amber-950,
+[data-theme="emerald"] .text-amber-900,
+[data-theme="emerald"] .text-amber-800,
+[data-theme="emerald"] .text-amber-700,
+[data-theme="emerald"] .text-amber-600 {
   color: #fde047 !important;
 }
 
 /* Primary Action button: Radiant 24K Gold & Burnished Brass */
 [data-theme="royal"] .btn-tactile,
 [data-theme="royal"] .bg-gradient-to-r.from-amber-600,
-[data-theme="royal"] button.bg-gradient-to-r {
+[data-theme="royal"] button.bg-gradient-to-r,
+[data-theme="emerald"] .btn-tactile,
+[data-theme="emerald"] .bg-gradient-to-r.from-amber-600,
+[data-theme="emerald"] button.bg-gradient-to-r {
   background: linear-gradient(135deg, #059669 0%, #10b981 50%, #d97706 100%) !important;
   color: #ffffff !important;
   font-weight: 900 !important;
@@ -891,19 +682,24 @@
   border: 1px solid rgba(167, 243, 208, 0.6) !important;
 }
 
-/* Secondary Button in Royal mode */
+/* Secondary Button in Royal & Emerald mode */
 [data-theme="royal"] .border-amber-300.bg-amber-50\/60,
-[data-theme="royal"] button[class*="border-amber-300"] {
+[data-theme="royal"] button[class*="border-amber-300"],
+[data-theme="emerald"] .border-amber-300.bg-amber-50\/60,
+[data-theme="emerald"] button[class*="border-amber-300"] {
   background: linear-gradient(135deg, #044333 0%, #065f46 100%) !important;
   border: 1.5px solid rgba(52, 211, 153, 0.5) !important;
   color: #fef08a !important;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35) !important;
 }
 
-/* Royal theme inputs */
+/* Royal & Emerald theme inputs */
 [data-theme="royal"] input:not([type="checkbox"]):not([type="radio"]),
 [data-theme="royal"] textarea,
-[data-theme="royal"] select {
+[data-theme="royal"] select,
+[data-theme="emerald"] input:not([type="checkbox"]):not([type="radio"]),
+[data-theme="emerald"] textarea,
+[data-theme="emerald"] select {
   background-color: #032b20 !important;
   color: #f0fdf4 !important;
   border: 1.5px solid rgba(52, 211, 153, 0.4) !important;
@@ -911,27 +707,38 @@
 
 [data-theme="royal"] input:focus,
 [data-theme="royal"] textarea:focus,
-[data-theme="royal"] select:focus {
+[data-theme="royal"] select:focus,
+[data-theme="emerald"] input:focus,
+[data-theme="emerald"] textarea:focus,
+[data-theme="emerald"] select:focus {
   border-color: #10b981 !important;
   box-shadow: 0 0 16px rgba(16, 185, 129, 0.4) !important;
 }
 
 [data-theme="royal"] input::placeholder,
-[data-theme="royal"] textarea::placeholder {
+[data-theme="royal"] textarea::placeholder,
+[data-theme="emerald"] input::placeholder,
+[data-theme="emerald"] textarea::placeholder {
   color: #6ee7b7 !important;
 }
 
-/* Royal Mode: Admin & Manager Portal Integration */
+/* Royal & Emerald Mode: Admin & Manager Portal Integration */
 [data-theme="royal"] aside,
 [data-theme="royal"] aside.bg-slate-950,
-[data-theme="royal"] aside.bg-amber-950 {
+[data-theme="royal"] aside.bg-amber-950,
+[data-theme="emerald"] aside,
+[data-theme="emerald"] aside.bg-slate-950,
+[data-theme="emerald"] aside.bg-amber-950 {
   background: linear-gradient(180deg, #01140e 0%, #02261b 50%, #01140e 100%) !important;
   border-right: 1px solid rgba(52, 211, 153, 0.3) !important;
 }
 
 [data-theme="royal"] .bg-slate-950,
 [data-theme="royal"] .bg-amber-950,
-[data-theme="royal"] .bg-stone-950 {
+[data-theme="royal"] .bg-stone-950,
+[data-theme="emerald"] .bg-slate-950,
+[data-theme="emerald"] .bg-amber-950,
+[data-theme="emerald"] .bg-stone-950 {
   background-color: #01170f !important;
   border-color: rgba(52, 211, 153, 0.3) !important;
 }
@@ -939,13 +746,19 @@
 [data-theme="royal"] .bg-slate-900,
 [data-theme="royal"] .bg-stone-900,
 [data-theme="royal"] .bg-amber-900\/60,
-[data-theme="royal"] .bg-amber-900\/40 {
+[data-theme="royal"] .bg-amber-900\/40,
+[data-theme="emerald"] .bg-slate-900,
+[data-theme="emerald"] .bg-stone-900,
+[data-theme="emerald"] .bg-amber-900\/60,
+[data-theme="emerald"] .bg-amber-900\/40 {
   background: linear-gradient(165deg, rgba(6, 78, 59, 0.6) 0%, rgba(2, 38, 28, 0.95) 100%) !important;
   border-color: rgba(52, 211, 153, 0.28) !important;
 }
 
 [data-theme="royal"] .bg-slate-800,
-[data-theme="royal"] .bg-stone-800 {
+[data-theme="royal"] .bg-stone-800,
+[data-theme="emerald"] .bg-slate-800,
+[data-theme="emerald"] .bg-stone-800 {
   background-color: #043e30 !important;
   border-color: rgba(52, 211, 153, 0.28) !important;
 }
@@ -955,25 +768,36 @@
 [data-theme="royal"] .border-amber-900,
 [data-theme="royal"] .border-amber-900\/60,
 [data-theme="royal"] .border-amber-900\/40,
-[data-theme="royal"] .border-stone-800 {
+[data-theme="royal"] .border-stone-800,
+[data-theme="emerald"] .border-slate-800,
+[data-theme="emerald"] .border-slate-700,
+[data-theme="emerald"] .border-amber-900,
+[data-theme="emerald"] .border-amber-900\/60,
+[data-theme="emerald"] .border-amber-900\/40,
+[data-theme="emerald"] .border-stone-800 {
   border-color: rgba(52, 211, 153, 0.28) !important;
 }
 
 /* Royal Emerald Table Styling */
 [data-theme="royal"] table thead,
-[data-theme="royal"] table thead tr {
+[data-theme="royal"] table thead tr,
+[data-theme="emerald"] table thead,
+[data-theme="emerald"] table thead tr {
   background: #02231b !important;
   border-bottom: 1.5px solid rgba(52, 211, 153, 0.35) !important;
 }
-[data-theme="royal"] table thead th {
+[data-theme="royal"] table thead th,
+[data-theme="emerald"] table thead th {
   color: #fde047 !important;
   font-weight: 800 !important;
   letter-spacing: 0.05em;
 }
-[data-theme="royal"] table tbody tr {
+[data-theme="royal"] table tbody tr,
+[data-theme="emerald"] table tbody tr {
   border-color: rgba(52, 211, 153, 0.18) !important;
 }
-[data-theme="royal"] table tbody tr:hover {
+[data-theme="royal"] table tbody tr:hover,
+[data-theme="emerald"] table tbody tr:hover {
   background-color: rgba(6, 95, 70, 0.4) !important;
 }
 
@@ -1297,17 +1121,60 @@ a[class*="bg-amber-500"] *,
 }
 
 /* ===================================================================
-   📐 50% BORDER RADIUS REDUCTION (Tailored Modern Luxury)
+   📐 50% BORDER RADIUS & STROKE REDUCTION (Modern Architectural Luxury)
+   Reduces all component corner roundness by exactly 50% for high-end furniture aesthetics.
+   Reduces heavy 2px/4px border strokes by 50% into crisp 1px/2px hairline precision.
    =================================================================== */
 .rounded-3xl {
-  border-radius: 0.875rem !important; /* was 24px (1.5rem), now 14px */
+  border-radius: 0.75rem !important; /* was 24px (1.5rem) -> 12px (50%) */
 }
 .rounded-2xl {
-  border-radius: 0.625rem !important; /* was 16px (1rem), now 10px */
+  border-radius: 0.5rem !important;  /* was 16px (1.0rem) -> 8px (50%) */
 }
 .rounded-xl {
-  border-radius: 0.5rem !important; /* was 12px (0.75rem), now 8px */
+  border-radius: 0.375rem !important; /* was 12px (0.75rem) -> 6px (50%) */
 }
+.rounded-lg {
+  border-radius: 0.25rem !important;  /* was 8px (0.5rem) -> 4px (50%) */
+}
+.rounded-md {
+  border-radius: 0.1875rem !important; /* was 6px (0.375rem) -> 3px (50%) */
+}
+.rounded {
+  border-radius: 0.125rem !important;  /* was 4px (0.25rem) -> 2px (50%) */
+}
+.rounded-sm {
+  border-radius: 0.0625rem !important; /* was 2px (0.125rem) -> 1px (50%) */
+}
+
+/* Directional 50% corner radii */
+.rounded-t-3xl { border-top-left-radius: 0.75rem !important; border-top-right-radius: 0.75rem !important; }
+.rounded-b-3xl { border-bottom-left-radius: 0.75rem !important; border-bottom-right-radius: 0.75rem !important; }
+.rounded-t-2xl { border-top-left-radius: 0.5rem !important; border-top-right-radius: 0.5rem !important; }
+.rounded-b-2xl { border-bottom-left-radius: 0.5rem !important; border-bottom-right-radius: 0.5rem !important; }
+.rounded-t-xl  { border-top-left-radius: 0.375rem !important; border-top-right-radius: 0.375rem !important; }
+.rounded-b-xl  { border-bottom-left-radius: 0.375rem !important; border-bottom-right-radius: 0.375rem !important; }
+.rounded-l-xl  { border-top-left-radius: 0.375rem !important; border-bottom-left-radius: 0.375rem !important; }
+.rounded-r-xl  { border-top-right-radius: 0.375rem !important; border-bottom-right-radius: 0.375rem !important; }
+.rounded-t-lg  { border-top-left-radius: 0.25rem !important; border-top-right-radius: 0.25rem !important; }
+.rounded-b-lg  { border-bottom-left-radius: 0.25rem !important; border-bottom-right-radius: 0.25rem !important; }
+
+/* 50% border stroke thickness reduction */
+.border-2 {
+  border-width: 1px !important; /* was 2px -> 1px (50%) */
+}
+.border-t-2 { border-top-width: 1px !important; }
+.border-b-2 { border-bottom-width: 1px !important; }
+.border-l-2 { border-left-width: 1px !important; }
+.border-r-2 { border-right-width: 1px !important; }
+
+.border-4 {
+  border-width: 2px !important; /* was 4px -> 2px (50%) */
+}
+.border-t-4 { border-top-width: 2px !important; }
+.border-b-4 { border-bottom-width: 2px !important; }
+.border-l-4 { border-left-width: 2px !important; }
+.border-r-4 { border-right-width: 2px !important; }
 
 /* ===================================================================
    📱 MOBILE & TABLET FLUID RESPONSIVENESS & TOUCH UTILITIES
@@ -1403,4 +1270,247 @@ a[class*="bg-amber-500"] *,
 
 .pulse-glow {
   animation: pulseGlow 3s infinite ease-in-out;
+}
+
+/* ===================================================================
+   ⭐ LIVE REVIEWS PAGE BUTTON (Admin & Manager Portals)
+   Ultra-crisp, luminous, and legible across Light, Emerald, and Dark
+   =================================================================== */
+
+.live-reviews-nav-btn {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.16) 0%, rgba(217, 119, 6, 0.24) 100%) !important;
+  border: 1.5px solid rgba(245, 158, 11, 0.5) !important;
+  color: #fef08a !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15) !important;
+}
+
+.live-reviews-nav-btn span,
+.live-reviews-nav-btn svg {
+  color: #fef08a !important;
+  stroke: currentColor !important;
+}
+
+.live-reviews-nav-btn:hover {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.3) 0%, rgba(217, 119, 6, 0.42) 100%) !important;
+  border-color: #f59e0b !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.25) !important;
+}
+
+.live-reviews-nav-btn:hover span,
+.live-reviews-nav-btn:hover svg {
+  color: #ffffff !important;
+  stroke: currentColor !important;
+}
+
+/* Light Theme: High contrast amber-topaz styling on light sidebar/drawer */
+[data-theme="light"] .live-reviews-nav-btn {
+  background: #fef3c7 !important;
+  border: 1.5px solid #d97706 !important;
+  color: #78350f !important;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.12) !important;
+}
+
+[data-theme="light"] .live-reviews-nav-btn span,
+[data-theme="light"] .live-reviews-nav-btn svg {
+  color: #78350f !important;
+  stroke: currentColor !important;
+}
+
+[data-theme="light"] .live-reviews-nav-btn:hover {
+  background: #fde68a !important;
+  border-color: #b45309 !important;
+  color: #451a03 !important;
+  box-shadow: 0 4px 14px rgba(217, 119, 6, 0.2) !important;
+}
+
+[data-theme="light"] .live-reviews-nav-btn:hover span,
+[data-theme="light"] .live-reviews-nav-btn:hover svg {
+  color: #451a03 !important;
+  stroke: currentColor !important;
+}
+
+/* Emerald Theme: Luminous 24K Gold & Emerald Jewel contrast */
+[data-theme="emerald"] .live-reviews-nav-btn,
+[data-theme="royal"] .live-reviews-nav-btn {
+  background: linear-gradient(135deg, rgba(6, 95, 70, 0.8) 0%, rgba(4, 120, 87, 0.85) 100%) !important;
+  border: 1.5px solid rgba(52, 211, 153, 0.7) !important;
+  color: #fef08a !important;
+  box-shadow: 0 2px 14px rgba(16, 185, 129, 0.25) !important;
+}
+
+[data-theme="emerald"] .live-reviews-nav-btn span,
+[data-theme="royal"] .live-reviews-nav-btn span,
+[data-theme="emerald"] .live-reviews-nav-btn svg,
+[data-theme="royal"] .live-reviews-nav-btn svg {
+  color: #fef08a !important;
+  stroke: currentColor !important;
+}
+
+[data-theme="emerald"] .live-reviews-nav-btn:hover,
+[data-theme="royal"] .live-reviews-nav-btn:hover {
+  background: linear-gradient(135deg, rgba(5, 150, 105, 0.95) 0%, rgba(16, 185, 129, 0.9) 100%) !important;
+  border-color: #a7f3d0 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.45) !important;
+}
+
+[data-theme="emerald"] .live-reviews-nav-btn:hover span,
+[data-theme="royal"] .live-reviews-nav-btn:hover span,
+[data-theme="emerald"] .live-reviews-nav-btn:hover svg,
+[data-theme="royal"] .live-reviews-nav-btn:hover svg {
+  color: #ffffff !important;
+  stroke: currentColor !important;
+}
+
+/* Dark Theme: Radiant Amber Glow on Obsidian Midnight */
+[data-theme="dark"] .live-reviews-nav-btn {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.14) 0%, rgba(180, 83, 9, 0.2) 100%) !important;
+  border: 1.5px solid rgba(245, 158, 11, 0.45) !important;
+  color: #fde047 !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .live-reviews-nav-btn span,
+[data-theme="dark"] .live-reviews-nav-btn svg {
+  color: #fde047 !important;
+  stroke: currentColor !important;
+}
+
+[data-theme="dark"] .live-reviews-nav-btn:hover {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(217, 119, 6, 0.35) 100%) !important;
+  border-color: #facc15 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 18px rgba(245, 158, 11, 0.3) !important;
+}
+
+[data-theme="dark"] .live-reviews-nav-btn:hover span,
+[data-theme="dark"] .live-reviews-nav-btn:hover svg {
+  color: #ffffff !important;
+  stroke: currentColor !important;
+}
+
+/* ===================================================================
+   📖 BLOG & SEO ARTICLE CONTRAST GUARANTEE (Light, Dark, Royal Emerald)
+   =================================================================== */
+
+/* 1. Royal Emerald Theme: Blog & Article High Contrast */
+[data-theme="royal"] article,
+[data-theme="emerald"] article,
+[data-theme="royal"] .prose,
+[data-theme="emerald"] .prose {
+  color: #ecfdf5 !important;
+}
+
+[data-theme="royal"] .prose h1,
+[data-theme="royal"] .prose h2,
+[data-theme="royal"] .prose h3,
+[data-theme="royal"] .prose h4,
+[data-theme="emerald"] .prose h1,
+[data-theme="emerald"] .prose h2,
+[data-theme="emerald"] .prose h3,
+[data-theme="emerald"] .prose h4 {
+  color: #ffffff !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="royal"] .prose p,
+[data-theme="royal"] .prose li,
+[data-theme="royal"] .prose span,
+[data-theme="emerald"] .prose p,
+[data-theme="emerald"] .prose li,
+[data-theme="emerald"] .prose span {
+  color: #d1fae5 !important;
+}
+
+[data-theme="royal"] .prose strong,
+[data-theme="emerald"] .prose strong {
+  color: #fef08a !important; /* Luminous Champagne Gold */
+}
+
+[data-theme="royal"] .prose a,
+[data-theme="emerald"] .prose a {
+  color: #34d399 !important;
+}
+
+[data-theme="royal"] .prose blockquote,
+[data-theme="emerald"] .prose blockquote {
+  color: #a7f3d0 !important;
+  border-left-color: #10b981 !important;
+}
+
+[data-theme="royal"] .prose table th,
+[data-theme="emerald"] .prose table th {
+  color: #ffffff !important;
+  background-color: rgba(6, 78, 59, 0.7) !important;
+  border-bottom-color: rgba(52, 211, 153, 0.4) !important;
+}
+
+[data-theme="royal"] .prose table td,
+[data-theme="emerald"] .prose table td {
+  color: #d1fae5 !important;
+  border-bottom-color: rgba(52, 211, 153, 0.2) !important;
+}
+
+/* 2. Light Theme: Blog & Article Crisp Text */
+[data-theme="light"] article,
+[data-theme="light"] .prose {
+  color: #334155 !important;
+}
+
+[data-theme="light"] .prose h1,
+[data-theme="light"] .prose h2,
+[data-theme="light"] .prose h3,
+[data-theme="light"] .prose h4 {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .prose p,
+[data-theme="light"] .prose li {
+  color: #334155 !important;
+}
+
+[data-theme="light"] .prose strong {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .prose a {
+  color: #b45309 !important;
+}
+
+/* 3. Obsidian Dark Theme: Blog & Article Contrast */
+[data-theme="dark"] article,
+[data-theme="dark"] .prose,
+.dark article,
+.dark .prose {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .prose h1,
+[data-theme="dark"] .prose h2,
+[data-theme="dark"] .prose h3,
+[data-theme="dark"] .prose h4,
+.dark .prose h1,
+.dark .prose h2,
+.dark .prose h3,
+.dark .prose h4 {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .prose p,
+[data-theme="dark"] .prose li,
+.dark .prose p,
+.dark .prose li {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .prose strong,
+.dark .prose strong {
+  color: #fef08a !important;
+}
+
+[data-theme="dark"] .prose a,
+.dark .prose a {
+  color: #fde047 !important;
 }

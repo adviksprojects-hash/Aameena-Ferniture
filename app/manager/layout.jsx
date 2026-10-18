@@ -18,6 +18,7 @@ import {
   DollarSign,
   BookOpen,
   Users,
+  BarChart3,
 } from "lucide-react";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import RoleGuard from "@/components/RoleGuard";
@@ -33,6 +34,7 @@ export default function ManagerLayout({ children }) {
 
   const managerLinks = [
     { title: "Manufacturer Analytics", url: "/manager", icon: LayoutDashboard },
+    { title: "Sales & Graph Analysis", url: "/manager/analysis", icon: BarChart3 },
     { title: "Product Stock & Pricing", url: "/manager/products", icon: Package },
     { title: "Pricing & PDF Catalog", url: "/manager/pricing", icon: DollarSign },
     { title: "Blog & SEO Articles", url: "/manager/blogs", icon: BookOpen },
@@ -89,7 +91,7 @@ export default function ManagerLayout({ children }) {
           <Link
             href="/ai-reviews"
             target="_blank"
-            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-xs font-bold transition-colors border border-amber-500/30"
+            className="live-reviews-nav-btn flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-xs font-bold transition-all shadow-xs"
           >
             <Star className="w-3.5 h-3.5" />
             <span>Live Reviews Page</span>
@@ -161,7 +163,7 @@ export default function ManagerLayout({ children }) {
               <Link
                 href="/ai-reviews"
                 target="_blank"
-                className="flex items-center justify-center gap-2 w-full py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-xs font-bold transition-colors border border-amber-500/30"
+                className="live-reviews-nav-btn flex items-center justify-center gap-2 w-full py-2 rounded-xl text-xs font-bold transition-all shadow-xs"
               >
                 <Star className="w-3.5 h-3.5" />
                 <span>Live Reviews Page</span>
