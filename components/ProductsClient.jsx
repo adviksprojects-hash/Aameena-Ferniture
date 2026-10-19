@@ -273,7 +273,6 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
 
               // Manager / Admin decisions:
               const showInquiry = product.showInquiryBtn !== false;
-              const showDetails = product.showDetailsBtn !== false;
 
               return (
                 <div
@@ -444,32 +443,28 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
                   {/* 🎯 ACTION BUTTONS WITH DIRECT PAGE LINK AND INQUIRY             */}
                   {/* ============================================================== */}
                   <div className="p-6 pt-0 space-y-2">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {/* Button 1: See Details -> Navigates to Separate Page */}
-                      {showDetails && (
-                        <Link
-                          href={`/products/${product.slug || product.id}`}
-                          className="w-full py-2.5 px-3 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-300 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-2xs hover:shadow-xs"
-                        >
-                          <Eye className="w-3.5 h-3.5 text-amber-800" />
-                          <span>See Details</span>
-                        </Link>
-                      )}
+                    <div className="grid grid-cols-2 gap-2">
+                      {/* Button 1: See Details -> Navigates to Product Page */}
+                      <Link
+                        href={`/products/${product.slug || product.id}`}
+                        className="w-full py-2.5 px-2.5 sm:px-3 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-300 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-2xs hover:shadow-xs cursor-pointer"
+                        title="View full specifications, dimensions, joinery & client reviews"
+                      >
+                        <Eye className="w-3.5 h-3.5 text-amber-800 shrink-0" />
+                        <span className="truncate">See Details</span>
+                      </Link>
 
                       {/* Button 2: Direct WhatsApp Inquiry */}
-                      {showInquiry && (
-                        <a
-                          href={getWhatsAppLink(product)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={`w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-800 via-amber-850 to-amber-900 hover:from-amber-700 hover:to-amber-850 text-amber-50 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-md hover:shadow-lg border border-amber-700/60 ${
-                            !showDetails ? "sm:col-span-2 py-3" : ""
-                          }`}
-                        >
-                          <MessageSquare className="w-3.5 h-3.5 text-amber-200" />
-                          <span>Direct Inquiry</span>
-                        </a>
-                      )}
+                      <a
+                        href={getWhatsAppLink(product)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full py-2.5 px-2.5 sm:px-3 rounded-xl bg-gradient-to-r from-amber-800 via-amber-850 to-amber-900 hover:from-amber-700 hover:to-amber-850 text-amber-50 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-md hover:shadow-lg border border-amber-700/60 cursor-pointer"
+                        title="Chat directly with Solapur workshop craftsman"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5 text-amber-200 shrink-0" />
+                        <span className="truncate">Direct Inquiry</span>
+                      </a>
                     </div>
 
                     {/* Action Row 2: Add to Cart / View Cart & Share */}

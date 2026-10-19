@@ -28,7 +28,6 @@ import {
   toggleManagerStatus,
   deleteManager,
 } from "@/actions/managerActions";
-import SearchableSelect from "@/components/SearchableSelect";
 import { validatePhone, validateEmail } from "@/lib/validation";
 
 export default function AdminManagersPage() {
@@ -170,17 +169,17 @@ export default function AdminManagersPage() {
   return (
     <div className="space-y-8" suppressHydrationWarning>
       {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-xl relative overflow-hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900/90 [data-theme='emerald']:bg-[#022c22] p-6 sm:p-8 rounded-3xl border border-slate-200/90 dark:border-slate-800 [data-theme='emerald']:border-emerald-700/60 shadow-lg relative overflow-hidden">
         <div className="space-y-1 relative z-10">
           <div className="flex items-center gap-2">
-            <span className="text-[11px] uppercase font-extrabold tracking-widest text-amber-400 bg-amber-950/80 px-3 py-0.5 rounded-full border border-amber-800/60">
+            <span className="text-[11px] uppercase font-extrabold tracking-widest text-amber-800 dark:text-amber-300 [data-theme='emerald']:text-amber-300 bg-amber-100 dark:bg-amber-950/80 [data-theme='emerald']:bg-emerald-950/80 px-3 py-0.5 rounded-full border border-amber-300 dark:border-amber-800/60 [data-theme='emerald']:border-emerald-700/60">
               Staff Administration & Security
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold font-serif text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold font-serif text-slate-900 dark:text-white [data-theme='emerald']:text-white tracking-tight">
             Showroom Manager Management
           </h1>
-          <p className="text-xs text-slate-400 max-w-xl leading-relaxed">
+          <p className="text-xs text-slate-600 dark:text-slate-300 [data-theme='emerald']:text-emerald-200/90 max-w-xl leading-relaxed">
             Assign showroom leads, delegate manufacturing branch permissions, grant or restrict portal access, and monitor executive staff assignments across Solapur facilities.
           </p>
         </div>
@@ -188,14 +187,14 @@ export default function AdminManagersPage() {
         <div className="flex items-center gap-3 relative z-10">
           <button
             onClick={loadData}
-            className="p-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700/80 transition-all cursor-pointer shadow-xs"
+            className="p-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 [data-theme='emerald']:bg-[#033628] [data-theme='emerald']:hover:bg-[#044a38] text-slate-700 dark:text-slate-200 [data-theme='emerald']:text-emerald-100 border border-slate-300 dark:border-slate-700 [data-theme='emerald']:border-emerald-700/60 transition-all cursor-pointer shadow-xs"
             title="Refresh database records"
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-amber-400" : ""}`} />
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-amber-600 dark:text-amber-400" : ""}`} />
           </button>
           <button
             onClick={() => setShowModal(true)}
-            className="px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-black transition-all flex items-center gap-2 shadow-lg shadow-amber-500/10 cursor-pointer"
+            className="px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-black transition-all flex items-center gap-2 shadow-lg shadow-amber-500/20 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Add New Manager</span>
@@ -205,40 +204,40 @@ export default function AdminManagersPage() {
 
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-slate-950/80 p-5 rounded-2xl border border-slate-800/80 space-y-2">
-          <div className="flex items-center justify-between text-xs text-slate-400">
+        <div className="bg-white dark:bg-slate-900 [data-theme='emerald']:bg-[#02281e] p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800 [data-theme='emerald']:border-emerald-700/60 shadow-xs space-y-2">
+          <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 [data-theme='emerald']:text-emerald-300">
             <span className="font-semibold">Total Staff</span>
-            <Users className="w-4 h-4 text-amber-400" />
+            <Users className="w-4 h-4 text-amber-600 dark:text-amber-400 [data-theme='emerald']:text-amber-300" />
           </div>
-          <div className="text-2xl font-black text-white font-serif">{totalCount}</div>
-          <p className="text-[11px] text-slate-500">Registered manager accounts</p>
+          <div className="text-2xl font-black text-slate-900 dark:text-white [data-theme='emerald']:text-white font-serif">{totalCount}</div>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 [data-theme='emerald']:text-emerald-300/80">Registered manager accounts</p>
         </div>
 
-        <div className="bg-slate-950/80 p-5 rounded-2xl border border-slate-800/80 space-y-2">
-          <div className="flex items-center justify-between text-xs text-emerald-400">
-            <span className="font-semibold">Active Leads</span>
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+        <div className="bg-white dark:bg-slate-900 [data-theme='emerald']:bg-[#02281e] p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800 [data-theme='emerald']:border-emerald-700/60 shadow-xs space-y-2">
+          <div className="flex items-center justify-between text-xs text-emerald-700 dark:text-emerald-400 font-semibold">
+            <span>Active Leads</span>
+            <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
           </div>
-          <div className="text-2xl font-black text-emerald-400 font-serif">{activeCount}</div>
-          <p className="text-[11px] text-slate-500">Full portal access enabled</p>
+          <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-serif">{activeCount}</div>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 [data-theme='emerald']:text-emerald-300/80">Full portal access enabled</p>
         </div>
 
-        <div className="bg-slate-950/80 p-5 rounded-2xl border border-slate-800/80 space-y-2">
-          <div className="flex items-center justify-between text-xs text-amber-400">
-            <span className="font-semibold">Restricted</span>
-            <ShieldAlert className="w-4 h-4 text-amber-400" />
+        <div className="bg-white dark:bg-slate-900 [data-theme='emerald']:bg-[#02281e] p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800 [data-theme='emerald']:border-emerald-700/60 shadow-xs space-y-2">
+          <div className="flex items-center justify-between text-xs text-amber-700 dark:text-amber-400 font-semibold">
+            <span>Restricted</span>
+            <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-amber-400" />
           </div>
-          <div className="text-2xl font-black text-amber-400 font-serif">{inactiveCount}</div>
-          <p className="text-[11px] text-slate-500">Access temporarily held</p>
+          <div className="text-2xl font-black text-amber-600 dark:text-amber-400 font-serif">{inactiveCount}</div>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 [data-theme='emerald']:text-emerald-300/80">Access temporarily held</p>
         </div>
 
-        <div className="bg-slate-950/80 p-5 rounded-2xl border border-slate-800/80 space-y-2">
-          <div className="flex items-center justify-between text-xs text-sky-400">
-            <span className="font-semibold">Assigned Hubs</span>
-            <Building2 className="w-4 h-4 text-sky-400" />
+        <div className="bg-white dark:bg-slate-900 [data-theme='emerald']:bg-[#02281e] p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800 [data-theme='emerald']:border-emerald-700/60 shadow-xs space-y-2">
+          <div className="flex items-center justify-between text-xs text-sky-700 dark:text-sky-400 font-semibold">
+            <span>Facility Hub</span>
+            <Building2 className="w-4 h-4 text-sky-600 dark:text-sky-400" />
           </div>
-          <div className="text-2xl font-black text-sky-400 font-serif">{uniqueBranchesCount}</div>
-          <p className="text-[11px] text-slate-500">Solapur showrooms covered</p>
+          <div className="text-2xl font-black text-sky-600 dark:text-sky-400 font-serif">Solapur</div>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 [data-theme='emerald']:text-emerald-300/80">Central showroom & facility</p>
         </div>
       </div>
 
@@ -269,23 +268,23 @@ export default function AdminManagersPage() {
       )}
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-950/90 p-4 rounded-2xl border border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 [data-theme='emerald']:bg-[#02281e] p-4 rounded-2xl border border-slate-200/90 dark:border-slate-800 [data-theme='emerald']:border-emerald-700/60 shadow-xs">
         <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 pointer-events-none" />
           <input
             type="text"
             placeholder="Search by manager name, email, phone, or branch..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 [data-theme='emerald']:bg-[#011a14] border border-slate-300 dark:border-slate-800 [data-theme='emerald']:border-emerald-700/60 text-slate-900 dark:text-white [data-theme='emerald']:text-white placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
           />
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-400 font-semibold flex items-center gap-1">
-            <Filter className="w-3.5 h-3.5 text-slate-500" /> Filter:
+          <span className="text-xs text-slate-600 dark:text-slate-400 [data-theme='emerald']:text-emerald-300 font-semibold flex items-center gap-1">
+            <Filter className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" /> Filter:
           </span>
-          <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs">
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-950 [data-theme='emerald']:bg-[#011a14] p-1 rounded-xl border border-slate-200 dark:border-slate-800 [data-theme='emerald']:border-emerald-700/60 text-xs">
             {["ALL", "ACTIVE", "INACTIVE"].map((filter) => (
               <button
                 key={filter}
@@ -294,7 +293,7 @@ export default function AdminManagersPage() {
                 className={`px-3 py-1 rounded-lg font-bold transition-colors cursor-pointer ${
                   statusFilter === filter
                     ? "bg-amber-500 text-slate-950 shadow-xs"
-                    : "text-slate-400 hover:text-white"
+                    : "text-slate-600 dark:text-slate-400 [data-theme='emerald']:text-emerald-300/80 hover:text-slate-900 dark:hover:text-white [data-theme='emerald']:hover:text-white"
                 }`}
               >
                 {filter === "ALL" ? "All Staff" : filter === "ACTIVE" ? "Active" : "Restricted"}
@@ -306,7 +305,7 @@ export default function AdminManagersPage() {
 
       {/* Managers Card Grid */}
       {loading && managers.length === 0 ? (
-        <div className="text-center py-16 text-slate-500 bg-slate-950 rounded-3xl border border-slate-800 space-y-3">
+        <div className="text-center py-16 text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 [data-theme='emerald']:bg-[#02281e] rounded-3xl border border-slate-200 dark:border-slate-800 [data-theme='emerald']:border-emerald-700/60 space-y-3">
           <RefreshCw className="w-8 h-8 animate-spin mx-auto text-amber-500" />
           <p className="text-xs font-semibold">Synchronizing managers from database...</p>
         </div>
@@ -346,10 +345,10 @@ export default function AdminManagersPage() {
             return (
               <div
                 key={mgr.id}
-                className={`bg-slate-950 p-6 rounded-3xl border transition-all duration-300 space-y-5 hover:-translate-y-1.5 hover:shadow-xl group flex flex-col justify-between ${
+                className={`bg-white dark:bg-slate-900 [data-theme='emerald']:bg-[#02281e] p-6 rounded-3xl border transition-all duration-300 space-y-5 hover:-translate-y-1 hover:shadow-lg group flex flex-col justify-between ${
                   isActive
-                    ? "border-slate-800/90 hover:border-amber-500/60"
-                    : "border-red-950/80 bg-slate-950/90 hover:border-red-800/80"
+                    ? "border-slate-200 dark:border-slate-800 [data-theme='emerald']:border-emerald-700/60 hover:border-amber-500/60"
+                    : "border-red-200 dark:border-red-950/80 bg-red-50/20 dark:bg-slate-950/90"
                 }`}
               >
                 <div className="space-y-4">
@@ -357,20 +356,20 @@ export default function AdminManagersPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <div
-                        className={`w-12 h-12 rounded-2xl font-black flex items-center justify-center font-serif text-lg shadow-inner transition-transform group-hover:scale-105 ${
+                        className={`w-12 h-12 rounded-2xl font-black flex items-center justify-center font-serif text-lg shadow-xs transition-transform group-hover:scale-105 ${
                           isActive
                             ? "bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950"
-                            : "bg-red-950 text-red-400 border border-red-800"
+                            : "bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400 border border-red-300 dark:border-red-800"
                         }`}
                       >
                         {displayName[0]?.toUpperCase() || "M"}
                       </div>
                       <div className="space-y-0.5">
-                        <h3 className="text-base font-bold font-serif text-white group-hover:text-amber-400 transition-colors">
+                        <h3 className="text-base font-bold font-serif text-slate-900 dark:text-white [data-theme='emerald']:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
                           {displayName}
                         </h3>
-                        <span className="text-xs text-amber-400/90 font-semibold flex items-center gap-1">
-                          <MapPin className="w-3.5 h-3.5 text-amber-500" />
+                        <span className="text-xs text-amber-700 dark:text-amber-400 [data-theme='emerald']:text-amber-300 font-semibold flex items-center gap-1">
+                          <MapPin className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                           <span>{branchName} {city && `(${city})`}</span>
                         </span>
                       </div>
@@ -379,54 +378,54 @@ export default function AdminManagersPage() {
                     <span
                       className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full border inline-flex items-center gap-1.5 shrink-0 ${
                         isActive
-                          ? "bg-emerald-950/90 text-emerald-400 border-emerald-800"
-                          : "bg-red-950/90 text-red-400 border-red-800"
+                          ? "bg-emerald-50 dark:bg-emerald-950/90 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-800"
+                          : "bg-red-50 dark:bg-red-950/90 text-red-700 dark:text-red-400 border-red-300 dark:border-red-800"
                       }`}
                     >
-                      <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-emerald-400" : "bg-red-400"}`} />
+                      <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-emerald-500" : "bg-red-500"}`} />
                       <span>{isActive ? "ACTIVE" : "RESTRICTED"}</span>
                     </span>
                   </div>
 
                   {/* Contact Badges */}
-                  <div className="space-y-2 text-xs text-slate-400 pt-3 border-t border-slate-900">
+                  <div className="space-y-2 text-xs pt-3 border-t border-slate-100 dark:border-slate-800 [data-theme='emerald']:border-emerald-800/40">
                     <a
                       href={`mailto:${email}`}
-                      className="flex items-center gap-2.5 p-2 rounded-xl bg-slate-900/60 hover:bg-slate-900 text-slate-300 transition-colors group/item"
+                      className="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-950/80 dark:hover:bg-slate-800 [data-theme='emerald']:bg-[#011a14] [data-theme='emerald']:hover:bg-[#022f24] text-slate-800 dark:text-slate-200 [data-theme='emerald']:text-emerald-200 border border-slate-200/90 dark:border-slate-800/80 [data-theme='emerald']:border-emerald-800/60 transition-colors group/item"
                     >
-                      <Mail className="w-3.5 h-3.5 text-amber-500/80 group-hover/item:text-amber-400 shrink-0" />
-                      <span className="truncate">{email}</span>
+                      <Mail className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                      <span className="truncate font-medium">{email}</span>
                     </a>
 
                     <a
                       href={mgr.phone ? `tel:${mgr.phone}` : "#"}
-                      className="flex items-center gap-2.5 p-2 rounded-xl bg-slate-900/60 hover:bg-slate-900 text-slate-300 transition-colors group/item"
+                      className="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-950/80 dark:hover:bg-slate-800 [data-theme='emerald']:bg-[#011a14] [data-theme='emerald']:hover:bg-[#022f24] text-slate-800 dark:text-slate-200 [data-theme='emerald']:text-emerald-200 border border-slate-200/90 dark:border-slate-800/80 [data-theme='emerald']:border-emerald-800/60 transition-colors group/item"
                     >
-                      <Phone className="w-3.5 h-3.5 text-amber-500/80 group-hover/item:text-amber-400 shrink-0" />
-                      <span className="truncate font-mono">{mgr.phone || "No phone provided"}</span>
+                      <Phone className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                      <span className="truncate font-mono font-medium">{mgr.phone || "No phone provided"}</span>
                     </a>
                   </div>
                 </div>
 
                 {/* Card Action Controls */}
-                <div className="pt-4 border-t border-slate-900 flex items-center justify-between gap-2">
+                <div className="pt-4 border-t border-slate-100 dark:border-slate-800 [data-theme='emerald']:border-emerald-800/40 flex items-center justify-between gap-2">
                   <button
                     onClick={() => handleToggleStatus(mgr)}
                     className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs ${
                       isActive
-                        ? "bg-slate-900 hover:bg-red-950/80 text-slate-300 hover:text-red-300 border-slate-800 hover:border-red-800"
-                        : "bg-emerald-950/90 hover:bg-emerald-900 text-emerald-400 border-emerald-800"
+                        ? "bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-700 border-slate-300 hover:border-red-300 dark:bg-slate-800 dark:hover:bg-red-950/80 dark:text-slate-300 dark:hover:text-red-300 dark:border-slate-700"
+                        : "bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-500 shadow-sm"
                     }`}
                     title={isActive ? "Restrict manager from accessing portal" : "Enable portal access"}
                   >
                     {isActive ? (
                       <>
-                        <Ban className="w-3.5 h-3.5 text-red-400" />
+                        <Ban className="w-3.5 h-3.5 text-red-500 dark:text-red-400" />
                         <span>Restrict Access</span>
                       </>
                     ) : (
                       <>
-                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                        <ShieldCheck className="w-3.5 h-3.5 text-white" />
                         <span>Activate Access</span>
                       </>
                     )}
@@ -434,7 +433,7 @@ export default function AdminManagersPage() {
 
                   <button
                     onClick={() => handleDeleteManager(mgr)}
-                    className="p-2.5 rounded-xl bg-red-950/40 hover:bg-red-950 text-red-400 border border-red-900/60 hover:border-red-700 transition-colors cursor-pointer"
+                    className="p-2.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 dark:bg-red-950/40 dark:hover:bg-red-950 dark:text-red-400 dark:border-red-900/60 transition-colors cursor-pointer"
                     title="Delete manager account permanently"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -448,18 +447,18 @@ export default function AdminManagersPage() {
 
       {/* Add Manager Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 max-w-md w-full border border-slate-800 space-y-5 shadow-2xl animate-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 [data-theme='emerald']:bg-[#02281e] rounded-3xl p-6 sm:p-8 max-w-md w-full border border-slate-200 dark:border-slate-800 [data-theme='emerald']:border-emerald-700/60 space-y-5 shadow-2xl animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
               <div>
-                <h3 className="text-xl font-bold font-serif text-white">Add Showroom Manager</h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Assign administrative credentials and link them to a Solapur facility.
+                <h3 className="text-xl font-bold font-serif text-slate-900 dark:text-white [data-theme='emerald']:text-white">Add Showroom Manager</h3>
+                <p className="text-xs text-slate-600 dark:text-slate-400 [data-theme='emerald']:text-emerald-300 mt-0.5">
+                  Assign administrative credentials for the Solapur Showroom &amp; Facility.
                 </p>
               </div>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -467,19 +466,19 @@ export default function AdminManagersPage() {
 
             <form onSubmit={handleAddManager} className="space-y-4 text-xs">
               <div>
-                <label className="text-slate-300 font-bold block mb-1">Full Name *</label>
+                <label className="text-slate-700 dark:text-slate-300 [data-theme='emerald']:text-emerald-200 font-bold block mb-1">Full Name *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Suresh Kumar"
                   value={newMgr.name}
                   onChange={(e) => setNewMgr({ ...newMgr, name: e.target.value })}
-                  className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 [data-theme='emerald']:bg-[#011a14] border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white [data-theme='emerald']:text-white focus:outline-none focus:ring-1 focus:ring-amber-500"
                 />
               </div>
 
               <div>
-                <label className="text-slate-300 font-bold block mb-1">Email Address *</label>
+                <label className="text-slate-700 dark:text-slate-300 [data-theme='emerald']:text-emerald-200 font-bold block mb-1">Email Address *</label>
                 <input
                   type="email"
                   required
@@ -489,15 +488,15 @@ export default function AdminManagersPage() {
                     setNewMgr({ ...newMgr, email: e.target.value });
                     if (emailError) setEmailError(null);
                   }}
-                  className={`w-full p-3 rounded-xl bg-slate-950 border text-white focus:outline-none focus:ring-1 focus:ring-amber-500 ${
-                    emailError ? "border-red-500" : "border-slate-800"
+                  className={`w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 [data-theme='emerald']:bg-[#011a14] border text-slate-900 dark:text-white [data-theme='emerald']:text-white focus:outline-none focus:ring-1 focus:ring-amber-500 ${
+                    emailError ? "border-red-500" : "border-slate-300 dark:border-slate-800"
                   }`}
                 />
                 {emailError && <p className="text-[10px] text-red-500 font-semibold mt-1">{emailError}</p>}
               </div>
 
               <div>
-                <label className="text-slate-300 font-bold block mb-1">Phone Number (10 digits) *</label>
+                <label className="text-slate-700 dark:text-slate-300 [data-theme='emerald']:text-emerald-200 font-bold block mb-1">Phone Number (10 digits) *</label>
                 <input
                   type="tel"
                   required
@@ -507,25 +506,25 @@ export default function AdminManagersPage() {
                     setNewMgr({ ...newMgr, phone: e.target.value });
                     if (phoneError) setPhoneError(null);
                   }}
-                  className={`w-full p-3 rounded-xl bg-slate-950 border text-white focus:outline-none focus:ring-1 focus:ring-amber-500 ${
-                    phoneError ? "border-red-500" : "border-slate-800"
+                  className={`w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 [data-theme='emerald']:bg-[#011a14] border text-slate-900 dark:text-white [data-theme='emerald']:text-white focus:outline-none focus:ring-1 focus:ring-amber-500 ${
+                    phoneError ? "border-red-500" : "border-slate-300 dark:border-slate-800"
                   }`}
                 />
                 {phoneError && <p className="text-[10px] text-red-500 font-semibold mt-1">{phoneError}</p>}
               </div>
 
-              <SearchableSelect
-                label="Showroom Branch Hub"
-                required
-                dark={true}
-                options={branches.map((b) => ({ value: b.id, label: `${b.name} (${b.city})` }))}
-                value={newMgr.branchId}
-                onChange={(val) => setNewMgr({ ...newMgr, branchId: val })}
-                allowOther={true}
-                otherPlaceholder="Enter custom showroom branch name..."
-              />
+              {/* Sole Facility Hub indicator */}
+              <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-950 [data-theme='emerald']:bg-[#011a14] border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2">
+                  <Building2 className="w-4 h-4 text-amber-500 shrink-0" />
+                  <span className="text-slate-600 dark:text-slate-400 font-medium">Assigned Facility:</span>
+                </div>
+                <span className="font-bold text-slate-900 dark:text-white bg-white dark:bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700/60 shadow-2xs">
+                  Solapur Central Facility
+                </span>
+              </div>
 
-              <div className="flex items-center gap-3 pt-3 border-t border-slate-800">
+              <div className="flex items-center gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
                 <button
                   type="submit"
                   disabled={submitting}
@@ -536,7 +535,7 @@ export default function AdminManagersPage() {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="py-3 px-5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold cursor-pointer"
+                  className="py-3 px-5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold cursor-pointer"
                 >
                   Cancel
                 </button>

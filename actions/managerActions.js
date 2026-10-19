@@ -32,10 +32,31 @@ export async function getManagers() {
  */
 export async function createManager(data) {
   try {
-    const { name, email, phone, branchId } = data;
+    let { name, email, phone, branchId } = data;
 
-    if (!name || !email || !branchId) {
-      return { success: false, error: "Name, email, and showroom branch are required." };
+    if (!name || !email) {
+      return { success: false, error: "Name and email are required." };
+    }
+
+    // Default to the sole Solapur showroom facility if branchId is not passed
+    if (!branchId) {
+      const defaultBranch = await db.branch.findFirst({
+        orderBy: { createdAt: "asc" },
+      });
+      if (defaultBranch) {
+        branchId = defaultBranch.id;
+      } else {
+        const createdBranch = await db.branch.create({
+          data: {
+            name: "AMEENA Distributors's Sofa Set Furniture Company",
+            city: "Solapur",
+            state: "Maharashtra",
+            address: "Main Showroom & Workshop, Solapur",
+            phone: "+91 9876543210",
+          },
+        });
+        branchId = createdBranch.id;
+      }
     }
 
     // Find or create User with MANAGER role

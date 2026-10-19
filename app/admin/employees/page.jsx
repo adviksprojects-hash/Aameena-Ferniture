@@ -500,17 +500,17 @@ export default function AdminEmployeesPage() {
   return (
     <div className="space-y-8" suppressHydrationWarning>
       {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-xl relative overflow-hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900/90 [data-theme='emerald']:bg-[#022c22] p-6 sm:p-8 rounded-3xl border border-slate-200/90 dark:border-slate-800 [data-theme='emerald']:border-emerald-700/60 shadow-lg relative overflow-hidden">
         <div className="space-y-1 relative z-10">
           <div className="flex items-center gap-2">
-            <span className="text-[11px] uppercase font-extrabold tracking-widest text-amber-400 bg-amber-950/80 px-3 py-0.5 rounded-full border border-amber-800/60">
+            <span className="text-[11px] uppercase font-extrabold tracking-widest text-amber-800 dark:text-amber-300 [data-theme='emerald']:text-amber-300 bg-amber-100 dark:bg-amber-950/80 [data-theme='emerald']:bg-emerald-950/80 px-3 py-0.5 rounded-full border border-amber-300 dark:border-amber-800/60 [data-theme='emerald']:border-emerald-700/60">
               Admin Exclusive Access • Full CRUD Controls
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold font-serif text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold font-serif text-slate-900 dark:text-white [data-theme='emerald']:text-white tracking-tight">
             Workforce, Recruitment & Careers Desk
           </h1>
-          <p className="text-xs text-slate-400 max-w-2xl leading-relaxed">
+          <p className="text-xs text-slate-600 dark:text-slate-300 [data-theme='emerald']:text-emerald-200/90 max-w-2xl leading-relaxed">
             Manage your master craftsmen, post or edit career openings anytime, evaluate candidates across 3 workflow stages, and onboard selected applicants directly with full administrative authorization.
           </p>
         </div>
@@ -520,10 +520,10 @@ export default function AdminEmployeesPage() {
             type="button"
             suppressHydrationWarning
             onClick={loadAllData}
-            className="p-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700/80 transition-all cursor-pointer shadow-xs"
+            className="p-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 [data-theme='emerald']:bg-[#033628] [data-theme='emerald']:hover:bg-[#044a38] text-slate-700 dark:text-slate-200 [data-theme='emerald']:text-emerald-100 border border-slate-300 dark:border-slate-700 [data-theme='emerald']:border-emerald-700/60 transition-all cursor-pointer shadow-xs"
             title="Refresh database records"
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-amber-400" : ""}`} />
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-amber-600 dark:text-amber-400" : ""}`} />
           </button>
 
           {activeTab === "employees" ? (

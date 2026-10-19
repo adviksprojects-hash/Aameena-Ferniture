@@ -38,16 +38,19 @@ export async function POST(request) {
       if (ext === "jpeg") ext = "jpg";
     }
 
-    const uniqueId = Date.now().toString(36) + "_" + Math.random().toString(36).substring(2, 7);
-    const fileName = `review_${uniqueId}.${ext}`;
+    const folderParam = formData.get("folder") || "reviews";
+    const folder = folderParam.replace(/[^a-zA-Z0-9_-]/g, "") || "reviews";
 
-    const uploadDir = path.join(process.cwd(), "public", "uploads", "reviews");
+    const uniqueId = Date.now().toString(36) + "_" + Math.random().toString(36).substring(2, 7);
+    const fileName = `${folder}_${uniqueId}.${ext}`;
+
+    const uploadDir = path.join(process.cwd(), "public", "uploads", folder);
     await mkdir(uploadDir, { recursive: true });
 
     const filePath = path.join(uploadDir, fileName);
     await writeFile(filePath, buffer);
 
-    const publicUrl = `/uploads/reviews/${fileName}`;
+    const publicUrl = `/uploads/${folder}/${fileName}`;
 
     return NextResponse.json({
       success: true,

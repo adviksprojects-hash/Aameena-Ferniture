@@ -22,7 +22,10 @@ import {
   FileText,
   Tag,
   User,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Upload,
+  Loader2,
+  Check
 } from "lucide-react";
 import {
   getBlogPosts,
@@ -77,6 +80,49 @@ export default function BlogManagementView({ userRole = "ADMIN" }) {
   const [seoDesc, setSeoDesc] = useState("");
   const [seoKeywords, setSeoKeywords] = useState("");
 
+  // Cover Image Upload State
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+  const [showUrlInput, setShowUrlInput] = useState(false);
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadError("Image size exceeds 10MB limit. Please choose a smaller photo.");
+      return;
+    }
+
+    setIsUploadingImage(true);
+    setUploadError("");
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "blogs");
+
+      const res = await fetch("/api/upload-image", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (data.success && data.url) {
+        setCoverImage(data.url);
+        setUploadError("");
+      } else {
+        setUploadError(data.error || "Failed to upload cover photo.");
+      }
+    } catch (err) {
+      console.error("Cover image upload error:", err);
+      setUploadError(err.message || "Network error uploading image");
+    } finally {
+      setIsUploadingImage(false);
+      if (e.target) e.target.value = "";
+    }
+  };
+
   const loadPosts = async () => {
     setLoading(true);
     try {
@@ -114,6 +160,9 @@ export default function BlogManagementView({ userRole = "ADMIN" }) {
     setSeoTitle("");
     setSeoDesc("");
     setSeoKeywords("");
+    setIsUploadingImage(false);
+    setUploadError("");
+    setShowUrlInput(false);
     setIsModalOpen(true);
   };
 
@@ -134,6 +183,9 @@ export default function BlogManagementView({ userRole = "ADMIN" }) {
     setSeoTitle(post.seoTitle || "");
     setSeoDesc(post.seoDesc || "");
     setSeoKeywords(post.seoKeywords || "");
+    setIsUploadingImage(false);
+    setUploadError("");
+    setShowUrlInput(false);
     setIsModalOpen(true);
   };
 
@@ -635,32 +687,132 @@ export default function BlogManagementView({ userRole = "ADMIN" }) {
                 </div>
               </div>
 
-              {/* Cover Image & Presets */}
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-2">
-                <label className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                  <ImageIcon className="w-4 h-4 text-amber-500" />
-                  <span>Cover Image URL:</span>
-                </label>
-                <input
-                  type="text"
-                  value={coverImage}
-                  onChange={(e) => setCoverImage(e.target.value)}
-                  placeholder="e.g. /images/categories/living.jpg or https://..."
-                  className="w-full rounded-xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-white text-xs font-mono"
-                />
-                <div className="flex items-center gap-2 pt-1 flex-wrap">
-                  <span className="text-[10px] text-slate-600 dark:text-slate-400 font-semibold">Quick Presets:</span>
-                  {IMAGE_PRESETS.map((preset) => (
-                    <button
-                      key={preset.url}
-                      type="button"
-                      onClick={() => setCoverImage(preset.url)}
-                      className="px-2 py-1 rounded bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-[10px] text-amber-800 dark:text-amber-300 font-bold border border-slate-300 dark:border-slate-700 transition cursor-pointer"
-                    >
-                      {preset.label}
-                    </button>
-                  ))}
+              {/* Cover Image Upload & Customizer */}
+              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 text-xs">
+                    <ImageIcon className="w-4 h-4 text-amber-500" />
+                    <span>Article Cover Image *</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowUrlInput(!showUrlInput)}
+                    className="text-[11px] text-amber-700 dark:text-amber-400 hover:underline font-semibold cursor-pointer"
+                  >
+                    {showUrlInput ? "Hide Presets & Direct URL" : "Presets / Direct URL"}
+                  </button>
                 </div>
+
+                {/* Upload Button & Action Controls */}
+                <div className="space-y-2">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                    <label
+                      htmlFor="blog-cover-file-input"
+                      className={`flex-1 flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl border-2 border-dashed cursor-pointer transition text-xs font-bold ${
+                        isUploadingImage
+                          ? "border-amber-400 bg-amber-500/10 text-amber-600 dark:text-amber-400 cursor-wait"
+                          : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:border-amber-500 hover:bg-amber-50/50 dark:hover:bg-amber-950/20"
+                      }`}
+                    >
+                      {isUploadingImage ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin text-amber-500 shrink-0" />
+                          <span>Uploading image to server...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-4 h-4 text-amber-500 shrink-0" />
+                          <span>Upload Image from Device / Computer</span>
+                        </>
+                      )}
+                      <input
+                        id="blog-cover-file-input"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/avif,image/gif"
+                        className="hidden"
+                        disabled={isUploadingImage}
+                        onChange={handleFileUpload}
+                      />
+                    </label>
+
+                    {coverImage && (
+                      <button
+                        type="button"
+                        onClick={() => setCoverImage("")}
+                        className="px-3 py-3 rounded-xl border border-red-300 dark:border-red-900/50 bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
+                        title="Remove current cover image"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Remove</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {uploadError && (
+                    <p className="text-[11px] text-red-500 font-semibold flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{uploadError}</span>
+                    </p>
+                  )}
+                </div>
+
+                {/* Live Preview Box */}
+                {coverImage ? (
+                  <div className="relative rounded-xl overflow-hidden border border-slate-300 dark:border-slate-800 bg-slate-900 group">
+                    <img
+                      src={coverImage}
+                      alt="Article Cover Preview"
+                      className="w-full h-36 object-cover object-center"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1200&q=80";
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent flex items-end p-2.5">
+                      <div className="flex items-center justify-between w-full text-white text-[10px]">
+                        <span className="truncate max-w-[75%] font-mono bg-black/60 px-2 py-0.5 rounded border border-white/10">
+                          {coverImage}
+                        </span>
+                        <span className="bg-emerald-600 text-white font-bold px-2 py-0.5 rounded flex items-center gap-1 shrink-0">
+                          <Check className="w-3 h-3" /> Ready
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-dashed border-slate-300 dark:border-slate-800 p-3.5 text-center text-xs text-slate-500 dark:text-slate-400 bg-white/40 dark:bg-slate-900/40">
+                    No image uploaded yet. Click above to upload any image file from your device.
+                  </div>
+                )}
+
+                {/* Optional Manual URL & Presets Dropdown */}
+                {showUrlInput && (
+                  <div className="pt-2.5 border-t border-slate-200 dark:border-slate-800 space-y-2">
+                    <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-400 block">
+                      Or paste an image URL directly:
+                    </label>
+                    <input
+                      type="text"
+                      value={coverImage}
+                      onChange={(e) => setCoverImage(e.target.value)}
+                      placeholder="e.g. /images/categories/living.jpg or https://..."
+                      className="w-full rounded-xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 p-2 text-slate-900 dark:text-white text-xs font-mono"
+                    />
+                    <div className="flex items-center gap-1.5 pt-1 flex-wrap">
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold">Quick Presets:</span>
+                      {IMAGE_PRESETS.map((preset) => (
+                        <button
+                          key={preset.url}
+                          type="button"
+                          onClick={() => setCoverImage(preset.url)}
+                          className="px-2 py-1 rounded bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-[10px] text-amber-800 dark:text-amber-300 font-bold border border-slate-300 dark:border-slate-700 transition cursor-pointer"
+                        >
+                          {preset.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Excerpt */}

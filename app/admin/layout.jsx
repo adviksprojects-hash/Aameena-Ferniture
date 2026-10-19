@@ -185,9 +185,9 @@ export default function AdminLayout({ children }) {
       )}
 
       {/* 3. Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Top Header Bar with Mobile Menu Toggle */}
-        <header className="h-14 sm:h-16 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 px-4 sm:px-6 flex items-center justify-between shrink-0 admin-header">
+        <header className="relative z-40 h-14 sm:h-16 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 px-4 sm:px-6 flex items-center justify-between shrink-0 admin-header">
           <div className="flex items-center gap-3">
             {/* Mobile Menu Toggle Button */}
             <button
