@@ -1,0 +1,363 @@
+    ====================================================================================================
+               AAMEENA DISTRIBUTORS - COMPREHENSIVE INPUT FIELDS REGISTRY & AUDIT
+====================================================================================================
+Document Purpose:
+Complete technical inventory of every input taken from Users (Customers), Managers, and Administrators
+across the platform. Includes field names, input types, validation rules, UI component paths, and backend handlers.
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+SECTION 1: USER / CUSTOMER STOREFRONT INPUTS
+----------------------------------------------------------------------------------------------------
+
+1.1 Contact & Showroom Visit Booking Form
+UI File Path: c:\.Decentrax\Aameena-Ferniture\app\contact\page.jsx
+Backend Handler: Server Action / API in c:\.Decentrax\Aameena-Ferniture\actions\orderActions.js (createInquiry)
+Inputs:
+  - Full Name:
+      Type: text
+      Required: Yes
+      Validation: Non-empty string, min 2 chars
+  - Mobile / Phone Number:
+      Type: tel
+      Required: Yes
+      Validation: 10-digit Indian mobile number format (+91 or 10 digits)
+  - Email Address:
+      Type: email
+      Required: Yes
+      Validation: Valid RFC email regex
+  - Showroom Visit Date:
+      Type: date
+      Required: Optional
+      Validation: Must be present or future date
+  - Preferred Furniture Interest:
+      Type: select
+      Required: Yes
+      Options: Living Room Sofas, Dining Sets, Bedroom Furniture, Temple Mandir, Custom Woodwork
+  - Message / Custom Requirement:
+      Type: textarea
+      Required: Optional
+      Validation: Max 1000 characters
+
+1.2 Custom Furniture Bespoke Quote & 3D AR Request
+UI File Path: c:\.Decentrax\Aameena-Ferniture\app\services\page.jsx
+Backend Handler: Server Action in c:\.Decentrax\Aameena-Ferniture\actions\orderActions.js
+Inputs:
+  - Customer Name:
+      Type: text, Required: Yes
+  - Phone / WhatsApp Number:
+      Type: tel, Required: Yes (used for quotation PDF delivery)
+  - Email Address:
+      Type: email, Required: Yes
+  - Room / Category:
+      Type: select (Living Room, Master Bedroom, Royal Dining, Mandir, Commercial Setup)
+  - Target Dimensions (Length x Width x Height in inches/feet):
+      Type: text, Required: Optional
+  - Preferred Hardwood Species:
+      Type: select (Grade-A Sagwan Teak, CP Teak, Sheesham, Rosewood)
+  - Wood Finishing Polish:
+      Type: select (Natural Honey Matte, High-Gloss Polyurethane, Walnut Satin, Deep Antique)
+  - Request 3D Space / Augmented Reality Preview:
+      Type: checkbox (boolean), Required: Optional
+  - Reference Sketch / Photo Upload:
+      Type: file (image/jpeg, image/png, image/webp), Required: Optional
+  - Specific Custom Notes / Architectural Requirements:
+      Type: textarea, Max 2000 characters
+
+1.3 Authentic Customer Reviews Submission Form
+UI File Path: c:\.Decentrax\Aameena-Ferniture\components\ReviewFormModal.jsx
+Backend Handler: Server Action in c:\.Decentrax\Aameena-Ferniture\actions\reviewActions.js
+Inputs:
+  - Reviewer Full Name:
+      Type: text, Required: Yes, min 2 chars
+  - Rating Stars:
+      Type: number / interactive stars (1 to 5), Required: Yes
+  - Associated Product / Furniture Piece:
+      Type: select or searchable text, Required: Optional
+  - Purchase Verification (Order ID / Invoice No.):
+      Type: text, Required: Optional (yields "Verified Purchase" badge)
+  - Review Headline / Title:
+      Type: text, Required: Yes, min 4 chars
+  - Detailed Experience / Review Body:
+      Type: textarea, Required: Yes, min 20 chars
+  - Customer Room Photos / Unboxing Images:
+      Type: file upload (up to 5 images), Supported: JPG, PNG, WEBP
+
+1.4 AI Humanized Review Generator (Showroom Staff & Customer Assist)
+UI File Path: c:\.Decentrax\Aameena-Ferniture\app\ai-reviews\page.jsx
+Backend Engine: c:\.Decentrax\Aameena-Ferniture\lib\reviews\reviewGenerator.js
+Inputs:
+  - Furniture Item:
+      Type: text / select (Sofa Set, Dining Table, Sagwan Bed, Mandir, Recliner)
+  - Customer Persona / Archetype:
+      Type: select (Family Homeowner, Interior Designer, Commercial Architect, Senior Retired Couple, Young Couple)
+  - Timber Grade & Focus:
+      Type: select (Solid Teak Sagwan, Mortise Joinery, Hand Polishing, Punctual White-Glove Delivery)
+  - Tone & Sentiment:
+      Type: select (Enthusiastic, Discerning Expert, Warm & Nostalgic, Straightforward)
+  - Additional Notes / Personal Details:
+      Type: textarea, Optional
+
+1.5 Shopping Cart, Wishlist & White-Glove Delivery Checkout
+UI File Path: c:\.Decentrax\Aameena-Ferniture\app\cart\page.jsx
+Backend Handler: Server Action in c:\.Decentrax\Aameena-Ferniture\actions\orderActions.js (createOrder)
+Inputs:
+  - Full Delivery Name:
+      Type: text, Required: Yes
+  - Contact Mobile Number:
+      Type: tel, Required: Yes (WhatsApp order tracking dispatched to this number)
+  - Alternative Phone:
+      Type: tel, Required: Optional
+  - Full Street Address:
+      Type: textarea, Required: Yes
+  - City & District:
+      Type: text, Required: Yes (Default: Solapur / Maharashtra)
+  - Pincode:
+      Type: text, Required: Yes, Validation: 6-digit Indian PIN code
+  - Delivery Timing Instructions / Floor Number:
+      Type: text, Required: Optional
+  - Payment Method Selection:
+      Type: radio (Direct Bank Wire / Showroom Cash on Delivery / WhatsApp Confirmation)
+
+1.6 Career & Workshop Artisan Job Application Form
+UI File Path: c:\.Decentrax\Aameena-Ferniture\app\careers\page.jsx
+Backend Handler: Server Action in c:\.Decentrax\Aameena-Ferniture\actions\careerActions.js
+Inputs:
+  - Candidate Full Name:
+      Type: text, Required: Yes
+  - Candidate Email:
+      Type: email, Required: Yes
+  - Candidate Phone:
+      Type: tel, Required: Yes
+  - Applying Position:
+      Type: select (Master Carpenter, Upholstery Specialist, Polyurethane Polish Master, Showroom Sales)
+  - Years of Hands-on Woodcraft Experience:
+      Type: number, Required: Yes
+  - Resume / Portfolio CV:
+      Type: file (PDF, DOCX, max 10MB)
+  - Cover Letter / Craftsmanship Background:
+      Type: textarea, Optional
+
+1.7 Storefront Global Search & Dynamic Filters
+UI File Path: c:\.Decentrax\Aameena-Ferniture\components\ProductsClient.jsx
+Inputs:
+  - Keyword Search:
+      Type: search text (live debounce 300ms)
+  - Category Filter:
+      Type: select (Living Room, Dining, Bedroom, Mandir, Study & Office)
+  - Wood Material Filter:
+      Type: select (All, Sagwan Teak, Sheesham, Rosewood)
+  - Price Range Min & Max:
+      Type: range slider / number inputs (₹ 10,000 to ₹ 500,000)
+  - Sort Order:
+      Type: select (Featured, Price: Low to High, Price: High to Low, Highest Rated)
+
+
+----------------------------------------------------------------------------------------------------
+SECTION 2: OPERATIONS MANAGER PORTAL INPUTS
+----------------------------------------------------------------------------------------------------
+
+2.1 Product Inventory & Showroom Stock Controls
+UI File Path: c:\.Decentrax\Aameena-Ferniture\app\manager\products\page.jsx
+Backend Handler: Server Action in c:\.Decentrax\Aameena-Ferniture\actions\productActions.js
+Inputs:
+  - Available Stock Units:
+      Type: number (min 0)
+  - Showroom Display Status:
+      Type: select (In Stock, Built-to-Order 14 Days, Limited Artisanal Batch, Sold Out)
+  - Showroom Walk-in Discount (%):
+      Type: number (0 to 50%)
+  - Production Lead Time (Days):
+      Type: number (e.g. 7, 14, 21 days)
+
+2.2 Customer Order Tracking & Manufacturing Stage Dispatch
+UI File Path: c:\.Decentrax\Aameena-Ferniture\app\manager\orders\page.jsx
+Backend Handler: Server Action in c:\.Decentrax\Aameena-Ferniture\actions\orderActions.js (updateOrderStatus)
+Inputs:
+  - Manufacturing Stage:
+      Type: select (INQUIRY_RECEIVED, TIMBER_SELECTION, CARVING_JOINERY, SEVEN_STEP_POLISHING, QUALITY_INSPECTION, DISPATCHED_WHITE_GLOVE, DELIVERED)
+  - Assigned Master Carpenter / Workshop Bay:
+      Type: text, Optional
+  - Logistics Tracking Carrier / Vehicle Number:
+      Type: text, Optional
+  - Estimated Delivery Date:
+      Type: date
+  - Internal Workshop Notes:
+      Type: textarea
+
+2.3 Customer Review Moderation & Owner Responses
+UI File Path: c:\.Decentrax\Aameena-Ferniture\app\manager\reviews\page.jsx
+Backend Handler: Server Action in c:\.Decentrax\Aameena-Ferniture\actions\reviewActions.js
+Inputs:
+  - Public Owner Response Text:
+      Type: textarea, Max 2000 chars
+  - Pin Review to Top:
+      Type: checkbox (boolean)
+  - Internal Staff Observation Note:
+      Type: textarea
+  - Verification Toggle:
+      Type: checkbox (boolean)
+
+2.4 Custom Quotation Estimation & Timber Specification
+UI File Path: c:\.Decentrax\Aameena-Ferniture\app\manager\quotes\page.jsx
+Backend Handler: Server Action in c:\.Decentrax\Aameena-Ferniture\actions\quoteActions.js
+Inputs:
+  - Estimated Wood Volume (Cubic Feet - CFT):
+      Type: number
+  - Timber Raw Material Cost (₹):
+      Type: number
+  - Labor & Hand-Carving Craftsmanship Fee (₹):
+      Type: number
+  - Polyurethane & Cushioning Polish Cost (₹):
+      Type: number
+  - Final Quoted Price to Customer (₹):
+      Type: number, Required: Yes
+  - Manager Formal Proposal Notes:
+      Type: textarea
+
+
+----------------------------------------------------------------------------------------------------
+SECTION 3: SUPER ADMINISTRATOR PORTAL INPUTS
+----------------------------------------------------------------------------------------------------
+
+3.1 Showroom Manager Assignment & Staff Administration
+UI File Path: c:\.Decentrax\Aameena-Ferniture\app\admin\managers\page.jsx
+Backend Handler: Server Action in c:\.Decentrax\Aameena-Ferniture\actions\managerActions.js (createManager)
+Inputs:
+  - Manager Full Name:
+      Type: text, Required: Yes, Validation: min 2 chars
+  - Manager Email:
+      Type: email, Required: Yes, Validation: valid RFC email
+  - Manager Contact Phone:
+      Type: tel, Required: Yes, Validation: valid 10-digit mobile
+  - Status Toggle:
+      Type: button / status switch (ACTIVE | INACTIVE)
+
+3.2 Workshop Employee & Carpenter Workforce Directory
+UI File Path: c:\.Decentrax\Aameena-Ferniture\app\admin\employees\page.jsx
+Backend Handler: Server Action in c:\.Decentrax\Aameena-Ferniture\actions\employeeActions.js (createEmployee)
+Inputs:
+  - Employee Full Name:
+      Type: text, Required: Yes
+  - Designation / Specialty:
+      Type: text / select (Master Joiner, Teak Carver, Upholsterer, Spray Finisher, Logistics Driver)
+  - Department:
+      Type: select (Carpentry Workshop, Polishing & Finishing, Logistics & Assembly, Showroom Sales)
+  - Monthly Salary (₹):
+      Type: number, Required: Yes, min 0
+  - Mobile Phone:
+      Type: tel, Required: Yes
+  - Join Date:
+      Type: date
+  - Emergency Contact Person & Phone:
+      Type: text
+
+3.3 Product Catalog Master Creation & Edit Studio
+UI File Path: c:\.Decentrax\Aameena-Ferniture\app\admin\products\page.jsx
+Backend Handler: Server Action in c:\.Decentrax\Aameena-Ferniture\actions\productActions.js
+Inputs:
+  - Product Title / Model Name:
+      Type: text, Required: Yes
+  - URL Slug:
+      Type: text, Required: Yes, Unique
+  - Category:
+      Type: select (Living, Dining, Bedroom, Mandir, Office, Decor)
+  - Base Manufacturing Price (₹):
+      Type: number, Required: Yes
+  - Discounted Retail Price (₹):
+      Type: number, Required: Yes
+  - Sagwan Teak Grade:
+      Type: select (Grade A Kiln-Dried Sagwan, Grade B Teak, Engineered Accent)
+  - Dimensions (L x W x H in inches):
+      Type: text
+  - Seating Capacity:
+      Type: number (e.g. 3, 5, 6, 8 seater)
+  - Primary Image URL:
+      Type: text / file upload
+  - Additional Gallery Image URLs:
+      Type: array of text URLs
+  - Detailed Description & Timber Specifications:
+      Type: textarea (markdown supported)
+  - Warranty Period:
+      Type: text (e.g. "10 Years Solid Teak Warranty")
+  - Is Featured on Homepage:
+      Type: checkbox (boolean)
+
+3.4 Blog & Woodcraft SEO Articles Publishing CMS
+UI File Path: c:\.Decentrax\Aameena-Ferniture\components\BlogManagementView.jsx
+Backend Handler: Server Action in c:\.Decentrax\Aameena-Ferniture\actions\blogActions.js
+Inputs:
+  - Article Headline / Title:
+      Type: text, Required: Yes, min 5 chars
+  - URL Slug:
+      Type: text, Required: Yes, auto-generated from title
+  - Article Category:
+      Type: select (Woodcraft & Design, Care & Maintenance, Showroom Updates, Timber Guide, Interior Inspiration)
+  - Author Name:
+      Type: text (Default: Aameena Distributors Artisans)
+  - Author Role:
+      Type: text (Default: Master Craftsman)
+  - Estimated Read Time (Minutes):
+      Type: number (1 to 60)
+  - Cover Photo Source:
+      Type: Device File Upload (POST /api/upload-image) OR Direct Image URL
+  - Article Summary / Excerpt:
+      Type: textarea, Required: Yes, 50 to 300 chars
+  - Full Article Content:
+      Type: textarea (markdown formatting supported, min 100 chars)
+  - Tag Labels (comma separated):
+      Type: text (e.g. "Sagwan Teak, Living Room, Sofa Crafting, Solapur")
+  - Publication Status:
+      Type: checkbox (boolean: Published vs Draft)
+  - Featured Article Flag:
+      Type: checkbox (boolean)
+  - SEO Meta Title:
+      Type: text (Max 60 chars recommended)
+  - SEO Meta Description:
+      Type: textarea (Max 160 chars recommended)
+  - SEO Target Keywords:
+      Type: text
+
+3.5 Platform System Settings & Theme Administration
+UI File Path: c:\.Decentrax\Aameena-Ferniture\app\admin\settings\page.jsx
+Backend Handler: Server Action in c:\.Decentrax\Aameena-Ferniture\actions\settingsActions.js
+Storage Target: c:\.Decentrax\Aameena-Ferniture\data\platformSettings.json
+Inputs:
+  - Default Storefront Theme:
+      Type: radio / visual cards (light [Artisanal Orange] | emerald [Lime-Mint & Purple] | dark [Obsidian Midnight])
+  - Default Operations Manager Portal Theme:
+      Type: radio / visual cards (light | emerald | dark)
+  - Enable Customer Theme Switcher:
+      Type: checkbox (boolean)
+  - Store Business Legal Name:
+      Type: text (Default: Aameena Distributors)
+  - Store Subtitle:
+      Type: text (Default: Sofa Set Furniture & Furnishing Company)
+  - Brand Tagline:
+      Type: text
+  - Support Phone:
+      Type: tel
+  - WhatsApp Order Hotline:
+      Type: tel
+  - Support Email:
+      Type: email
+  - GSTIN / Tax Registration Number:
+      Type: text (15-digit alphanumeric)
+  - Showroom & Workshop Physical Address:
+      Type: textarea
+  - Enable Announcement Banner:
+      Type: checkbox (boolean)
+  - Announcement Message Text:
+      Type: text
+  - Announcement Banner Accent Color:
+      Type: select / button cards (orange | emerald | purple | amber)
+  - Enable Direct WhatsApp Ordering:
+      Type: checkbox (boolean)
+  - Enable 3D AR Space Visualization:
+      Type: checkbox (boolean)
+  - Enable Public PDF Catalog Downloads:
+      Type: checkbox (boolean)
+
+====================================================================================================
+End of Registry. Verified against live codebase components and server actions.
+====================================================================================================

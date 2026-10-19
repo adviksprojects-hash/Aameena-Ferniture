@@ -60,8 +60,32 @@ export async function getProductReviews(productId, productData = {}) {
       }
     }
 
+    // Deduplicate reviews to eliminate duplicate demo/seeded rows (as seen in Image 2)
+    const seenTexts = new Set();
+    const seenNames = new Set();
+    const uniqueDbReviews = [];
+
+    for (const r of dbReviews) {
+      const textKey = (r.reviewText || "").trim().toLowerCase();
+      const nameKey = (r.reviewerName || "").trim().toLowerCase();
+
+      // Skip exact duplicate text content (e.g. repeated template text)
+      if (textKey && seenTexts.has(textKey)) {
+        continue;
+      }
+      if (textKey) seenTexts.add(textKey);
+
+      // Also ensure distinct reviewer names per product
+      if (nameKey && seenNames.has(nameKey)) {
+        continue;
+      }
+      if (nameKey) seenNames.add(nameKey);
+
+      uniqueDbReviews.push(r);
+    }
+
     // Format reviews from database
-    const formattedReviews = dbReviews.map((r) => ({
+    const formattedReviews = uniqueDbReviews.map((r) => ({
       id: r.id,
       reviewerName: r.reviewerName || "Verified Customer",
       city: r.city || "Solapur, Maharashtra",
@@ -240,6 +264,12 @@ export async function submitProductReview(payload) {
       if (productId) revalidatePath(`/products/${productId}`);
       revalidatePath("/products");
       revalidatePath("/ai-reviews");
+      revalidatePath("/reviews");
+      revalidatePath("/admin/reviews");
+      revalidatePath("/manager/reviews");
+      revalidatePath("/");
+      const { ReviewRepository } = await import("@/lib/reviews/google/repository/reviewRepository.js");
+      await ReviewRepository.clearCache();
     } catch (e) {}
 
     return {

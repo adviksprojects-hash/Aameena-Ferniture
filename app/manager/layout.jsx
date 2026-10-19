@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import RoleGuard from "@/components/RoleGuard";
+import BrandLogo from "@/components/BrandLogo";
 
 export default function ManagerLayout({ children }) {
   const pathname = usePathname();
@@ -52,14 +53,7 @@ export default function ManagerLayout({ children }) {
         <div className="space-y-6">
           {/* Brand Header */}
           <div>
-            <Link href="/manager" className="flex items-center gap-2 font-bold text-amber-400 font-serif text-lg">
-              <div className="p-1.5 bg-amber-500 rounded-lg text-amber-950">
-                <Briefcase className="w-5 h-5" />
-              </div>
-              <span>
-                Operations <span className="text-white font-sans text-xs uppercase bg-amber-900 px-2 py-0.5 rounded border border-amber-800">Manager</span>
-              </span>
-            </Link>
+            <BrandLogo href="/manager" size="sm" subtitle="Operations Manager" />
             <p className="text-[10px] text-amber-300/80 mt-1">Furniture Manufacturer Portal</p>
           </div>
 
@@ -114,12 +108,7 @@ export default function ManagerLayout({ children }) {
             <div className="space-y-5">
               {/* Drawer Header */}
               <div className="flex items-center justify-between pb-3 border-b border-amber-900/60">
-                <Link href="/manager" className="flex items-center gap-2 font-bold text-amber-400 font-serif text-base">
-                  <div className="p-1 bg-amber-500 rounded-lg text-amber-950">
-                    <Briefcase className="w-4 h-4" />
-                  </div>
-                  <span>Manager Portal</span>
-                </Link>
+                <BrandLogo href="/manager" size="sm" subtitle="Operations Manager" />
                 <button
                   type="button"
                   suppressHydrationWarning
@@ -182,8 +171,8 @@ export default function ManagerLayout({ children }) {
 
       {/* 3. Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Header Bar with Mobile Menu Toggle */}
-        <header className="relative z-40 h-14 sm:h-16 bg-amber-950 text-amber-100 border-b border-amber-900/40 px-4 sm:px-6 flex items-center justify-between shrink-0 manager-header">
+        {/* Top Header Bar with Mobile Menu Toggle (Sticky on scroll) */}
+        <header className="sticky top-0 z-50 h-14 sm:h-16 bg-amber-950/95 backdrop-blur-md text-amber-100 border-b border-amber-900/40 px-4 sm:px-6 flex items-center justify-between shrink-0 manager-header shadow-md transition-all">
           <div className="flex items-center gap-3">
             {/* Mobile Menu Toggle Button */}
             <button
@@ -226,7 +215,7 @@ export default function ManagerLayout({ children }) {
         </header>
 
         {/* Content Body */}
-        <main className="flex-1 p-3 sm:p-6 lg:p-8 overflow-y-auto">
+        <main className="flex-1 p-3 sm:p-6 lg:p-8">
           {children}
         </main>
       </div>

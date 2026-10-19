@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Sun, Moon, Sparkles } from "lucide-react";
+import { Sun, Moon, Gem } from "lucide-react";
 
 const THEMES = [
   {
@@ -16,8 +16,8 @@ const THEMES = [
     id: "emerald",
     label: "Emerald",
     shortLabel: "Emerald",
-    icon: Sparkles,
-    title: "Emerald Mode (Royal Forest & Gold)",
+    icon: Gem,
+    title: "Emerald Mode (Royal Jewel & Gold)",
     activeClass: "bg-emerald-600 text-white font-bold shadow-xs ring-1 ring-emerald-400/50",
   },
   {

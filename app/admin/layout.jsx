@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import RoleGuard from "@/components/RoleGuard";
+import BrandLogo from "@/components/BrandLogo";
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
@@ -55,14 +56,7 @@ export default function AdminLayout({ children }) {
         <div className="space-y-6">
           {/* Brand Header */}
           <div className="flex items-center justify-between">
-            <Link href="/admin" className="flex items-center gap-2 font-bold text-amber-400 font-serif text-lg">
-              <div className="p-1.5 bg-amber-500 rounded-lg text-slate-950">
-                <Shield className="w-5 h-5" />
-              </div>
-              <span>
-                Admin <span className="text-white font-sans text-xs uppercase bg-amber-900/60 px-2 py-0.5 rounded border border-amber-700">Super</span>
-              </span>
-            </Link>
+            <BrandLogo href="/admin" size="sm" subtitle="Super Admin Panel" />
           </div>
 
           {/* Navigation Links */}
@@ -118,12 +112,7 @@ export default function AdminLayout({ children }) {
             <div className="space-y-5">
               {/* Drawer Header */}
               <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-                <Link href="/admin" className="flex items-center gap-2 font-bold text-amber-400 font-serif text-base">
-                  <div className="p-1 bg-amber-500 rounded-lg text-slate-950">
-                    <Shield className="w-4 h-4" />
-                  </div>
-                  <span>Admin Panel</span>
-                </Link>
+                <BrandLogo href="/admin" size="sm" subtitle="Super Admin Panel" />
                 <button
                   type="button"
                   suppressHydrationWarning
@@ -186,8 +175,8 @@ export default function AdminLayout({ children }) {
 
       {/* 3. Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Header Bar with Mobile Menu Toggle */}
-        <header className="relative z-40 h-14 sm:h-16 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 px-4 sm:px-6 flex items-center justify-between shrink-0 admin-header">
+        {/* Top Header Bar with Mobile Menu Toggle (Sticky on scroll) */}
+        <header className="sticky top-0 z-50 h-14 sm:h-16 bg-slate-950/95 backdrop-blur-md border-b border-slate-800 px-4 sm:px-6 flex items-center justify-between shrink-0 admin-header shadow-md transition-all">
           <div className="flex items-center gap-3">
             {/* Mobile Menu Toggle Button */}
             <button
@@ -230,7 +219,7 @@ export default function AdminLayout({ children }) {
         </header>
 
         {/* Content Body */}
-        <main className="flex-1 p-3 sm:p-6 lg:p-8 overflow-y-auto">
+        <main className="flex-1 p-3 sm:p-6 lg:p-8">
           {children}
         </main>
       </div>

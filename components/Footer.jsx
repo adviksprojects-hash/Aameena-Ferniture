@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import BrandLogo from '@/components/BrandLogo';
 import { Sofa, Phone, Mail, MapPin, Star, MessageSquare } from 'lucide-react';
 
 export default function Footer() {
@@ -9,15 +10,7 @@ export default function Footer() {
           
           {/* Brand Col */}
           <div className="space-y-4">
-            <Link href="/" className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-              <div className="bg-amber-500 p-2 rounded-xl text-amber-950">
-                <Sofa className="w-6 h-6" />
-              </div>
-              <div className="flex flex-col">
-                <span className="leading-tight">Aameena <span className="text-amber-400 font-serif italic">Ferniture</span></span>
-                <span className="text-xs text-amber-300/80 font-normal tracking-wide">and Fernishing</span>
-              </div>
-            </Link>
+            <BrandLogo href="/" size="lg" subtitle="Manufacturers & Interior Furnishing" />
             <p className="text-amber-200/80 text-sm leading-relaxed">
               Crafting premium hardwood furniture, bespoke living sets, dining masterpieces, and custom interior solutions with generations of artisanal excellence.
             </p>

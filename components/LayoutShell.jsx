@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Footer from "@/components/Footer";
+import AnnouncementBanner from "@/components/AnnouncementBanner";
 
 /**
  * LayoutShell Component
@@ -18,6 +19,7 @@ export default function LayoutShell({ header, children }) {
 
   return (
     <>
+      <AnnouncementBanner />
       {header}
       <main className="flex-1">{children}</main>
       <Footer />

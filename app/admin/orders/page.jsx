@@ -1441,14 +1441,21 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
 
       {/* Modal 4: Invoice / Receipt Breakdown Summary */}
       {showReceiptModal && selectedOrderForReceipt && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-slate-800 space-y-4 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[60] flex items-center justify-center p-4">
+          <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-slate-800 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div>
                 <span className="text-[10px] text-amber-400 uppercase font-bold tracking-widest block">Official Workshop Invoice</span>
                 <h3 className="text-lg font-bold font-serif text-white">Order Receipt #{selectedOrderForReceipt.orderNumber}</h3>
               </div>
-              <button onClick={() => setShowReceiptModal(false)} className="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white">
+              <button
+                onClick={() => {
+                  setShowReceiptModal(false);
+                  setSelectedOrderForReceipt(null);
+                }}
+                className="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white cursor-pointer"
+                aria-label="Close receipt"
+              >
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -1487,7 +1494,7 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
                           Qty: {item.quantity || 1} • {item.woodType || item.Product?.woodType || "Grade-A Sagwan Teak"} • {item.finishType || item.Product?.finishType || "Honey Polish"}
                         </span>
                       </div>
-                      <span className="font-bold text-amber-400">
+                      <span className="font-bold text-amber-400 font-mono">
                         ₹{((item.price || 0) * (item.quantity || 1)).toLocaleString("en-IN")}
                       </span>
                     </div>
@@ -1506,23 +1513,38 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
                 </div>
                 <div className="flex justify-between font-bold text-white text-sm pt-2 border-t border-slate-800">
                   <span>Total Amount Paid / Payable:</span>
-                  <span className="text-amber-400">₹{Number(selectedOrderForReceipt.totalAmount).toLocaleString("en-IN")}</span>
+                  <span className="text-amber-400 font-mono">₹{Number(selectedOrderForReceipt.totalAmount).toLocaleString("en-IN")}</span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 pt-2">
+              <div className="flex items-center gap-2 pt-2 flex-wrap">
                 <button
                   type="button"
                   onClick={() => window.print()}
-                  className="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold flex items-center justify-center gap-2 cursor-pointer"
+                  className="flex-1 min-w-[130px] py-2.5 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-sm active:scale-95 transition-all"
                 >
                   <Printer className="w-4 h-4" />
                   <span>Print Receipt</span>
                 </button>
                 <button
                   type="button"
-                  onClick={() => setShowReceiptModal(false)}
-                  className="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold cursor-pointer"
+                  onClick={() => {
+                    const targetOrder = selectedOrderForReceipt;
+                    setShowReceiptModal(false);
+                    setSelectedOrderForReceipt(null);
+                    setSelectedOrderForInspect(targetOrder);
+                  }}
+                  className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold cursor-pointer text-xs active:scale-95 transition-all"
+                >
+                  Back to Dossier
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowReceiptModal(false);
+                    setSelectedOrderForReceipt(null);
+                  }}
+                  className="py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer active:scale-95 transition-all"
                 >
                   Close
                 </button>
@@ -1702,10 +1724,12 @@ ${notifyNotes ? `*Important Update:* ${notifyNotes}\n\n` : ""}Thank you for choo
               <button
                 type="button"
                 onClick={() => {
-                  setSelectedOrderForReceipt(selectedOrderForInspect);
+                  const targetOrder = selectedOrderForInspect;
+                  setSelectedOrderForInspect(null);
+                  setSelectedOrderForReceipt(targetOrder);
                   setShowReceiptModal(true);
                 }}
-                className="flex-1 min-w-[140px] py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                className="flex-1 min-w-[140px] py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-sm active:scale-95 transition-all"
               >
                 <FileText className="w-3.5 h-3.5" />
                 <span>Invoice / Receipt</span>

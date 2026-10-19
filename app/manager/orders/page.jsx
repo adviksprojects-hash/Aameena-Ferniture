@@ -484,6 +484,7 @@ export default function ManagerOrdersPage() {
     { value: "TIMBER_SELECTION", label: "Timber Seasoning", status: "IN_PRODUCTION" },
     { value: "CARVING_JOINERY", label: "Carving & Joinery", status: "IN_PRODUCTION" },
     { value: "SEVEN_STEP_POLISHING", label: "Polishing & Coating", status: "IN_PRODUCTION" },
+    { value: "QUALITY_INSPECTION", label: "Quality Inspection", status: "IN_PRODUCTION" },
     { value: "DISPATCHED_WHITE_GLOVE", label: "Out for Delivery", status: "SHIPPED" },
     { value: "DELIVERED", label: "Delivered & Installed", status: "DELIVERED" },
   ];
@@ -863,8 +864,8 @@ export default function ManagerOrdersPage() {
                       </td>
 
                       {/* Stage dropdown & Custom Milestone */}
-                      <td className="p-4 align-top">
-                        <div className="space-y-1">
+                      <td className="p-4 align-top min-w-[210px]">
+                        <div className="space-y-1.5">
                           <select
                             disabled={isUpdating || ord.status === "DELIVERED" || ord.status === "CANCELLED"}
                             value={STAGES.some((s) => s.value === currentStage) ? currentStage : "OTHER"}
@@ -876,7 +877,7 @@ export default function ManagerOrdersPage() {
                               const opt = STAGES.find((s) => s.value === e.target.value);
                               handleStageUpdate(ord.id, e.target.value, opt?.status || ord.status);
                             }}
-                            className="bg-amber-50/80 text-slate-900 border border-amber-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-amber-700 max-w-[190px]"
+                            className="order-stage-select w-full rounded-xl px-3 py-2 text-xs font-bold transition-all cursor-pointer shadow-sm outline-none"
                           >
                             {STAGES.map((opt) => (
                               <option key={opt.value} value={opt.value}>
@@ -891,13 +892,13 @@ export default function ManagerOrdersPage() {
                           </select>
 
                           {ord.status === "CANCELLED" && (
-                            <span className="block px-2 py-0.5 rounded text-[9px] font-bold bg-red-100 text-red-900 border border-red-200">
+                            <span className="inline-block px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-rose-950/80 text-rose-300 border border-rose-800">
                               Order Cancelled
                             </span>
                           )}
                           {!STAGES.some((s) => s.value === currentStage) && ord.status !== "CANCELLED" && (
-                            <span className="block px-2 py-0.5 rounded text-[9px] font-bold bg-purple-100 text-purple-900 border border-purple-200 truncate max-w-[180px]">
-                              Custom: {currentStage}
+                            <span className="inline-block px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-purple-950/80 text-purple-300 border border-purple-700/60 truncate max-w-[190px]">
+                              Milestone: {currentStage}
                             </span>
                           )}
                         </div>
@@ -1627,7 +1628,7 @@ export default function ManagerOrdersPage() {
       {/* 📄 MODAL 5: OFFICIAL WORKSHOP INVOICE / RECEIPT SUMMARY         */}
       {/* ============================================================== */}
       {showReceiptModal && selectedOrderForReceipt && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[60] bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-4 shadow-2xl border border-amber-200 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-amber-100 pb-3">
               <div>
@@ -1635,8 +1636,12 @@ export default function ManagerOrdersPage() {
                 <h3 className="text-lg font-bold font-serif text-slate-900">Order Receipt #{selectedOrderForReceipt.orderNumber}</h3>
               </div>
               <button
-                onClick={() => setShowReceiptModal(false)}
+                onClick={() => {
+                  setShowReceiptModal(false);
+                  setSelectedOrderForReceipt(null);
+                }}
                 className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500 cursor-pointer"
+                aria-label="Close invoice"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1699,19 +1704,34 @@ export default function ManagerOrdersPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 pt-2">
+              <div className="flex items-center gap-2 pt-2 flex-wrap">
                 <button
                   type="button"
                   onClick={() => window.print()}
-                  className="flex-1 py-3 rounded-xl bg-amber-900 hover:bg-amber-800 text-amber-50 font-bold flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                  className="flex-1 min-w-[130px] py-2.5 px-3 rounded-xl bg-amber-900 hover:bg-amber-800 text-amber-50 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-sm active:scale-95 transition-all"
                 >
                   <Printer className="w-4 h-4" />
                   <span>Print Receipt</span>
                 </button>
                 <button
                   type="button"
-                  onClick={() => setShowReceiptModal(false)}
-                  className="py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold cursor-pointer"
+                  onClick={() => {
+                    const targetOrder = selectedOrderForReceipt;
+                    setShowReceiptModal(false);
+                    setSelectedOrderForReceipt(null);
+                    setSelectedOrderForInspect(targetOrder);
+                  }}
+                  className="py-2.5 px-3 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold cursor-pointer text-xs active:scale-95 transition-all"
+                >
+                  Back to Dossier
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowReceiptModal(false);
+                    setSelectedOrderForReceipt(null);
+                  }}
+                  className="py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer active:scale-95 transition-all"
                 >
                   Close
                 </button>
@@ -1892,10 +1912,12 @@ export default function ManagerOrdersPage() {
               <button
                 type="button"
                 onClick={() => {
-                  setSelectedOrderForReceipt(selectedOrderForInspect);
+                  const targetOrder = selectedOrderForInspect;
+                  setSelectedOrderForInspect(null);
+                  setSelectedOrderForReceipt(targetOrder);
                   setShowReceiptModal(true);
                 }}
-                className="flex-1 min-w-[140px] py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
+                className="flex-1 min-w-[140px] py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-sm active:scale-95 transition-all"
               >
                 <FileText className="w-3.5 h-3.5" />
                 <span>Invoice / Receipt</span>

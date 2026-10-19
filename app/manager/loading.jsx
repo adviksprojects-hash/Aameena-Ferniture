@@ -1,8 +1,13 @@
 export default function ManagerLoading() {
   return (
     <div className="space-y-8 pb-10 animate-pulse">
+      {/* Horizontal glowing bar */}
+      <div className="w-full h-1 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden relative">
+        <div className="h-full bg-gradient-to-r from-amber-500 via-emerald-400 to-amber-600 rounded-full w-full animate-[progress_1.4s_ease-in-out_infinite]" />
+      </div>
+
       {/* 1. Header Banner Skeleton */}
-      <div className="bg-white p-6 lg:p-8 rounded-3xl border border-amber-200/80 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      <div className="bg-white dark:bg-slate-900 p-6 lg:p-8 rounded-3xl border border-amber-200/80 dark:border-slate-800 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <div className="h-5 w-48 bg-amber-200/80 rounded-full" />

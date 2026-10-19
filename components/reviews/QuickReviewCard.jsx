@@ -183,10 +183,26 @@ export default function QuickReviewCard({
 
       if (res && res.success) {
         setSubmittedSuccess(true);
+        if (typeof window !== "undefined" && res.review) {
+          try {
+            const raw = localStorage.getItem("aameena_optimistic_reviews");
+            const stored = raw ? JSON.parse(raw) : [];
+            const updated = [res.review, ...stored.filter((r) => r && r.id !== res.review.id)];
+            localStorage.setItem("aameena_optimistic_reviews", JSON.stringify(updated));
+
+            if ("BroadcastChannel" in window) {
+              const bc = new BroadcastChannel("aameena_reviews_sync");
+              bc.postMessage({ type: "NEW_REVIEW", review: res.review });
+              bc.close();
+            }
+          } catch (syncErr) {
+            console.warn("Realtime sync warning:", syncErr);
+          }
+        }
         setTimeout(() => {
-          const section = document.getElementById("customer-reviews-section");
+          const section = document.getElementById("customer-reviews-section") || document.getElementById(`review-${res.review?.id}`);
           if (section) section.scrollIntoView({ behavior: "smooth" });
-        }, 500);
+        }, 350);
       }
     } catch (dbErr) {
       console.warn("DB save notice:", dbErr);

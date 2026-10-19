@@ -306,13 +306,17 @@ export default function PricingPage() {
                 rel="noopener noreferrer"
                 className="group relative inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black text-sm shadow-xl hover:shadow-amber-500/35 transition-all duration-300 hover:scale-[1.03] cursor-pointer"
               >
-                <Download className="w-4 h-4 transition-transform group-hover:-translate-y-0.5 duration-300" />
-                <span>Download Rate Card (PDF)</span>
-                {activeCategory?.fileSize && (
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-amber-950/20 text-slate-950">
-                    {activeCategory.fileSize}
-                  </span>
-                )}
+                <Download className="w-4 h-4 transition-transform group-hover:-translate-y-0.5 duration-300 shrink-0" />
+                <span className="flex items-center gap-2 flex-wrap">
+                  <span>Download Rate Card (PDF)</span>
+                  {activeCategory?.fileSize && (
+                    <span className="rate-card-file-badge inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-slate-950/90 text-amber-300 border border-amber-400/50 shadow-xs">
+                      <span>PDF</span>
+                      <span>•</span>
+                      <span>{activeCategory.fileSize}</span>
+                    </span>
+                  )}
+                </span>
               </a>
 
               <a

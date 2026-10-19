@@ -647,19 +647,19 @@ export default function AdminEmployeesPage() {
                 placeholder="Search staff by name, email, phone, or role..."
                 value={staffSearch}
                 onChange={(e) => { setStaffSearch(e.target.value); setStaffCurrentPage(1); }}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 [data-theme='emerald']:bg-[#021c15] border border-slate-300 dark:border-slate-800 [data-theme='emerald']:border-emerald-700/60 text-slate-900 dark:text-white placeholder-slate-400 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500"
               />
             </div>
 
             <div className="flex items-center gap-2 overflow-x-auto">
-              <span className="text-xs text-slate-400 font-semibold flex items-center gap-1">
-                <Filter className="w-3.5 h-3.5 text-slate-500" /> Dept:
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold flex items-center gap-1">
+                <Filter className="w-3.5 h-3.5 text-slate-400" /> Dept:
               </span>
               <select
                 value={staffDeptFilter}
                 suppressHydrationWarning
                 onChange={(e) => { setStaffDeptFilter(e.target.value); setStaffCurrentPage(1); }}
-                className="bg-slate-900 text-slate-200 border border-slate-800 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none"
+                className="bg-white dark:bg-slate-900 [data-theme='emerald']:bg-[#021c15] text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-800 [data-theme='emerald']:border-emerald-700/60 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none"
               >
                 <option value="ALL">All Departments</option>
                 {departmentsList.map((d) => (
@@ -672,10 +672,10 @@ export default function AdminEmployeesPage() {
           </div>
 
           {/* Horizontal Scrollable Table for Staff Directory */}
-          <div className="bg-slate-950 rounded-3xl border border-slate-800 overflow-hidden shadow-xl">
-            <div className="overflow-x-auto touch-pan-x overscroll-x-contain scrollbar-thin scrollbar-thumb-amber-500/30 scrollbar-track-slate-900">
-              <table className="w-full text-left text-xs text-slate-300 min-w-[860px]">
-                <thead className="bg-slate-900 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+          <div className="bg-white dark:bg-slate-950 [data-theme='emerald']:bg-[#021c15] rounded-3xl border border-slate-200 dark:border-slate-800 [data-theme='emerald']:border-emerald-700/60 overflow-hidden shadow-xl">
+            <div className="overflow-x-auto touch-pan-x overscroll-x-contain scrollbar-thin scrollbar-thumb-amber-500/30 scrollbar-track-slate-100 dark:scrollbar-track-slate-900">
+              <table className="w-full text-left text-xs min-w-[860px]">
+                <thead className="bg-slate-100 dark:bg-slate-900 [data-theme='emerald']:bg-[#032e22] text-slate-800 dark:text-slate-300 [data-theme='emerald']:text-emerald-200 uppercase text-[10px] tracking-wider border-b border-slate-200 dark:border-slate-800 [data-theme='emerald']:border-emerald-700/60 font-bold">
                   <tr>
                     <th className="p-4 pl-6">Staff Member</th>
                     <th className="p-4">Designation / Role</th>
@@ -685,10 +685,10 @@ export default function AdminEmployeesPage() {
                     <th className="p-4 pr-6 text-right">Admin Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800 [data-theme='emerald']:divide-emerald-900/60">
                   {paginatedEmployees.length === 0 ? (
                     <tr>
-                      <td colSpan="6" className="p-12 text-center text-slate-500">
+                      <td colSpan="6" className="p-12 text-center text-slate-500 dark:text-slate-400">
                         {staffSearch || staffDeptFilter !== "ALL"
                           ? "No staff members matched your filter criteria."
                           : "No active staff members registered in directory. Click 'Add Staff Member' above."}
@@ -696,17 +696,17 @@ export default function AdminEmployeesPage() {
                     </tr>
                   ) : (
                     paginatedEmployees.map((emp) => (
-                      <tr key={emp.id} className="hover:bg-slate-900/50 transition-colors group">
+                      <tr key={emp.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/50 [data-theme='emerald']:hover:bg-[#033628]/60 transition-colors group">
                         <td className="p-4 pl-6">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-bold flex items-center justify-center font-serif text-base shrink-0 shadow-inner">
                               {emp.name?.[0]?.toUpperCase() || "S"}
                             </div>
                             <div>
-                              <div className="font-bold text-white text-sm group-hover:text-amber-400 transition-colors">
+                              <div className="font-bold text-slate-900 dark:text-white [data-theme='emerald']:text-white text-sm group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
                                 {emp.name}
                               </div>
-                              <div className="text-[11px] text-slate-500 font-mono">
+                              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
                                 ID: #{emp.id?.slice(0, 8)}
                               </div>
                             </div>
@@ -714,27 +714,27 @@ export default function AdminEmployeesPage() {
                         </td>
 
                         <td className="p-4">
-                          <span className="font-semibold text-amber-300 bg-amber-950/60 border border-amber-800/60 px-2.5 py-1 rounded-lg">
+                          <span className="font-bold text-amber-900 dark:text-amber-300 [data-theme='emerald']:text-amber-300 bg-amber-50 dark:bg-amber-950/60 [data-theme='emerald']:bg-emerald-950/80 border border-amber-300 dark:border-amber-800/60 [data-theme='emerald']:border-emerald-700/60 px-2.5 py-1 rounded-lg">
                             {emp.roleTitle}
                           </span>
                         </td>
 
-                        <td className="p-4 text-slate-300 font-medium">
+                        <td className="p-4 text-slate-800 dark:text-slate-300 [data-theme='emerald']:text-emerald-100 font-medium">
                           <div className="flex items-center gap-1.5">
-                            <Building2 className="w-3.5 h-3.5 text-slate-500" />
+                            <Building2 className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                             <span>{emp.department}</span>
                           </div>
                         </td>
 
-                        <td className="p-4 text-slate-400">
+                        <td className="p-4">
                           <div className="space-y-0.5">
-                            <div className="flex items-center gap-1.5 text-slate-300">
-                              <Mail className="w-3 h-3 text-amber-500/70" />
+                            <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 [data-theme='emerald']:text-emerald-200">
+                              <Mail className="w-3 h-3 text-amber-600 dark:text-amber-500/70" />
                               <span className="truncate max-w-[200px]">{emp.email}</span>
                             </div>
                             {emp.phone && (
-                              <div className="flex items-center gap-1.5 text-slate-400 font-mono text-[11px]">
-                                <Phone className="w-3 h-3 text-amber-500/70" />
+                              <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 [data-theme='emerald']:text-emerald-300 font-mono text-[11px]">
+                                <Phone className="w-3 h-3 text-amber-600 dark:text-amber-500/70" />
                                 <span>{emp.phone}</span>
                               </div>
                             )}
@@ -745,19 +745,19 @@ export default function AdminEmployeesPage() {
                           <span
                             className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full border inline-flex items-center gap-1.5 ${
                               emp.status === "ACTIVE"
-                                ? "bg-emerald-950/90 text-emerald-400 border-emerald-800"
+                                ? "bg-emerald-50 dark:bg-emerald-950/90 text-emerald-800 dark:text-emerald-400 border-emerald-300 dark:border-emerald-800"
                                 : emp.status === "ON_LEAVE"
-                                ? "bg-amber-950/90 text-amber-400 border-amber-800"
-                                : "bg-red-950/90 text-red-400 border-red-800"
+                                ? "bg-amber-50 dark:bg-amber-950/90 text-amber-800 dark:text-amber-400 border-amber-300 dark:border-amber-800"
+                                : "bg-rose-50 dark:bg-red-950/90 text-rose-800 dark:text-red-400 border-rose-300 dark:border-red-800"
                             }`}
                           >
                             <span
                               className={`w-1.5 h-1.5 rounded-full ${
                                 emp.status === "ACTIVE"
-                                  ? "bg-emerald-400"
+                                  ? "bg-emerald-500 dark:bg-emerald-400"
                                   : emp.status === "ON_LEAVE"
-                                  ? "bg-amber-400"
-                                  : "bg-red-400"
+                                  ? "bg-amber-500 dark:bg-amber-400"
+                                  : "bg-rose-500 dark:bg-red-400"
                               }`}
                             />
                             <span>{emp.status || "ACTIVE"}</span>
@@ -768,7 +768,7 @@ export default function AdminEmployeesPage() {
                           <div className="flex items-center justify-end gap-2">
                             <button
                               onClick={() => handleOpenEditEmp(emp)}
-                              className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 border border-slate-700/80 transition-colors flex items-center gap-1.5 text-xs font-bold cursor-pointer"
+                              className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-800 dark:text-amber-400 border border-slate-300 dark:border-slate-700/80 transition-colors flex items-center gap-1.5 text-xs font-bold cursor-pointer"
                               title="Edit staff details"
                             >
                               <Edit2 className="w-3.5 h-3.5" />
@@ -777,7 +777,7 @@ export default function AdminEmployeesPage() {
 
                             <button
                               onClick={() => handleDeleteEmployee(emp.id, emp.name)}
-                              className="p-2 rounded-xl bg-red-950/40 hover:bg-red-950 text-red-400 border border-red-900/60 hover:border-red-700 transition-colors cursor-pointer"
+                              className="p-2 rounded-xl bg-rose-50 dark:bg-red-950/40 hover:bg-rose-100 dark:hover:bg-red-950 text-rose-700 dark:text-red-400 border border-rose-200 dark:border-red-900/60 hover:border-rose-400 dark:hover:border-red-700 transition-colors cursor-pointer"
                               title="Delete employee permanently"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -876,11 +876,11 @@ export default function AdminEmployeesPage() {
                 return (
                   <div
                     key={job.id}
-                    className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-4 flex flex-col justify-between hover:border-slate-700 transition-all shadow-xl"
+                    className="bg-white dark:bg-slate-950 [data-theme='emerald']:bg-[#022c22] p-6 rounded-3xl border border-slate-200 dark:border-slate-800 [data-theme='emerald']:border-emerald-700/60 space-y-4 flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-all shadow-lg"
                   >
                     <div className="space-y-3">
                       <div className="flex items-start justify-between gap-2">
-                        <span className="text-[10px] font-bold uppercase tracking-wider bg-slate-900 text-amber-400 px-3 py-1 rounded-full border border-slate-800">
+                        <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-50 dark:bg-slate-900 text-amber-900 dark:text-amber-400 px-3 py-1 rounded-full border border-amber-200 dark:border-slate-800">
                           {job.department}
                         </span>
 
@@ -889,8 +889,8 @@ export default function AdminEmployeesPage() {
                             onClick={() => handleToggleJob(job.id, job.isActive)}
                             className={`text-[10px] font-bold px-3 py-1 rounded-full border transition-all cursor-pointer ${
                               job.isActive && !shouldAutoClose
-                                ? "bg-emerald-950 text-emerald-400 border-emerald-800 hover:bg-emerald-900"
-                                : "bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700"
+                                ? "bg-emerald-50 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-400 border-emerald-300 dark:border-emerald-800 hover:bg-emerald-100"
+                                : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-400 border-slate-300 dark:border-slate-700 hover:bg-slate-200"
                             }`}
                             title={job.isActive ? "Click to hide from /careers" : "Click to publish on /careers"}
                           >
@@ -899,17 +899,17 @@ export default function AdminEmployeesPage() {
                         </div>
                       </div>
 
-                      <h3 className="text-lg font-bold font-serif text-white">{job.title}</h3>
-                      <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">{job.description}</p>
+                      <h3 className="text-lg font-bold font-serif text-slate-900 dark:text-white [data-theme='emerald']:text-white">{job.title}</h3>
+                      <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">{job.description}</p>
 
                       {/* Expiry & Limits Banner */}
-                      <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800/80 space-y-2 text-[11px]">
-                        <div className="flex justify-between items-center text-slate-300">
-                          <span className="flex items-center gap-1.5 text-slate-400">
-                            <Clock className="w-3.5 h-3.5 text-amber-400" />
+                      <div className="bg-slate-50 dark:bg-slate-900/80 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800/80 space-y-2 text-[11px]">
+                        <div className="flex justify-between items-center text-slate-700 dark:text-slate-300">
+                          <span className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                            <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                             <span>Application Deadline:</span>
                           </span>
-                          <span className={`font-semibold ${isExpired ? "text-red-400 font-bold" : "text-slate-200"}`}>
+                          <span className={`font-semibold ${isExpired ? "text-red-600 dark:text-red-400 font-bold" : "text-slate-800 dark:text-slate-200"}`}>
                             {job.expiresAt
                               ? new Date(job.expiresAt).toLocaleDateString("en-IN", {
                                   day: "numeric",
@@ -921,52 +921,52 @@ export default function AdminEmployeesPage() {
                           </span>
                         </div>
 
-                        <div className="flex justify-between items-center text-slate-300">
-                          <span className="flex items-center gap-1.5 text-slate-400">
-                            <Users className="w-3.5 h-3.5 text-blue-400" />
+                        <div className="flex justify-between items-center text-slate-700 dark:text-slate-300">
+                          <span className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                            <Users className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                             <span>Capacity / Applied:</span>
                           </span>
-                          <span className={`font-semibold ${isCapacityMet ? "text-amber-400" : "text-slate-200"}`}>
+                          <span className={`font-semibold ${isCapacityMet ? "text-amber-700 dark:text-amber-400" : "text-slate-800 dark:text-slate-200"}`}>
                             {job.applications?.length || 0} / {job.maxApplications || "Unlimited"}
                             {isCapacityMet && " (Full)"}
                           </span>
                         </div>
 
-                        <div className="flex justify-between items-center text-slate-300">
-                          <span className="flex items-center gap-1.5 text-slate-400">
-                            <Award className="w-3.5 h-3.5 text-emerald-400" />
+                        <div className="flex justify-between items-center text-slate-700 dark:text-slate-300">
+                          <span className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                            <Award className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                             <span>Hired Target:</span>
                           </span>
-                          <span className={`font-semibold ${isTargetHired ? "text-emerald-400 font-bold" : "text-slate-200"}`}>
+                          <span className={`font-semibold ${isTargetHired ? "text-emerald-700 dark:text-emerald-400 font-bold" : "text-slate-800 dark:text-slate-200"}`}>
                             {job.hiredCount || 0} / {job.hiredTarget || 1} Hired
                             {isTargetHired && " (Target Filled)"}
                           </span>
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-300 pt-1">
+                      <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-700 dark:text-slate-300 pt-1">
                         <div>
-                          <span className="text-slate-500 block">Location:</span>
-                          <span className="font-semibold">{job.location}</span>
+                          <span className="text-slate-500 dark:text-slate-400 block">Location:</span>
+                          <span className="font-semibold text-slate-800 dark:text-slate-200">{job.location}</span>
                         </div>
                         <div>
-                          <span className="text-slate-500 block">Experience:</span>
-                          <span className="font-semibold">{job.experience || "Any"}</span>
+                          <span className="text-slate-500 dark:text-slate-400 block">Experience:</span>
+                          <span className="font-semibold text-slate-800 dark:text-slate-200">{job.experience || "Any"}</span>
                         </div>
                         {job.salaryRange && (
                           <div className="col-span-2">
-                            <span className="text-slate-500 block">Salary / Package:</span>
-                            <span className="font-semibold text-amber-400">{job.salaryRange}</span>
+                            <span className="text-slate-500 dark:text-slate-400 block">Salary / Package:</span>
+                            <span className="font-semibold text-amber-800 dark:text-amber-400">{job.salaryRange}</span>
                           </div>
                         )}
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between pt-3 border-t border-slate-900 text-xs gap-2">
+                    <div className="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-900 text-xs gap-2">
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleOpenEditJob(job)}
-                          className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-amber-400 border border-slate-800 rounded-xl font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                          className="px-3.5 py-1.5 bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-800 dark:text-amber-400 border border-slate-300 dark:border-slate-800 rounded-xl font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
                           <span>Edit Position</span>
@@ -975,7 +975,7 @@ export default function AdminEmployeesPage() {
 
                       <button
                         onClick={() => handleDeleteJob(job.id, job.title)}
-                        className="p-2 bg-red-950/60 hover:bg-red-900 rounded-xl text-red-400 transition-colors cursor-pointer"
+                        className="p-2 bg-rose-50 dark:bg-red-950/60 hover:bg-rose-100 dark:hover:bg-red-900 rounded-xl text-rose-700 dark:text-red-400 border border-rose-200 dark:border-red-900/40 transition-colors cursor-pointer"
                         title="Delete Position Permanently"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -994,8 +994,8 @@ export default function AdminEmployeesPage() {
       {/* ============================================================== */}
       {activeTab === "applications" && (
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-950/90 p-4 rounded-2xl border border-slate-800">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-950/90 [data-theme='emerald']:bg-[#022c22] p-4 rounded-2xl border border-slate-200 dark:border-slate-800 [data-theme='emerald']:border-emerald-700/60 shadow-sm">
+            <div className="flex items-center gap-2 flex-wrap">
               <button
                 type="button"
                 suppressHydrationWarning
@@ -1003,7 +1003,7 @@ export default function AdminEmployeesPage() {
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   candidateSubTab === "active"
                     ? "bg-amber-500 text-slate-950 shadow-md font-extrabold"
-                    : "bg-slate-900 text-slate-400 hover:text-white"
+                    : "bg-slate-100 dark:bg-slate-900 [data-theme='emerald']:bg-[#033628] text-slate-700 dark:text-slate-300 [data-theme='emerald']:text-emerald-200 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-800 [data-theme='emerald']:border-emerald-700/60"
                 }`}
               >
                 Active Applicants ({applications.filter((a) => !a.isArchived).length})
@@ -1015,7 +1015,7 @@ export default function AdminEmployeesPage() {
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   candidateSubTab === "archived"
                     ? "bg-amber-500 text-slate-950 shadow-md font-extrabold"
-                    : "bg-slate-900 text-slate-400 hover:text-white"
+                    : "bg-slate-100 dark:bg-slate-900 [data-theme='emerald']:bg-[#033628] text-slate-700 dark:text-slate-300 [data-theme='emerald']:text-emerald-200 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-800 [data-theme='emerald']:border-emerald-700/60"
                 }`}
               >
                 <Archive className="w-3.5 h-3.5 inline mr-1" />
@@ -1024,23 +1024,23 @@ export default function AdminEmployeesPage() {
             </div>
 
             <div className="relative flex-1 max-w-xs">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
               <input
                 type="text"
                 suppressHydrationWarning
                 placeholder="Search candidate by name, phone, role..."
                 value={candidateSearch}
                 onChange={(e) => { setCandidateSearch(e.target.value); setCandidateCurrentPage(1); }}
-                className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="w-full pl-9 pr-3 py-2 rounded-xl bg-white dark:bg-slate-900 [data-theme='emerald']:bg-[#021c15] border border-slate-300 dark:border-slate-800 [data-theme='emerald']:border-emerald-700/60 text-slate-900 dark:text-white [data-theme='emerald']:text-white placeholder-slate-400 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500"
               />
             </div>
           </div>
 
           {/* Horizontal Scrollable Candidates Table */}
-          <div className="bg-slate-950 rounded-3xl border border-slate-800 overflow-hidden shadow-xl">
-            <div className="overflow-x-auto touch-pan-x overscroll-x-contain scrollbar-thin scrollbar-thumb-amber-500/30 scrollbar-track-slate-900">
-              <table className="w-full text-left text-xs text-slate-300 min-w-[950px]">
-                <thead className="bg-slate-900 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+          <div className="bg-white dark:bg-slate-950 [data-theme='emerald']:bg-[#021c15] rounded-3xl border border-slate-200 dark:border-slate-800 [data-theme='emerald']:border-emerald-700/60 overflow-hidden shadow-xl">
+            <div className="overflow-x-auto touch-pan-x overscroll-x-contain scrollbar-thin scrollbar-thumb-amber-500/30 scrollbar-track-slate-100 dark:scrollbar-track-slate-900">
+              <table className="w-full text-left text-xs min-w-[950px]">
+                <thead className="bg-slate-100 dark:bg-slate-900 [data-theme='emerald']:bg-[#032e22] text-slate-800 dark:text-slate-300 [data-theme='emerald']:text-emerald-200 uppercase text-[10px] tracking-wider border-b border-slate-200 dark:border-slate-800 [data-theme='emerald']:border-emerald-700/60 font-bold">
                   <tr>
                     <th className="p-4 pl-6">Candidate</th>
                     <th className="p-4">Position Applied</th>
@@ -1051,10 +1051,10 @@ export default function AdminEmployeesPage() {
                     <th className="p-4 pr-6 text-right">Hire / Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800 [data-theme='emerald']:divide-emerald-900/60">
                   {paginatedApplications.length === 0 ? (
                     <tr>
-                      <td colSpan="7" className="p-12 text-center text-slate-500">
+                      <td colSpan="7" className="p-12 text-center text-slate-500 dark:text-slate-400">
                         {candidateSubTab === "archived"
                           ? "No archived candidate applications."
                           : "No candidate applications currently match your filters."}
@@ -1062,34 +1062,34 @@ export default function AdminEmployeesPage() {
                     </tr>
                   ) : (
                     paginatedApplications.map((app) => (
-                      <tr key={app.id} className="hover:bg-slate-900/50 transition-colors">
-                        <td className="p-4 pl-6 font-bold text-white">
-                          <div className="font-serif text-sm">{app.fullName}</div>
-                          <div className="text-[11px] text-slate-400 font-normal">{app.email}</div>
-                          <div className="text-[11px] text-slate-500 font-mono">{app.phone}</div>
+                      <tr key={app.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/60 [data-theme='emerald']:hover:bg-[#033628]/60 transition-colors">
+                        <td className="p-4 pl-6">
+                          <div className="font-serif text-sm font-bold text-slate-900 dark:text-white [data-theme='emerald']:text-white">{app.fullName}</div>
+                          <div className="text-[11px] text-slate-600 dark:text-slate-300 [data-theme='emerald']:text-emerald-100 font-medium">{app.email}</div>
+                          <div className="text-[11px] text-slate-600 dark:text-slate-400 [data-theme='emerald']:text-emerald-300 font-mono">{app.phone}</div>
                         </td>
 
                         <td className="p-4">
-                          <span className="text-amber-400 font-semibold bg-amber-950/40 px-2.5 py-1 rounded-lg border border-amber-800/40">
+                          <span className="text-amber-900 dark:text-amber-300 [data-theme='emerald']:text-amber-300 font-bold bg-amber-50 dark:bg-amber-950/60 [data-theme='emerald']:bg-emerald-950/80 px-2.5 py-1 rounded-lg border border-amber-300 dark:border-amber-800/60 [data-theme='emerald']:border-emerald-700/60">
                             {app.job?.title || "General Application"}
                           </span>
                         </td>
 
-                        <td className="p-4 text-slate-300">
-                          <div>{app.experience || "Not specified"}</div>
+                        <td className="p-4">
+                          <div className="text-slate-800 dark:text-slate-200 [data-theme='emerald']:text-emerald-100 font-medium">{app.experience || "Not specified"}</div>
                           {app.portfolioUrl && (
                             <a
                               href={app.portfolioUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-[11px] text-sky-400 hover:underline block mt-0.5"
+                              className="text-[11px] text-blue-600 dark:text-sky-400 hover:underline font-bold block mt-0.5"
                             >
                               View Portfolio ↗
                             </a>
                           )}
                         </td>
 
-                        <td className="p-4 text-slate-400 max-w-xs truncate" title={app.coverNotes}>
+                        <td className="p-4 text-slate-700 dark:text-slate-300 [data-theme='emerald']:text-emerald-200 max-w-xs truncate" title={app.coverNotes}>
                           {app.coverNotes || "None provided"}
                         </td>
 
@@ -1100,7 +1100,7 @@ export default function AdminEmployeesPage() {
                             )}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] inline-flex items-center gap-1.5 transition-colors shadow-xs"
+                            className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] inline-flex items-center gap-1.5 transition-colors shadow-xs active:scale-95"
                           >
                             <MessageSquare className="w-3.5 h-3.5" />
                             <span>WhatsApp</span>
@@ -1113,10 +1113,10 @@ export default function AdminEmployeesPage() {
                             onChange={(e) => handleAppStatus(app.id, e.target.value)}
                             className={`rounded-xl px-3 py-2 text-xs font-bold border focus:outline-none cursor-pointer ${
                               app.status === "SELECTED"
-                                ? "bg-emerald-950 text-emerald-400 border-emerald-800"
+                                ? "bg-emerald-50 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800"
                                 : app.status === "REJECTED"
-                                ? "bg-red-950 text-red-400 border-red-800"
-                                : "bg-blue-950 text-blue-400 border-blue-800"
+                                ? "bg-rose-50 dark:bg-rose-950 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-800"
+                                : "bg-sky-50 dark:bg-slate-900 text-sky-900 dark:text-sky-300 border-sky-300 dark:border-slate-700"
                             }`}
                           >
                             <option value="ON_PROCESS">⏳ In Process (Evaluation)</option>
@@ -1131,7 +1131,7 @@ export default function AdminEmployeesPage() {
                             {!app.isArchived && (
                               <button
                                 onClick={() => handleOpenHireCandidate(app)}
-                                className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 font-black text-xs flex items-center gap-1 transition-all shadow-md cursor-pointer"
+                                className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 font-black text-xs flex items-center gap-1 transition-all shadow-md active:scale-95 cursor-pointer"
                                 title="Hire candidate and onboard directly into Active Staff"
                               >
                                 <UserPlus className="w-3.5 h-3.5" />
@@ -1142,7 +1142,7 @@ export default function AdminEmployeesPage() {
                             {app.isArchived ? (
                               <button
                                 onClick={() => handleRestoreCandidate(app.id, app.fullName)}
-                                className="p-2 rounded-xl bg-emerald-950/80 hover:bg-emerald-900 text-emerald-400 border border-emerald-800 transition-colors cursor-pointer"
+                                className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/80 hover:bg-emerald-100 dark:hover:bg-emerald-900 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 transition-colors cursor-pointer"
                                 title="Restore candidate to active pool"
                               >
                                 <RotateCcw className="w-3.5 h-3.5" />
@@ -1150,7 +1150,7 @@ export default function AdminEmployeesPage() {
                             ) : app.status === "REJECTED" ? (
                               <button
                                 onClick={() => handleArchiveCandidate(app.id, app.fullName)}
-                                className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 transition-colors cursor-pointer"
+                                className="p-2 rounded-xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 transition-colors cursor-pointer"
                                 title="Archive rejected candidate"
                               >
                                 <Archive className="w-3.5 h-3.5" />
@@ -1159,7 +1159,7 @@ export default function AdminEmployeesPage() {
 
                             <button
                               onClick={() => handleDeleteCandidate(app.id, app.fullName)}
-                              className="p-2 rounded-xl bg-red-950/60 hover:bg-red-900 text-red-400 border border-red-800 transition-colors cursor-pointer"
+                              className="p-2 rounded-xl bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800 transition-colors cursor-pointer"
                               title="Delete application record permanently"
                             >
                               <Trash2 className="w-3.5 h-3.5" />

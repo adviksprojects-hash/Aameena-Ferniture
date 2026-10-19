@@ -3,7 +3,7 @@ import HeaderClient from "./HeaderClient";
 import HeaderCartButton from "./HeaderCartButton";
 import HeaderWishlistButton from "./HeaderWishlistButton";
 import HeaderAuth from "./HeaderAuth";
-import { Sofa } from "lucide-react";
+import BrandLogo from "@/components/BrandLogo";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import { checkUser } from "@/lib/checkUser";
 
@@ -12,25 +12,10 @@ export default async function Header() {
   await checkUser();
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-amber-950/90 backdrop-blur-md border-b border-amber-900/40 text-amber-50 shadow-lg">
-      <div className="container mx-auto px-4 md:px-6 h-20 flex items-center justify-between gap-4">
+    <header className="storefront-header sticky top-0 z-50 w-full bg-amber-950/90 backdrop-blur-md border-b border-amber-900/40 text-amber-50 shadow-lg transition-colors duration-200">
+      <div className="container mx-auto px-3 sm:px-6 h-20 flex items-center justify-between gap-3 sm:gap-4">
         {/* Brand / Logo */}
-        <Link
-          href="/"
-          className="text-lg sm:text-xl font-bold tracking-tight text-amber-50 flex items-center gap-2.5 group shrink-0"
-        >
-          <div className="bg-gradient-to-tr from-amber-600 to-amber-500 p-2 rounded-xl text-amber-950 shadow-md group-hover:scale-105 transition-transform shrink-0">
-            <Sofa className="w-5 h-5" />
-          </div>
-          <div className="flex flex-col">
-            <span className="leading-tight font-extrabold text-white text-sm sm:text-base">
-              Aameena <span className="text-amber-400 font-serif italic font-bold">Ferniture</span>
-            </span>
-            <span className="text-[10px] text-amber-300/80 font-medium tracking-wider uppercase -mt-0.5">
-              and Fernishing
-            </span>
-          </div>
-        </Link>
+        <BrandLogo href="/" size="md" priority />
 
         {/* Navigation Links */}
         <HeaderClient />
