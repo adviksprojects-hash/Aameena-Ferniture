@@ -30,25 +30,33 @@ export function NotificationBell({ onSelectReview }) {
   const [loading, setLoading] = useState(false);
   const dropdownRef = useRef(null);
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
-      setLoading(true);
       const res = await getReviewNotificationsAction({ limit: 20 });
       if (res.success && Array.isArray(res.notifications)) {
         setNotifications(res.notifications);
       }
     } catch (err) {
       console.warn("Failed to load notifications:", err.message);
-    } finally {
-      setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchNotifications();
+    let isMounted = true;
+    getReviewNotificationsAction({ limit: 20 })
+      .then((res) => {
+        if (isMounted && res.success && Array.isArray(res.notifications)) {
+          setNotifications(res.notifications);
+        }
+      })
+      .catch((err) => console.warn("Failed to load notifications:", err.message));
+
     const interval = setInterval(fetchNotifications, 30000); // 30s auto-refresh
-    return () => clearInterval(interval);
-  }, []);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [fetchNotifications]);
 
   // Close dropdown on click outside
   useEffect(() => {

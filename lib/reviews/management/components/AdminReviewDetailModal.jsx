@@ -101,27 +101,32 @@ export function AdminReviewDetailModal({
   const [mediaCenterOpen, setMediaCenterOpen] = useState(false);
   const [mediaInitialIndex, setMediaInitialIndex] = useState(0);
 
-  // Load Templates on Mount or Review change
-  useEffect(() => {
-    if (isOpen) {
+  // Synchronize modal form state when review or open status changes
+  const [prevModalReviewKey, setPrevModalReviewKey] = useState("");
+  const currentModalReviewKey = `${isOpen ? review?.id : "closed"}_${review?.updatedAt || ""}`;
+  if (currentModalReviewKey !== prevModalReviewKey) {
+    setPrevModalReviewKey(currentModalReviewKey);
+    if (isOpen && review) {
       setReplyText(review?.ownerReply || "");
       setIsPinned(Boolean(review?.isReplyPinned));
       setInternalNotes(review?.additionalNotes || "");
       setIsVerified(Boolean(review?.isVerified));
       setCurrentBadge(review?.verificationBadge || "VERIFIED_PURCHASE");
-
-      // Preload Reply Templates
-      if (templates.length === 0) {
-        fetchReplyTemplatesAction("ALL")
-          .then((res) => {
-            if (res.success && Array.isArray(res.templates)) {
-              setTemplates(res.templates);
-            }
-          })
-          .catch((err) => console.warn("Templates load notice:", err));
-      }
     }
-  }, [isOpen, review]);
+  }
+
+  // Preload Reply Templates
+  useEffect(() => {
+    if (isOpen) {
+      fetchReplyTemplatesAction("ALL")
+        .then((res) => {
+          if (res.success && Array.isArray(res.templates)) {
+            setTemplates(res.templates);
+          }
+        })
+        .catch((err) => console.warn("Templates load notice:", err));
+    }
+  }, [isOpen]);
 
   if (!isOpen || !review) return null;
 

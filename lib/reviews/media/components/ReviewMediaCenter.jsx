@@ -64,11 +64,14 @@ export function ReviewMediaCenter({
     setRotation((prev) => (prev + 90) % 360);
   };
 
-  useEffect(() => {
+  const [prevMediaKey, setPrevMediaKey] = useState("");
+  const mediaKey = `${initialIndex}_${isOpen}`;
+  if (mediaKey !== prevMediaKey) {
+    setPrevMediaKey(mediaKey);
     setCurrentIndex(initialIndex);
     setZoomLevel(1);
     setRotation(0);
-  }, [initialIndex, isOpen]);
+  }
 
   // Keyboard navigation
   useEffect(() => {
