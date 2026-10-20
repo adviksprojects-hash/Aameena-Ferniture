@@ -87,7 +87,7 @@ export default function AdminLayout({ children }) {
     { title: "Customer Reviews", shortTitle: "Reviews", url: "/admin/reviews", icon: Star },
     { title: "Manager Management", shortTitle: "Managers", url: "/admin/managers", icon: UserCheck },
     { title: "Employee Management", shortTitle: "Employees", url: "/admin/employees", icon: Users },
-    { title: "Sales Analysis", shortTitle: "Analytics", url: "/admin/analysis", icon: BarChart3 },
+    // { title: "Sales Analysis", shortTitle: "Analytics", url: "/admin/analysis", icon: BarChart3 },
     { title: "Platform Settings", shortTitle: "Settings", url: "/admin/settings", icon: Settings },
   ];
 

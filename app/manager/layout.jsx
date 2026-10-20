@@ -78,7 +78,7 @@ export default function ManagerLayout({ children }) {
 
   const managerLinks = [
     { title: "Manufacturer Analytics", shortTitle: "Analytics", url: "/manager", icon: LayoutDashboard },
-    { title: "Sales & Graph Analysis", shortTitle: "Sales", url: "/manager/analysis", icon: BarChart3 },
+    // { title: "Sales & Graph Analysis", shortTitle: "Sales", url: "/manager/analysis", icon: BarChart3 },
     { title: "Product Stock & Pricing", shortTitle: "Products", url: "/manager/products", icon: Package },
     { title: "Pricing & PDF Catalog", shortTitle: "Pricing", url: "/manager/pricing", icon: DollarSign },
     { title: "Blog & SEO Articles", shortTitle: "Blogs", url: "/manager/blogs", icon: BookOpen },
