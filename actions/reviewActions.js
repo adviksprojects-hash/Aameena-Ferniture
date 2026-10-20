@@ -181,7 +181,7 @@ export async function submitVerifiedReview(data) {
           aiSummary: `${experienceType === "PURCHASED" ? "Customer Purchase" : "Showroom Visit"}: ${productPurchased || "Handcrafted Furniture"}`,
           aiKeyTopics: [experienceType, productPurchased || "Handcrafted Sagwan Teak", "Solapur Workshop"].filter(Boolean),
           verified: true,
-          googleMapsUrl: "https://search.google.com/local/writereview?placeid=ChIJB1k-wjTbxTsR7dA3i-yPr4Y",
+          googleMapsUrl: `https://search.google.com/local/writereview?placeid=${process.env.NEXT_PUBLIC_GOOGLE_PLACE_ID || process.env.GOOGLE_PLACE_ID || "ChIJCXT4P8_bxTsRJUtw5_YsNnM"}`,
         },
       });
     } catch (legErr) {

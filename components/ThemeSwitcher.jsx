@@ -7,26 +7,23 @@ const THEMES = [
   {
     id: "light",
     label: "Light",
-    shortLabel: "Light",
     icon: Sun,
     title: "Light Mode (Crisp White)",
-    activeClass: "bg-amber-500 text-slate-950 font-bold shadow-xs",
+    activeClass: "bg-amber-500 text-slate-950 shadow-sm ring-2 ring-amber-400/60",
   },
   {
     id: "emerald",
     label: "Emerald",
-    shortLabel: "Emerald",
     icon: Gem,
     title: "Emerald Mode (Royal Jewel & Gold)",
-    activeClass: "bg-emerald-600 text-white font-bold shadow-xs ring-1 ring-emerald-400/50",
+    activeClass: "bg-emerald-600 text-white shadow-sm ring-2 ring-emerald-400/80",
   },
   {
     id: "dark",
     label: "Dark",
-    shortLabel: "Dark",
     icon: Moon,
     title: "Dark Mode (Obsidian Midnight)",
-    activeClass: "bg-amber-500 text-slate-950 font-bold shadow-xs",
+    activeClass: "bg-amber-500 text-slate-950 shadow-sm ring-2 ring-amber-400/60",
   },
 ];
 
@@ -72,7 +69,7 @@ export default function ThemeSwitcher({ className = "" }) {
 
   if (!mounted) {
     return (
-      <div className={`h-8 w-28 bg-slate-800/40 rounded-full animate-pulse ${className}`} />
+      <div className={`h-8 w-24 bg-slate-800/40 rounded-full animate-pulse ${className}`} />
     );
   }
 
@@ -80,7 +77,7 @@ export default function ThemeSwitcher({ className = "" }) {
     <div
       role="group"
       aria-label="Theme Mode Selection"
-      className={`relative z-50 inline-flex items-center p-0.5 sm:p-1 rounded-full bg-slate-200/90 dark:bg-slate-950/90 [data-theme="emerald"]:bg-[#011c14] border border-slate-300 dark:border-slate-800 [data-theme="emerald"]:border-emerald-700/60 shadow-xs backdrop-blur-md transition-all ${className}`}
+      className={`relative z-50 inline-flex items-center gap-1 p-1 rounded-full bg-slate-200/90 dark:bg-slate-950/90 [data-theme="emerald"]:bg-[#011c14] border border-slate-300 dark:border-slate-800 [data-theme="emerald"]:border-emerald-700/60 shadow-xs backdrop-blur-md transition-all ${className}`}
     >
       {THEMES.map((theme) => {
         const Icon = theme.icon;
@@ -91,23 +88,21 @@ export default function ThemeSwitcher({ className = "" }) {
             type="button"
             onClick={() => handleSelectTheme(theme.id)}
             title={theme.title}
+            aria-label={theme.title}
             aria-pressed={isActive}
-            className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-xs transition-all duration-200 cursor-pointer select-none ${
+            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer select-none ${
               isActive
                 ? theme.activeClass
                 : "text-slate-600 dark:text-slate-400 [data-theme='emerald']:text-emerald-300/80 hover:text-slate-950 dark:hover:text-white [data-theme='emerald']:hover:text-white hover:bg-black/5 dark:hover:bg-white/10"
             }`}
           >
             <Icon
-              className={`w-3.5 h-3.5 ${
+              className={`w-4 h-4 transition-transform duration-200 ${
                 isActive
-                  ? ""
+                  ? "scale-110"
                   : "text-amber-600 dark:text-amber-400 [data-theme='emerald']:text-emerald-400"
               }`}
             />
-            <span className="hidden sm:inline font-semibold text-[11px]">
-              {theme.shortLabel}
-            </span>
           </button>
         );
       })}

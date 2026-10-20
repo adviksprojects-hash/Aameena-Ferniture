@@ -10,7 +10,10 @@
  * - Standard window.open only
  */
 
-export const PRIMARY_GOOGLE_PLACE_ID = "ChIJB1k-wjTbxTsR7dA3i-yPr4Y";
+export const PRIMARY_GOOGLE_PLACE_ID =
+  process.env.NEXT_PUBLIC_GOOGLE_PLACE_ID ||
+  process.env.GOOGLE_PLACE_ID ||
+  "ChIJCXT4P8_bxTsRJUtw5_YsNnM";
 export const GOOGLE_WRITE_REVIEW_URL = `https://search.google.com/local/writereview?placeid=${PRIMARY_GOOGLE_PLACE_ID}`;
 export const BUSINESS_NAME = "AMEENA Distributors’s Sofa Set Furniture Company (Solapur Facility)";
 

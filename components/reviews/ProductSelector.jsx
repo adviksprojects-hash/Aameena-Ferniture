@@ -222,10 +222,10 @@ export default function ProductSelector({
             className={`text-xs font-bold px-3 py-1.5 rounded-xl border transition-all flex items-center gap-1.5 ${
               isCustomMode
                 ? "bg-amber-950 text-amber-100 border-amber-950 shadow-sm"
-                : "bg-amber-100/70 text-amber-950 border-amber-300 hover:bg-amber-200"
+                : "bg-amber-100 text-amber-950 border-amber-300 hover:bg-amber-200"
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-600" aria-hidden="true" />
+            <Sparkles className="w-3.5 h-3.5 text-amber-800" aria-hidden="true" />
             <span>{isCustomMode ? "Switch to Catalog Models" : "Other / Custom Furniture"}</span>
           </button>
         </div>
@@ -533,8 +533,8 @@ export default function ProductSelector({
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="p-1.5 rounded-lg bg-amber-200/80 text-amber-900 shrink-0">
-                      <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
+                    <span className="p-1.5 rounded-lg bg-amber-950 text-amber-300 dark:bg-amber-900 dark:text-amber-300 border border-amber-800/60 shrink-0">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-300" aria-hidden="true" />
                     </span>
                     <div className="min-w-0">
                       <p className="font-bold text-xs sm:text-sm text-amber-950">

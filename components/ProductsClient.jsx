@@ -364,7 +364,7 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
                     {/* Body */}
                     <div className="p-6 space-y-3">
                       <div className="flex items-center justify-between text-xs text-slate-500">
-                        <span className="capitalize font-semibold text-amber-900 bg-amber-100/70 px-2.5 py-0.5 rounded-md">
+                        <span className="product-category-badge capitalize font-bold px-2.5 py-0.5 rounded-md text-xs shadow-2xs">
                           {product.Category?.name || "Collection"}
                         </span>
                       </div>
@@ -592,7 +592,7 @@ export default function ProductsClient({ initialProducts = [], initialCategory =
             <div className="flex items-start justify-between border-b border-amber-100 pb-4 gap-3">
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[10px] uppercase font-extrabold tracking-widest text-amber-800 bg-amber-100/80 px-2.5 py-0.5 rounded-full">
+                  <span className="product-category-badge text-[10px] uppercase font-extrabold tracking-widest px-2.5 py-0.5 rounded-full">
                     Solapur Heritage Craftsmanship
                   </span>
                   <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">

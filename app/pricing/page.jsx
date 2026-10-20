@@ -310,10 +310,10 @@ export default function PricingPage() {
                 <span className="flex items-center gap-2 flex-wrap">
                   <span>Download Rate Card (PDF)</span>
                   {activeCategory?.fileSize && (
-                    <span className="rate-card-file-badge inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-slate-950/90 text-amber-300 border border-amber-400/50 shadow-xs">
-                      <span>PDF</span>
-                      <span>•</span>
-                      <span>{activeCategory.fileSize}</span>
+                    <span className="rate-card-file-badge inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-white text-black border border-slate-300 shadow-xs">
+                      <span className="text-black">PDF</span>
+                      <span className="text-black">•</span>
+                      <span className="text-black">{activeCategory.fileSize}</span>
                     </span>
                   )}
                 </span>
