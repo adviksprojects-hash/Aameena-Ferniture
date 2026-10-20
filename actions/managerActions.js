@@ -201,7 +201,7 @@ export async function getManagerProfile() {
       profile: {
         id: manager?.id || null,
         name: manager?.user?.name || "Operations Manager",
-        email: manager?.user?.email || "manager@aameenadistributors.com",
+        email: manager?.user?.email || "Shuaibmanglur@gmail.com",
         phone: manager?.phone || manager?.user?.phone || "+91 97303 92917",
         branch: manager?.branch?.name || defaultBranch?.name || "AMEENA Distributors's Sofa Set Furniture Company - Solapur",
         address: manager?.branch?.address || defaultBranch?.address || "Main Showroom & Workshop, Near Old Pune Naka, Solapur",
@@ -215,7 +215,7 @@ export async function getManagerProfile() {
       error: error.message,
       profile: {
         name: "Operations Manager",
-        email: "manager@aameenadistributors.com",
+        email: "Shuaibmanglur@gmail.com",
         phone: "+91 97303 92917",
         branch: "AMEENA Distributors's Sofa Set Furniture Company - Solapur",
         address: "Main Showroom & Workshop, Near Old Pune Naka, Solapur",

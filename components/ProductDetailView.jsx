@@ -621,7 +621,7 @@ export default function ProductDetailView({ product, relatedProducts = [] }) {
             </p>
             <div className="pt-1 flex flex-wrap items-center gap-3">
               <a
-                href="https://www.google.com/maps/place/AMEENA+Distributors%E2%80%99s+Sofa+Set+Furniture+Company/@17.6578402,75.9362493,15z/data=!3m1!4b1!4m6!3m5!1s0x3bc5db34c23e5907:0x86af8fec8b37d0ed!8m2!3d17.6578402!4d75.9362493!16s%2Fg%2F11gypsrxj5?entry=ttu"
+                href="https://share.google/sUjpmS81krOIIhOZY"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-4 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold rounded-xl transition-all shadow-md flex items-center gap-1.5"

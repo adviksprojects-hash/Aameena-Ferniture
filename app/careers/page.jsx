@@ -159,7 +159,7 @@ export default function CareersPage() {
           <div className="text-center py-16 bg-white rounded-3xl border border-amber-200 p-8 space-y-3">
             <Briefcase className="w-8 h-8 mx-auto text-slate-400" />
             <h3 className="text-lg font-bold font-serif text-slate-800">No Open Positions Currently</h3>
-            <p className="text-xs text-slate-500">Check back soon or send your resume to careers@aameenafurniture.com</p>
+            <p className="text-xs text-slate-500">Check back soon or send your resume to <a href="mailto:Shuaibmanglur@gmail.com" className="underline hover:text-amber-900 font-semibold transition-colors">Shuaibmanglur@gmail.com</a></p>
           </div>
         ) : (
           <div className="space-y-4">

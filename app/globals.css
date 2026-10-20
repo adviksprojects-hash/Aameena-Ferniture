@@ -2395,3 +2395,17 @@ footer.site-footer .border-t,
 [data-theme="dark"] footer.site-footer .border-t {
   border-color: #262626 !important;
 }
+
+
+footer.site-footer span.text-white,
+footer.site-footer .developer-brand,
+[data-theme="light"] footer.site-footer span.text-white,
+[data-theme="emerald"] footer.site-footer span.text-white,
+[data-theme="royal"] footer.site-footer span.text-white,
+[data-theme="dark"] footer.site-footer span.text-white,
+[data-theme="light"] footer.site-footer .developer-brand,
+[data-theme="emerald"] footer.site-footer .developer-brand,
+[data-theme="royal"] footer.site-footer .developer-brand,
+[data-theme="dark"] footer.site-footer .developer-brand {
+  color: #ffffff !important;
+}

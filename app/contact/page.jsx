@@ -88,8 +88,15 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <span className="font-bold text-slate-900 block">Sole Official Store & Workshop:</span>
-                  <span className="font-semibold text-amber-900 block">AMEENA Distributors’s Sofa Set Furniture Company</span>
-                  <span className="text-xs text-slate-600 block mt-0.5">Solapur, Maharashtra 413005 (Coordinates: 17.6578402, 75.9362493)</span>
+                  <a
+                    href="https://share.google/sUjpmS81krOIIhOZY"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-semibold text-amber-900 hover:text-amber-800 hover:underline block"
+                  >
+                    AMEENA Distributors’s Sofa Set Furniture Company
+                  </a>
+                  <span className="text-xs text-slate-600 block mt-0.5">Solapur, Maharashtra 413005 (Coordinates: 17.6673137, 75.9374357)</span>
                 </div>
               </div>
 
@@ -113,7 +120,9 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <span className="font-bold text-slate-900 block">Email Support:</span>
-                  <span>contact@ameenadistributors.com</span>
+                  <a href="mailto:Shuaibmanglur@gmail.com" className="text-slate-800 hover:text-amber-900 transition-colors font-semibold">
+                    Shuaibmanglur@gmail.com
+                  </a>
                 </div>
               </div>
 
@@ -130,7 +139,7 @@ export default function ContactPage() {
 
             <div className="pt-4 border-t border-amber-100 space-y-2.5">
               <a
-                href="https://www.google.com/maps/place/AMEENA+Distributors%E2%80%99s+Sofa+Set+Furniture+Company/@17.6578402,75.9362493,15z/data=!3m1!4b1!4m6!3m5!1s0x3bc5db34c23e5907:0x86af8fec8b37d0ed!8m2!3d17.6578402!4d75.9362493!16s%2Fg%2F11gypsrxj5"
+                href="https://share.google/sUjpmS81krOIIhOZY"
                 target="_blank"
                 rel="noreferrer"
                 className="w-full py-3.5 rounded-2xl bg-amber-900 hover:bg-amber-800 text-amber-50 font-bold text-xs transition-colors flex items-center justify-center gap-2 shadow-md"
@@ -164,7 +173,7 @@ export default function ContactPage() {
             <div className="relative rounded-2xl overflow-hidden h-64 sm:h-72 bg-slate-100 border border-amber-200 shadow-inner">
               <iframe
                 title="AMEENA Distributors Sofa Set Furniture Company Solapur"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15207.349440686961!2d75.92592809504401!3d17.657860428118827!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc5db34c23e5907%3A0x86af8fec8b37d0ed!2sAMEENA%20Distributors%E2%80%99s%20Sofa%20Set%20Furniture%20Company!5e0!3m2!1sen!2sin!4v1791050521997!5m2!1sen!2sin"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15206.516584284534!2d75.9271424!3d17.6673137!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc5dbcf3ff87409%3A0x73362cf6e7704b25!2sAameena%20Distributors!5e0!3m2!1sen!2sin!4v1792514000000!5m2!1sen!2sin"
                 className="w-full h-full border-0"
                 allowFullScreen=""
                 loading="lazy"

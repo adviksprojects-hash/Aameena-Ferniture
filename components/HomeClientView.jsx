@@ -717,7 +717,7 @@ export default function HomeClientView({
                   <span>WhatsApp Consultation (+91 97303 92917)</span>
                 </a>
                 <a
-                  href="https://www.google.com/maps/place/AMEENA+Distributors%E2%80%99s+Sofa+Set+Furniture+Company/@17.6578402,75.9362493,15z/data=!3m1!4b1!4m6!3m5!1s0x3bc5db34c23e5907:0x86af8fec8b37d0ed!8m2!3d17.6578402!4d75.9362493!16s%2Fg%2F11gypsrxj5"
+                  href="https://share.google/sUjpmS81krOIIhOZY"
                   target="_blank"
                   rel="noreferrer"
                   className="px-5 py-3 rounded-full bg-amber-50 hover:bg-amber-100 text-amber-950 font-bold text-sm border border-amber-300 transition-all flex items-center gap-2 hover:scale-105"
@@ -730,7 +730,7 @@ export default function HomeClientView({
             <div className="relative rounded-2xl overflow-hidden h-80 bg-slate-200 border border-amber-200 shadow-inner">
               <iframe
                 title="Aameena Furniture Solapur Facility"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15207.349440686961!2d75.92592809504401!3d17.657860428118827!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc5db34c23e5907%3A0x86af8fec8b37d0ed!2sAMEENA%20Distributors%E2%80%99s%20Sofa%20Set%20Furniture%20Company!5e0!3m2!1sen!2sin!4v1791050521997!5m2!1sen!2sin"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15206.516584284534!2d75.9271424!3d17.6673137!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc5dbcf3ff87409%3A0x73362cf6e7704b25!2sAameena%20Distributors!5e0!3m2!1sen!2sin!4v1792514000000!5m2!1sen!2sin"
                 className="w-full h-full border-0"
                 allowFullScreen=""
                 loading="lazy"

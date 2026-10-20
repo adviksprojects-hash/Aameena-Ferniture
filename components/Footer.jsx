@@ -59,7 +59,7 @@ export default function Footer() {
                 <MapPin className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                 <div>
                   <a
-                    href="https://www.google.com/maps/place/AMEENA+Distributors%E2%80%99s+Sofa+Set+Furniture+Company/@17.6578402,75.9362493,15z/data=!3m1!4b1!4m6!3m5!1s0x3bc5db34c23e5907:0x86af8fec8b37d0ed!8m2!3d17.6578402!4d75.9362493!16s%2Fg%2F11gypsrxj5"
+                    href="https://share.google/sUjpmS81krOIIhOZY"
                     target="_blank"
                     rel="noreferrer"
                     className="hover:text-white font-semibold block text-white transition-colors"
@@ -77,7 +77,9 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-amber-400 shrink-0" />
-                <span className="text-neutral-300">contact@ameenadistributors.com</span>
+                <a href="mailto:Shuaibmanglur@gmail.com" className="text-neutral-300 hover:text-white transition-colors">
+                  Shuaibmanglur@gmail.com
+                </a>
               </li>
               <li className="pt-2">
                 <a 
@@ -101,7 +103,7 @@ export default function Footer() {
             <p className="text-neutral-400">© {new Date().getFullYear()} Aameena Furniture & Furnishing. All rights reserved.</p>
             <span className="hidden sm:inline text-neutral-700">•</span>
             <p className="text-neutral-300 font-medium">
-              Developed by <span className="font-bold text-white">ADVIKS Softech</span>
+              Developed by <span className="font-bold text-white !text-white developer-brand" style={{ color: "#ffffff" }}>ADVIKS Softech</span>
             </p>
           </div>
           <div className="flex items-center gap-6">

@@ -13,7 +13,7 @@ const DEFAULT_SETTINGS = {
   tagline: "Handcrafted Solid Sagwan Teak Wood Furniture & Luxury Living Solutions",
   supportPhone: "+91 97303 92917",
   whatsappNumber: "+91 97303 92917",
-  supportEmail: "sales@aameenadistributors.com",
+  supportEmail: "Shuaibmanglur@gmail.com",
   showroomAddress: "Main Showroom & Workshop, Near Old Pune Naka, Solapur, Maharashtra - 413005",
   gstin: "27AAAAA0000A1Z5",
   currency: "INR (₹)",
