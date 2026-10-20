@@ -6,16 +6,16 @@
   "whatsappNumber": "+91 97303 92917",
   "supportEmail": "sales@aameenadistributors.com",
   "showroomAddress": "Main Showroom & Workshop, Near Old Pune Naka, Solapur, Maharashtra - 413005",
-  "gstin": "27AAAAA0000A1Z5",
+  "gstin": "27CWWPM0548M1ZO",
   "currency": "INR (₹)",
-  "defaultStorefrontTheme": "light",
-  "defaultManagerTheme": "emerald",
+  "defaultStorefrontTheme": "dark",
+  "defaultManagerTheme": "dark",
   "enableThemeSwitcher": true,
   "enableAnnouncement": false,
   "announcementText": "🎉 Festive Teak Collection: Flat 20% Off on Custom Handcrafted Living Sets & Free Delivery in Solapur!",
-  "announcementColor": "orange",
+  "announcementColor": "purple",
   "enableWhatsAppOrdering": true,
   "enableARView": true,
   "enableCatalogDownload": true,
-  "updatedAt": "2026-10-19T17:24:23.611Z"
+  "updatedAt": "2026-10-20T06:41:01.570Z"
 }

@@ -178,3 +178,94 @@ export async function deleteManager(managerId) {
   }
 }
 
+/**
+ * Get manager facility profile from PostgreSQL database
+ */
+export async function getManagerProfile() {
+  try {
+    const manager = await db.manager.findFirst({
+      where: { status: "ACTIVE" },
+      include: {
+        user: true,
+        branch: true,
+      },
+      orderBy: { createdAt: "asc" },
+    });
+
+    const defaultBranch = await db.branch.findFirst({
+      orderBy: { createdAt: "asc" },
+    });
+
+    return {
+      success: true,
+      profile: {
+        id: manager?.id || null,
+        name: manager?.user?.name || "Operations Manager",
+        email: manager?.user?.email || "manager@aameenadistributors.com",
+        phone: manager?.phone || manager?.user?.phone || "+91 97303 92917",
+        branch: manager?.branch?.name || defaultBranch?.name || "AMEENA Distributors's Sofa Set Furniture Company - Solapur",
+        address: manager?.branch?.address || defaultBranch?.address || "Main Showroom & Workshop, Near Old Pune Naka, Solapur",
+        status: manager?.status || "ACTIVE",
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching manager profile from database:", error);
+    return {
+      success: false,
+      error: error.message,
+      profile: {
+        name: "Operations Manager",
+        email: "manager@aameenadistributors.com",
+        phone: "+91 97303 92917",
+        branch: "AMEENA Distributors's Sofa Set Furniture Company - Solapur",
+        address: "Main Showroom & Workshop, Near Old Pune Naka, Solapur",
+        status: "ACTIVE",
+      },
+    };
+  }
+}
+
+/**
+ * Update manager facility profile and save to PostgreSQL database
+ */
+export async function updateManagerProfile(data) {
+  try {
+    const { name, phone } = data;
+
+    let manager = await db.manager.findFirst({
+      where: { status: "ACTIVE" },
+      include: { user: true, branch: true },
+      orderBy: { createdAt: "asc" },
+    });
+
+    if (manager && manager.userId) {
+      if (name) {
+        await db.user.update({
+          where: { id: manager.userId },
+          data: { name },
+        });
+      }
+
+      if (phone) {
+        await db.manager.update({
+          where: { id: manager.id },
+          data: { phone },
+        });
+        await db.user.update({
+          where: { id: manager.userId },
+          data: { phone },
+        });
+      }
+    }
+
+    revalidatePath("/manager/settings");
+    revalidatePath("/manager");
+
+    return { success: true, message: "Facility preferences saved to database successfully!" };
+  } catch (error) {
+    console.error("Error updating manager profile in database:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+

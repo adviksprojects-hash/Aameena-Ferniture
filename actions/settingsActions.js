@@ -156,6 +156,10 @@ export async function updatePlatformSettings(data) {
     }
 
     revalidatePath("/", "layout");
+    revalidatePath("/");
+    revalidatePath("/products");
+    revalidatePath("/pricing");
+    revalidatePath("/services");
     revalidatePath("/admin/settings");
     revalidatePath("/manager");
 

@@ -27,22 +27,47 @@ const THEMES = [
   },
 ];
 
-export default function ThemeSwitcher({ className = "" }) {
+export default function ThemeSwitcher({ className = "", orientation = "horizontal" }) {
   const [currentTheme, setCurrentTheme] = useState("light");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    const saved = localStorage.getItem("aameena_theme") || "light";
+    
+    // Check initial server-established theme on documentElement
+    const docAttr = typeof document !== "undefined" ? document.documentElement.getAttribute("data-theme") : null;
+    const docTheme = docAttr === "royal" ? "emerald" : docAttr;
+
+    const saved = localStorage.getItem("aameena_theme");
+    const active = saved || docTheme || "light";
+
     // Discard legacy/removed "warm" or "teak" themes and fallback to default "light"
     const normalized =
-      saved === "warm" || saved === "teak"
+      active === "warm" || active === "teak"
         ? "light"
-        : saved === "royal"
+        : active === "royal"
         ? "emerald"
-        : saved;
+        : active;
     setCurrentTheme(normalized);
     applyTheme(normalized);
+
+    // Listen for real-time settings updates from admin panel or other tabs
+    const handleSettingsUpdated = () => {
+      const updatedTheme = localStorage.getItem("aameena_theme");
+      if (updatedTheme) {
+        const norm = updatedTheme === "royal" ? "emerald" : updatedTheme;
+        setCurrentTheme(norm);
+        applyTheme(norm);
+      }
+    };
+
+    window.addEventListener("aameena_settings_updated", handleSettingsUpdated);
+    window.addEventListener("storage", handleSettingsUpdated);
+
+    return () => {
+      window.removeEventListener("aameena_settings_updated", handleSettingsUpdated);
+      window.removeEventListener("storage", handleSettingsUpdated);
+    };
   }, []);
 
   const applyTheme = (theme) => {
@@ -65,6 +90,9 @@ export default function ThemeSwitcher({ className = "" }) {
     setCurrentTheme(themeId);
     localStorage.setItem("aameena_theme", themeId);
     applyTheme(themeId);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("aameena_settings_updated"));
+    }
   };
 
   if (!mounted) {
@@ -77,7 +105,7 @@ export default function ThemeSwitcher({ className = "" }) {
     <div
       role="group"
       aria-label="Theme Mode Selection"
-      className={`relative z-50 inline-flex items-center gap-1 p-1 rounded-full bg-slate-200/90 dark:bg-slate-950/90 [data-theme="emerald"]:bg-[#011c14] border border-slate-300 dark:border-slate-800 [data-theme="emerald"]:border-emerald-700/60 shadow-xs backdrop-blur-md transition-all ${className}`}
+      className={`relative z-50 inline-flex ${orientation === "vertical" ? "flex-col items-center" : "flex-row items-center"} gap-1 p-1 rounded-full bg-slate-200/90 dark:bg-slate-950/90 [data-theme="emerald"]:bg-[#011c14] border border-slate-300 dark:border-slate-800 [data-theme="emerald"]:border-emerald-700/60 shadow-xs backdrop-blur-md transition-all ${className}`}
     >
       {THEMES.map((theme) => {
         const Icon = theme.icon;

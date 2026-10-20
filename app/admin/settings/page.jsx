@@ -81,9 +81,19 @@ export default function AdminSettingsPage() {
           : "Platform configuration updated successfully! User and Manager portals synchronized.",
       });
 
-      // Apply default theme to current session if applicable
+      // Apply default theme to current session and broadcast to all components
       if (form.defaultStorefrontTheme) {
+        localStorage.setItem("aameena_theme", form.defaultStorefrontTheme);
         localStorage.setItem("aameena_default_theme", form.defaultStorefrontTheme);
+        const normalized = form.defaultStorefrontTheme === "emerald" ? "royal" : form.defaultStorefrontTheme;
+        if (typeof document !== "undefined") {
+          document.documentElement.setAttribute("data-theme", normalized);
+          if (normalized === "dark") {
+            document.documentElement.classList.add("dark");
+          } else {
+            document.documentElement.classList.remove("dark");
+          }
+        }
       }
       try {
         localStorage.setItem("aameena_platform_settings", JSON.stringify(form));

@@ -9,6 +9,8 @@ import TopProgressBar from "@/components/TopProgressBar";
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 
+import { getPlatformSettings } from "@/actions/settingsActions";
+
 const inter = Inter({
   subsets: ["latin"],
 });
@@ -29,15 +31,24 @@ export const metadata = {
   },
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const settingsRes = await getPlatformSettings();
+  const dbTheme = settingsRes?.settings?.defaultStorefrontTheme || "light";
+  const normalizedServerTheme =
+    dbTheme === "emerald"
+      ? "royal"
+      : dbTheme === "warm" || dbTheme === "teak"
+      ? "light"
+      : dbTheme;
+
   return (
     <ClerkProvider>
       <html
         lang="en"
-        data-theme="light"
+        data-theme={normalizedServerTheme}
         data-scroll-behavior="smooth"
         suppressHydrationWarning
-        className={inter.className}
+        className={`${inter.className} ${normalizedServerTheme === "dark" ? "dark" : ""}`}
       >
         <head>
           <link rel="icon" type="image/png" sizes="32x32" href="/images/logo.png?v=4" />
@@ -50,10 +61,15 @@ export default function RootLayout({ children }) {
             dangerouslySetInnerHTML={{
               __html: `
                 try {
-                  const t = localStorage.getItem('aameena_theme') || 'light';
+                  const saved = localStorage.getItem('aameena_theme');
+                  const t = saved || '${dbTheme}';
                   const n = (t === 'teak' || t === 'warm') ? 'light' : t === 'emerald' ? 'royal' : t;
                   document.documentElement.setAttribute('data-theme', n);
-                  if (n === 'dark') document.documentElement.classList.add('dark');
+                  if (n === 'dark') {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
                 } catch(e) {}
               `,
             }}

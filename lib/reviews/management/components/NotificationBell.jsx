@@ -7,7 +7,7 @@
  * low star ratings (1-2★), and detected duplicates.
  */
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Bell,
   Star,

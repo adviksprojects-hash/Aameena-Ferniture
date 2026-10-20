@@ -9,13 +9,22 @@ export default function AnnouncementBanner() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    getPlatformSettings()
-      .then((res) => {
-        if (res.success && res.settings) {
-          setConfig(res.settings);
-        }
-      })
-      .catch(() => {});
+    const fetchSettings = () => {
+      getPlatformSettings()
+        .then((res) => {
+          if (res.success && res.settings) {
+            setConfig(res.settings);
+          }
+        })
+        .catch(() => {});
+    };
+
+    fetchSettings();
+
+    window.addEventListener("aameena_settings_updated", fetchSettings);
+    return () => {
+      window.removeEventListener("aameena_settings_updated", fetchSettings);
+    };
   }, []);
 
   if (!config || !config.enableAnnouncement || !config.announcementText || dismissed) {
