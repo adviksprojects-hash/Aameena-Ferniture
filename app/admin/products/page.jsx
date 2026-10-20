@@ -565,8 +565,8 @@ export default function AdminProductsPage() {
       {/* Products Table */}
       <div className="bg-slate-950 rounded-3xl border border-slate-800 overflow-hidden shadow-xl">
         <div className="overflow-x-auto touch-pan-x overscroll-x-contain scrollbar-thin scrollbar-thumb-amber-500/30 scrollbar-track-slate-900">
-          <table className="w-full text-left text-xs text-slate-300 min-w-[880px]">
-            <thead className="bg-slate-900 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+          <table className="w-full text-left text-xs text-slate-800 dark:text-slate-300 min-w-[880px]">
+            <thead className="bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-200 dark:border-slate-800">
               <tr>
                 <th className="p-4">Item & Photos</th>
                 <th className="p-4">Category</th>
@@ -576,7 +576,7 @@ export default function AdminProductsPage() {
                 <th className="p-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800">
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
               {loading && products.length === 0 ? (
                 <tr>
                   <td colSpan="6" className="p-8 text-center text-slate-500">
@@ -592,35 +592,35 @@ export default function AdminProductsPage() {
                 </tr>
               ) : (
                 paginatedProducts.map((prod) => (
-                  <tr key={prod.id} className="hover:bg-slate-900/50 transition-colors">
-                    <td className="p-4 font-bold text-white flex items-center gap-3">
+                  <tr key={prod.id} className="hover:bg-slate-100/70 dark:hover:bg-slate-900/50 transition-colors">
+                    <td className="p-4 font-bold text-slate-900 dark:text-white flex items-center gap-3">
                       <div className="flex -space-x-3 overflow-hidden">
                         {(prod.images || []).slice(0, 3).map((img, iIdx) => (
                           <img
                             key={iIdx}
                             src={img}
                             alt=""
-                            className="w-10 h-10 object-cover rounded-lg border-2 border-slate-900 shrink-0"
+                            className="w-10 h-10 object-cover rounded-lg border-2 border-slate-200 dark:border-slate-900 shrink-0"
                           />
                         ))}
                       </div>
                       <div>
-                        <span className="block">{prod.title}</span>
-                        <span className="text-[10px] text-slate-500 font-normal">
+                        <span className="block font-bold text-slate-950 dark:text-white text-xs sm:text-sm">{prod.title}</span>
+                        <span className="text-[10px] text-slate-600 dark:text-slate-400 font-normal">
                           {prod.images?.length || 0} photo(s) • {prod.dimensions || "Standard"}
                         </span>
                       </div>
                     </td>
-                    <td className="p-4 text-amber-400 font-semibold">{prod.Category?.name || "General"}</td>
-                    <td className="p-4 text-slate-300">
-                      <div>{prod.woodType}</div>
-                      <div className="text-[10px] text-slate-500">{prod.finishType}</div>
+                    <td className="p-4 text-amber-700 dark:text-amber-400 font-semibold">{prod.Category?.name || "General"}</td>
+                    <td className="p-4 text-slate-800 dark:text-slate-300">
+                      <div className="font-semibold text-slate-900 dark:text-slate-200">{prod.woodType}</div>
+                      <div className="text-[10px] text-slate-600 dark:text-slate-400">{prod.finishType}</div>
                     </td>
                     <td className="p-4">
-                      <div className="font-bold text-white">
+                      <div className="font-bold text-slate-900 dark:text-white">
                         ₹{prod.price.toLocaleString()}
                         {prod.compareAtPrice && (
-                          <span className="text-[10px] text-slate-500 line-through ml-1.5">
+                          <span className="text-[10px] text-slate-500 dark:text-slate-400 line-through ml-1.5">
                             ₹{prod.compareAtPrice.toLocaleString()}
                           </span>
                         )}
@@ -737,11 +737,11 @@ export default function AdminProductsPage() {
 
         {/* Pagination Controls (10 products per page) */}
         {filteredProducts.length > ITEMS_PER_PAGE && (
-          <div className="p-4 bg-slate-900 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+          <div className="p-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600 dark:text-slate-400">
             <div>
-              Showing <span className="font-bold text-white">{(safeCurrentPage - 1) * ITEMS_PER_PAGE + 1}</span> to{" "}
-              <span className="font-bold text-white">{Math.min(safeCurrentPage * ITEMS_PER_PAGE, filteredProducts.length)}</span> of{" "}
-              <span className="font-bold text-white">{filteredProducts.length}</span> products
+              Showing <span className="font-bold text-slate-900 dark:text-white">{(safeCurrentPage - 1) * ITEMS_PER_PAGE + 1}</span> to{" "}
+              <span className="font-bold text-slate-900 dark:text-white">{Math.min(safeCurrentPage * ITEMS_PER_PAGE, filteredProducts.length)}</span> of{" "}
+              <span className="font-bold text-slate-900 dark:text-white">{filteredProducts.length}</span> products
             </div>
             <div className="flex items-center gap-1.5">
               <button

@@ -105,11 +105,11 @@ export default function PricingPage() {
     window.open(url, "_blank");
   };
 
-  // Determine active PDF url (category specific or master)
+  // Determine active PDF url (category specific or master backed by database)
   const activePdfUrl =
-    activeCategory?.pdfUrl ||
-    settings?.catalogPdfUrl ||
-    "/uploads/catalogs/Aameena_Furniture_Master_Catalog.pdf";
+    (activeCategory?.pdfUrl && activeCategory.pdfUrl.replace("/uploads/catalogs/", "/api/catalogs/")) ||
+    (settings?.catalogPdfUrl && settings.catalogPdfUrl.replace("/uploads/catalogs/", "/api/catalogs/")) ||
+    "/api/catalogs/Aameena_Furniture_Master_Catalog.pdf";
 
   const activePdfName =
     activeCategory?.pdfName ||

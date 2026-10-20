@@ -928,3 +928,19 @@ model BlogPost {
   @@index([isPublished])
   @@index([isFeatured])
 }
+
+
+model CatalogDocument {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  slug      String   @unique
+  fileName  String
+  title     String
+  fileSize  String   @default("1.0 MB")
+  mimeType  String   @default("application/pdf")
+  data      String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([slug])
+  @@index([fileName])
+}

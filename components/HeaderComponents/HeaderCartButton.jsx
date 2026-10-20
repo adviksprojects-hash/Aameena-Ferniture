@@ -18,7 +18,7 @@ export default function HeaderCartButton() {
   return (
     <Link
       href="/cart"
-      className="relative w-10 h-10 rounded-full bg-amber-900/40 hover:bg-amber-900/80 text-amber-100 hover:text-white border border-amber-800/60 transition-all flex items-center justify-center group cursor-pointer shadow-xs hover:border-amber-400/80 hover:scale-105 active:scale-95"
+      className="header-cart-btn relative w-10 h-10 rounded-full bg-amber-900/40 hover:bg-amber-900/80 text-amber-100 hover:text-white border border-amber-800/60 transition-all flex items-center justify-center group cursor-pointer shadow-xs hover:border-amber-400/80 hover:scale-105 active:scale-95"
       title={
         count > 0
           ? `Shopping Cart (${count} ${count === 1 ? "item" : "items"})`

@@ -45,7 +45,7 @@ export default function HeaderClient() {
         <>
             {/* Desktop Navigation — segmented pill control */}
             <nav className={cn(
-                "hidden xl:flex items-center gap-1 rounded-full border border-amber-800/60 bg-amber-900/40 p-1.5 backdrop-blur-md"
+                "desktop-nav hidden xl:flex items-center gap-1 rounded-full border border-amber-800/60 bg-amber-900/40 p-1.5 backdrop-blur-md"
             )}>
                 {navLinks.map((link) => {
                     const isActive = pathname === link.url;
@@ -125,18 +125,18 @@ export default function HeaderClient() {
                             href="/wishlist"
                             onClick={() => setIsMobileMenuOpen(false)}
                             className={cn(
-                                "rounded-xl px-4 py-2.5 text-sm font-medium transition-colors duration-200 flex items-center justify-between",
+                                "mobile-drawer-link w-full rounded-xl px-4 py-2.5 text-sm font-medium transition-colors duration-200 flex items-center justify-between",
                                 pathname === "/wishlist"
                                     ? "bg-amber-500 text-amber-950 font-bold"
                                     : "text-amber-100 hover:bg-amber-900/60"
                             )}
                         >
-                            <span className="flex items-center gap-2" suppressHydrationWarning>
-                                <Heart className="w-4 h-4 text-rose-400" />
-                                <span>Saved Wishlist</span>
+                            <span className="flex items-center gap-2.5 text-inherit" suppressHydrationWarning>
+                                <Heart className="w-4 h-4 text-rose-400 shrink-0" />
+                                <span className="font-medium text-inherit">Saved Wishlist</span>
                             </span>
                             {wishlistCount > 0 && (
-                                <span suppressHydrationWarning className="bg-rose-500 text-white font-black text-xs px-2 py-0.5 rounded-full">
+                                <span suppressHydrationWarning className="bg-rose-500 text-white font-black text-xs px-2.5 py-0.5 rounded-full inline-flex items-center justify-center shrink-0">
                                     {wishlistCount}
                                 </span>
                             )}
@@ -147,18 +147,18 @@ export default function HeaderClient() {
                             href="/cart"
                             onClick={() => setIsMobileMenuOpen(false)}
                             className={cn(
-                                "rounded-xl px-4 py-2.5 text-sm font-medium transition-colors duration-200 flex items-center justify-between",
+                                "mobile-drawer-link w-full rounded-xl px-4 py-2.5 text-sm font-medium transition-colors duration-200 flex items-center justify-between",
                                 pathname === "/cart"
                                     ? "bg-amber-500 text-amber-950 font-bold"
                                     : "text-amber-100 hover:bg-amber-900/60"
                             )}
                         >
-                            <span className="flex items-center gap-2" suppressHydrationWarning>
-                                <ShoppingCart className="w-4 h-4 text-amber-400" />
-                                <span>Shopping Cart</span>
+                            <span className="flex items-center gap-2.5 text-inherit" suppressHydrationWarning>
+                                <ShoppingCart className="w-4 h-4 text-amber-400 shrink-0" />
+                                <span className="font-medium text-inherit">Shopping Cart</span>
                             </span>
                             {totalItems > 0 && (
-                                <span suppressHydrationWarning className="bg-amber-400 text-amber-950 font-black text-xs px-2 py-0.5 rounded-full">
+                                <span suppressHydrationWarning className="bg-amber-400 text-amber-950 font-black text-xs px-2.5 py-0.5 rounded-full inline-flex items-center justify-center shrink-0">
                                     {totalItems}
                                 </span>
                             )}

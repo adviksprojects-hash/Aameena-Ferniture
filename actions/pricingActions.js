@@ -8,6 +8,14 @@ import {
   TIER_SPECIFICATIONS,
 } from "../lib/pricing/pricingConstants.js";
 
+const normalizePdfUrl = (url) => {
+  if (!url) return "/api/catalogs/Aameena_Furniture_Master_Catalog.pdf";
+  if (url.startsWith("/uploads/catalogs/")) {
+    return url.replace("/uploads/catalogs/", "/api/catalogs/");
+  }
+  return url;
+};
+
 const fetchPricingDataFromDb = async () => {
   let settings = await db.pricingSettings.findUnique({
     where: { id: "default-pricing-settings" },
@@ -18,30 +26,59 @@ const fetchPricingDataFromDb = async () => {
       data: {
         id: "default-pricing-settings",
         catalogPdfName: "Aameena_Furniture_Master_Catalog.pdf",
-        catalogPdfUrl: "/uploads/catalogs/Aameena_Furniture_Master_Catalog.pdf",
+        catalogPdfUrl: "/api/catalogs/Aameena_Furniture_Master_Catalog.pdf",
         calculatorData: DEFAULT_CALCULATOR_SETTINGS,
       },
     });
   } else {
+    let needsUpdate = false;
+    const updateData = {};
+
+    // Fix legacy or invalid master PDF url
+    if (!settings.catalogPdfUrl || settings.catalogPdfUrl.includes("/uploads/catalogs/")) {
+      updateData.catalogPdfUrl = normalizePdfUrl(settings.catalogPdfUrl);
+      needsUpdate = true;
+    }
+
     const calcData = settings.calculatorData || {};
     if (
       !calcData.packageCategories ||
       !Array.isArray(calcData.packageCategories) ||
       calcData.packageCategories.length === 0
     ) {
-      calcData.packageCategories = DEFAULT_PACKAGE_CATEGORIES;
+      calcData.packageCategories = DEFAULT_PACKAGE_CATEGORIES.map((cat) => ({
+        ...cat,
+        pdfUrl: normalizePdfUrl(cat.pdfUrl),
+      }));
+      updateData.calculatorData = calcData;
+      needsUpdate = true;
+    }
+
+    if (needsUpdate) {
       settings = await db.pricingSettings.update({
         where: { id: "default-pricing-settings" },
-        data: { calculatorData: calcData },
+        data: updateData,
       });
     }
   }
 
-  const packageCategories =
+  const rawCategories =
     settings.calculatorData?.packageCategories || DEFAULT_PACKAGE_CATEGORIES;
 
+  // Ensure all category PDF URLs use the database-backed endpoint
+  const packageCategories = rawCategories.map((c) => ({
+    ...c,
+    pdfUrl: normalizePdfUrl(c.pdfUrl),
+  }));
+
+  const normalizedSettings = {
+    ...settings,
+    catalogPdfUrl: normalizePdfUrl(settings.catalogPdfUrl),
+    updatedAt: settings.updatedAt ? settings.updatedAt.toISOString() : new Date().toISOString(),
+  };
+
   return {
-    settings,
+    settings: normalizedSettings,
     packageCategories,
     categories: packageCategories,
   };
@@ -49,7 +86,7 @@ const fetchPricingDataFromDb = async () => {
 
 const getCachedPricing = unstable_cache(
   fetchPricingDataFromDb,
-  ["pricing-data-cache-v3"],
+  ["pricing-data-cache-v4"],
   {
     revalidate: 1,
     tags: ["pricing"],
@@ -65,16 +102,21 @@ export async function getPricingData() {
     };
   } catch (error) {
     console.error("Error fetching pricing data:", error);
+    const safeCategories = DEFAULT_PACKAGE_CATEGORIES.map((cat) => ({
+      ...cat,
+      pdfUrl: normalizePdfUrl(cat.pdfUrl),
+    }));
+
     return {
       success: true,
       data: {
         settings: {
           catalogPdfName: "Aameena_Furniture_Master_Catalog.pdf",
-          catalogPdfUrl: "/uploads/catalogs/Aameena_Furniture_Master_Catalog.pdf",
+          catalogPdfUrl: "/api/catalogs/Aameena_Furniture_Master_Catalog.pdf",
           calculatorData: DEFAULT_CALCULATOR_SETTINGS,
         },
-        packageCategories: DEFAULT_PACKAGE_CATEGORIES,
-        categories: DEFAULT_PACKAGE_CATEGORIES,
+        packageCategories: safeCategories,
+        categories: safeCategories,
       },
     };
   }
@@ -226,7 +268,7 @@ export async function savePackageCategory(categoryData) {
       create: {
         id: "default-pricing-settings",
         catalogPdfName: "Aameena_Furniture_Master_Catalog.pdf",
-        catalogPdfUrl: "/uploads/catalogs/Aameena_Furniture_Master_Catalog.pdf",
+        catalogPdfUrl: "/api/catalogs/Aameena_Furniture_Master_Catalog.pdf",
         calculatorData: calcData,
       },
     });
