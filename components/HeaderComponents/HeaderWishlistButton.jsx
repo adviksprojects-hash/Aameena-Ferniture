@@ -18,7 +18,7 @@ export default function HeaderWishlistButton() {
   return (
     <Link
       href="/wishlist"
-      className="header-wishlist-btn relative w-10 h-10 rounded-full bg-amber-900/40 hover:bg-amber-900/80 text-amber-100 hover:text-white border border-amber-800/60 transition-all flex items-center justify-center group cursor-pointer shadow-xs hover:border-rose-400/80 hover:scale-105 active:scale-95"
+      className="header-wishlist-btn relative size-9 sm:size-10 rounded-full bg-amber-900/40 hover:bg-amber-900/80 text-amber-100 hover:text-white border border-amber-800/60 transition-all flex items-center justify-center group cursor-pointer shadow-xs hover:border-rose-400/80 hover:scale-105 active:scale-95 shrink-0"
       title={
         count > 0
           ? `My Wishlist (${count} saved piece${count === 1 ? "" : "s"})`

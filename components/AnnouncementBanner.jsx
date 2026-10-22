@@ -45,7 +45,7 @@ export default function AnnouncementBanner() {
       role="banner"
       className={`relative py-1.5 px-4 text-xs text-center flex items-center justify-center gap-2 shadow-xs transition-all z-40 select-none ${currentBg}`}
     >
-      <div className="flex items-center gap-1.5 font-medium truncate max-w-4xl px-4">
+      <div className="flex items-center gap-1.5 font-medium truncate max-w-4xl pr-8 pl-2 sm:px-4">
         <Sparkles className="w-3.5 h-3.5 shrink-0 animate-pulse" />
         <span className="truncate">{config.announcementText}</span>
       </div>

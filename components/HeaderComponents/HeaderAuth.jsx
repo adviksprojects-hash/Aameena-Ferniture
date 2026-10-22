@@ -28,7 +28,7 @@ export default function HeaderAuth() {
         appearance={{
           elements: {
             avatarBox:
-              "w-9 h-9 ring-2 ring-amber-500/80 shadow-md transition-transform hover:scale-105",
+              "size-8 sm:size-9 ring-2 ring-amber-500/80 shadow-md transition-transform hover:scale-105",
           },
         }}
       />
@@ -44,7 +44,7 @@ export default function HeaderAuth() {
       </SignInButton>
 
       <SignUpButton mode="modal">
-        <button className="sign-up-btn text-xs font-semibold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-amber-950 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full transition-all shadow-md hover:shadow-amber-500/20 transform hover:-translate-y-0.5 cursor-pointer whitespace-nowrap">
+        <button className="sign-up-btn hidden sm:inline-flex text-xs font-semibold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-amber-950 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full transition-all shadow-md hover:shadow-amber-500/20 transform hover:-translate-y-0.5 cursor-pointer whitespace-nowrap">
           Sign Up
         </button>
       </SignUpButton>

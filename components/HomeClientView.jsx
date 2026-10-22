@@ -434,9 +434,9 @@ export default function HomeClientView({
             <AnimatedSection delay={0.05}>
               <div className="hero-tagline-pill inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full text-xs font-semibold relative overflow-hidden backdrop-blur-md shadow-lg cursor-default select-none group">
                 <span className="hero-sparkle-glow shrink-0">
-                  <Sparkles className="w-4 h-4 text-amber-400 hero-sparkle-icon" />
+                  <Sparkles className="w-4 h-4 text-amber-500 hero-sparkle-icon" />
                 </span>
-                <span className="tracking-wider uppercase font-semibold text-[11px] sm:text-xs">
+                <span className="hero-tagline-text tracking-wider uppercase font-semibold text-[11px] sm:text-xs">
                   Generations of Artisanal Woodcraft Excellence
                 </span>
                 <span className="hero-shimmer-sweep" aria-hidden="true" />
@@ -496,8 +496,10 @@ export default function HomeClientView({
                   { val: "10K+", sub: "Happy Homeowners" },
                 ].map((s, i) => (
                   <div key={i} className="text-center">
-                    <p className="text-xl font-extrabold text-white">{s.val}</p>
-                    <p className="text-[10px] text-amber-300/70 font-medium mt-0.5">
+                    <p className="hero-trust-number text-xl sm:text-2xl font-black text-amber-400">
+                      {s.val}
+                    </p>
+                    <p className="hero-trust-label text-[10px] sm:text-[11px] text-white/90 font-medium tracking-wide mt-0.5">
                       {s.sub}
                     </p>
                   </div>

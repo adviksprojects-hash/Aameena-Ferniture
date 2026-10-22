@@ -1,178 +1,253 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { navLinks } from '@/data/HeaderData/HeaderData';
-import { cn } from '@/lib/utils';
-import { ShoppingCart, Heart } from 'lucide-react';
-import ThemeSwitcher from '@/components/ThemeSwitcher';
-import { useCart } from '@/context/CartContext';
-import { useWishlist } from '@/context/WishlistContext';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { navLinks } from "@/data/HeaderData/HeaderData";
+import { cn } from "@/lib/utils";
+import { ShoppingCart, Heart, Sparkles, X, ChevronRight, Phone } from "lucide-react";
+import ThemeSwitcher from "@/components/ThemeSwitcher";
+import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
+import { SignInButton, SignUpButton, useUser, UserButton } from "@clerk/nextjs";
 
-export default function HeaderClient() {
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const pathname = usePathname();
-    const { totalItems } = useCart();
-    const { wishlistCount } = useWishlist();
+export default function HeaderClient({ children }) {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const { totalItems } = useCart();
+  const { wishlistCount } = useWishlist();
+  const { isSignedIn, user } = useUser();
 
-    // Close mobile menu on route navigation
-    useEffect(() => {
+  // Close mobile drawer on route navigation
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
+
+  // Handle scroll-lock & Escape key dismissal
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
         setIsMobileMenuOpen(false);
-    }, [pathname]);
+      }
+    };
 
-    // Handle scroll-lock & Escape key dismissal
-    useEffect(() => {
-        if (!isMobileMenuOpen) return;
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isMobileMenuOpen]);
 
-        const originalOverflow = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
+  return (
+    <div className="flex items-center gap-1.5 sm:gap-2.5 md:gap-3 shrink-0">
+      {/* Right action slots (Wishlist, Cart, Theme, Auth) */}
+      {children}
 
-        const handleKeyDown = (e) => {
-            if (e.key === "Escape") {
-                setIsMobileMenuOpen(false);
-            }
-        };
+      {/* Mobile / Tablet Menu Toggle - Positioned on far right */}
+      <button
+        type="button"
+        suppressHydrationWarning
+        className={cn(
+          "xl:hidden relative size-9 sm:size-10 rounded-full text-amber-200 hover:text-white bg-amber-900/60 border border-amber-800/60 flex items-center justify-center outline-none focus-visible:ring-2 focus-visible:ring-amber-400 cursor-pointer shrink-0 transition-all duration-200 active:scale-95 shadow-sm"
+        )}
+        onClick={() => setIsMobileMenuOpen((open) => !open)}
+        aria-label="Toggle navigation menu"
+        aria-expanded={isMobileMenuOpen}
+        aria-controls="mobile-nav-panel"
+      >
+        <span
+          className={`absolute h-0.5 w-4 sm:w-5 bg-current transition-transform duration-300 ${
+            isMobileMenuOpen ? "rotate-45" : "-translate-y-1.5"
+          }`}
+        />
+        <span
+          className={`absolute h-0.5 w-4 sm:w-5 bg-current transition-opacity duration-200 ${
+            isMobileMenuOpen ? "opacity-0" : "opacity-100"
+          }`}
+        />
+        <span
+          className={`absolute h-0.5 w-4 sm:w-5 bg-current transition-transform duration-300 ${
+            isMobileMenuOpen ? "-rotate-45" : "translate-y-1.5"
+          }`}
+        />
+      </button>
 
-        window.addEventListener("keydown", handleKeyDown);
-        return () => {
-            document.body.style.overflow = originalOverflow;
-            window.removeEventListener("keydown", handleKeyDown);
-        };
-    }, [isMobileMenuOpen]);
-
-    return (
-        <>
-            {/* Desktop Navigation — segmented pill control */}
-            <nav className={cn(
-                "desktop-nav hidden xl:flex items-center gap-1 rounded-full border border-amber-800/60 bg-amber-900/40 p-1.5 backdrop-blur-md"
-            )}>
-                {navLinks.map((link) => {
-                    const isActive = pathname === link.url;
-                    return (
-                        <Link
-                            key={link.id}
-                            href={link.url}
-                            className={cn(
-                                "rounded-full px-3.5 py-1.5 text-xs font-medium transition-all duration-200 whitespace-nowrap",
-                                isActive 
-                                    ? "bg-amber-500 text-amber-950 shadow-md font-semibold"
-                                    : "text-amber-200/90 hover:text-white hover:bg-amber-800/50"
-                            )}
-                        >
-                            {link.title}
-                        </Link>
-                    );
-                })}
-            </nav>
-
-            {/* Mobile / Tablet Menu Toggle */}
-            <button
-                type="button"
-                suppressHydrationWarning
-                className={cn(
-                    "xl:hidden relative size-10 rounded-full text-amber-200 hover:text-white bg-amber-900/60 border border-amber-800/60 flex items-center justify-center outline-none focus-visible:ring-2 focus-visible:ring-amber-400 cursor-pointer"
-                )}
-                onClick={() => setIsMobileMenuOpen((open) => !open)}
-                aria-label="Toggle navigation menu"
-                aria-expanded={isMobileMenuOpen}
-                aria-controls="mobile-nav-panel"
-            >
-                <span
-                    className={`absolute h-0.5 w-5 bg-current transition-transform duration-300 ${isMobileMenuOpen ? 'rotate-45' : '-translate-y-1.5'
-                        }`}
-                />
-                <span
-                    className={`absolute h-0.5 w-5 bg-current transition-opacity duration-200 ${isMobileMenuOpen ? 'opacity-0' : 'opacity-100'
-                        }`}
-                />
-                <span
-                    className={`absolute h-0.5 w-5 bg-current transition-transform duration-300 ${isMobileMenuOpen ? '-rotate-45' : 'translate-y-1.5'
-                        }`}
-                />
-            </button>
-
-            {/* Mobile Navigation Panel */}
-            {isMobileMenuOpen && (
-                <div
-                    id="mobile-nav-panel"
-                    className={cn(
-                        "xl:hidden absolute inset-x-3 top-full mt-2 rounded-2xl border border-amber-800/60 bg-amber-950/95 p-3 shadow-2xl backdrop-blur-xl z-50 flex flex-col gap-1 max-h-[85vh] overflow-y-auto"
-                    )}
-                >
-                    <nav className="flex flex-col gap-1">
-                        {navLinks.map((link) => {
-                            const isActive = pathname === link.url;
-                            return (
-                                <Link
-                                    key={link.id}
-                                    href={link.url}
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                    className={cn(
-                                        "rounded-xl px-4 py-2.5 text-sm font-medium transition-colors duration-200",
-                                        isActive
-                                            ? "bg-amber-500 text-amber-950 font-bold"
-                                            : "text-amber-100 hover:bg-amber-900/60"
-                                    )}
-                                >
-                                    {link.title}
-                                </Link>
-                            );
-                        })}
-
-                        {/* Mobile Wishlist Link */}
-                        <Link
-                            href="/wishlist"
-                            onClick={() => setIsMobileMenuOpen(false)}
-                            className={cn(
-                                "mobile-drawer-link w-full rounded-xl px-4 py-2.5 text-sm font-medium transition-colors duration-200 flex items-center justify-between",
-                                pathname === "/wishlist"
-                                    ? "bg-amber-500 text-amber-950 font-bold"
-                                    : "text-amber-100 hover:bg-amber-900/60"
-                            )}
-                        >
-                            <span className="flex items-center gap-2.5 text-inherit" suppressHydrationWarning>
-                                <Heart className="w-4 h-4 text-rose-400 shrink-0" />
-                                <span className="font-medium text-inherit">Saved Wishlist</span>
-                            </span>
-                            {wishlistCount > 0 && (
-                                <span suppressHydrationWarning className="bg-rose-500 text-white font-black text-xs px-2.5 py-0.5 rounded-full inline-flex items-center justify-center shrink-0">
-                                    {wishlistCount}
-                                </span>
-                            )}
-                        </Link>
-
-                        {/* Mobile Shopping Cart Link */}
-                        <Link
-                            href="/cart"
-                            onClick={() => setIsMobileMenuOpen(false)}
-                            className={cn(
-                                "mobile-drawer-link w-full rounded-xl px-4 py-2.5 text-sm font-medium transition-colors duration-200 flex items-center justify-between",
-                                pathname === "/cart"
-                                    ? "bg-amber-500 text-amber-950 font-bold"
-                                    : "text-amber-100 hover:bg-amber-900/60"
-                            )}
-                        >
-                            <span className="flex items-center gap-2.5 text-inherit" suppressHydrationWarning>
-                                <ShoppingCart className="w-4 h-4 text-amber-400 shrink-0" />
-                                <span className="font-medium text-inherit">Shopping Cart</span>
-                            </span>
-                            {totalItems > 0 && (
-                                <span suppressHydrationWarning className="bg-amber-400 text-amber-950 font-black text-xs px-2.5 py-0.5 rounded-full inline-flex items-center justify-center shrink-0">
-                                    {totalItems}
-                                </span>
-                            )}
-                        </Link>
-                    </nav>
-
-                    <div className="pt-2 mt-2 border-t border-amber-900/60 flex flex-col gap-2">
-                        <div className="flex items-center justify-between px-2 pt-1 pb-1">
-                            <span className="text-xs uppercase font-semibold tracking-wider text-amber-400">Theme</span>
-                            <ThemeSwitcher />
-                        </div>
-                    </div>
-                </div>
+      {/* Mobile Navigation Drawer Overlay & Backdrop */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm xl:hidden animate-in fade-in duration-200"
+          onClick={() => setIsMobileMenuOpen(false)}
+        >
+          {/* Drawer Panel */}
+          <div
+            id="mobile-nav-panel"
+            onClick={(e) => e.stopPropagation()}
+            className={cn(
+              "fixed inset-y-0 right-0 w-80 max-w-[88vw] border-l border-amber-800/60 bg-amber-950/98 p-4 sm:p-5 shadow-2xl backdrop-blur-2xl z-50 flex flex-col justify-between overflow-y-auto animate-in slide-in-from-right duration-200"
             )}
-        </>
-    );
+          >
+            <div className="space-y-4">
+              {/* Drawer Top Header */}
+              <div className="flex items-center justify-between pb-3 border-b border-amber-800/50">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-lg bg-amber-500/20 text-amber-400">
+                    <Sparkles className="w-4 h-4" />
+                  </div>
+                  <span className="font-serif font-bold text-sm tracking-wide">
+                    Navigation Menu
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-1.5 rounded-lg text-amber-200 hover:text-white hover:bg-amber-900/60 transition-colors cursor-pointer"
+                  aria-label="Close navigation"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Mobile Auth Bar in Drawer */}
+              <div className="p-3 rounded-2xl bg-amber-900/40 border border-amber-800/40">
+                {isSignedIn ? (
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <UserButton
+                        appearance={{
+                          elements: {
+                            avatarBox: "w-8 h-8 ring-2 ring-amber-500",
+                          },
+                        }}
+                      />
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold truncate">
+                          {user?.fullName || user?.firstName || "Customer Account"}
+                        </p>
+                        <p className="text-[10px] text-amber-300 truncate">
+                          {user?.primaryEmailAddress?.emailAddress}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <SignInButton mode="modal">
+                      <button
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="flex-1 py-2 px-3 rounded-xl bg-amber-800/80 hover:bg-amber-800 text-xs font-bold text-amber-100 transition-colors text-center cursor-pointer"
+                      >
+                        Sign In
+                      </button>
+                    </SignInButton>
+                    <SignUpButton mode="modal">
+                      <button
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="flex-1 py-2 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-xs font-bold text-amber-950 transition-colors text-center shadow-sm cursor-pointer"
+                      >
+                        Create Account
+                      </button>
+                    </SignUpButton>
+                  </div>
+                )}
+              </div>
+
+              {/* Navigation Links */}
+              <nav className="flex flex-col gap-1" aria-label="Mobile Navigation">
+                {navLinks.map((link) => {
+                  const isActive = pathname === link.url;
+                  return (
+                    <Link
+                      key={link.id}
+                      href={link.url}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={cn(
+                        "rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center justify-between group",
+                        isActive
+                          ? "bg-amber-500 text-amber-950 font-bold shadow-sm"
+                          : "text-amber-100 hover:bg-amber-900/50"
+                      )}
+                    >
+                      <span>{link.title}</span>
+                      <ChevronRight
+                        className={cn(
+                          "w-4 h-4 transition-transform group-hover:translate-x-0.5",
+                          isActive ? "text-amber-950" : "text-amber-400/60"
+                        )}
+                      />
+                    </Link>
+                  );
+                })}
+              </nav>
+
+              {/* Quick Links for Mobile: Wishlist & Cart */}
+              <div className="pt-2 border-t border-amber-800/40 space-y-1">
+                <Link
+                  href="/wishlist"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={cn(
+                    "w-full rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-semibold transition-colors flex items-center justify-between",
+                    pathname === "/wishlist"
+                      ? "bg-amber-500 text-amber-950 font-bold"
+                      : "text-amber-100 hover:bg-amber-900/50"
+                  )}
+                >
+                  <span className="flex items-center gap-2.5">
+                    <Heart className="w-4 h-4 text-rose-400 shrink-0" />
+                    <span>Saved Wishlist</span>
+                  </span>
+                  {wishlistCount > 0 && (
+                    <span className="bg-rose-500 text-white font-black text-[10px] px-2 py-0.5 rounded-full">
+                      {wishlistCount}
+                    </span>
+                  )}
+                </Link>
+
+                <Link
+                  href="/cart"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={cn(
+                    "w-full rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-semibold transition-colors flex items-center justify-between",
+                    pathname === "/cart"
+                      ? "bg-amber-500 text-amber-950 font-bold"
+                      : "text-amber-100 hover:bg-amber-900/50"
+                  )}
+                >
+                  <span className="flex items-center gap-2.5">
+                    <ShoppingCart className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span>Shopping Cart</span>
+                  </span>
+                  {totalItems > 0 && (
+                    <span className="bg-amber-400 text-amber-950 font-black text-[10px] px-2 py-0.5 rounded-full">
+                      {totalItems}
+                    </span>
+                  )}
+                </Link>
+              </div>
+            </div>
+
+            {/* Bottom Drawer Actions: Theme Appearance & Helpline */}
+            <div className="pt-3 mt-3 border-t border-amber-800/40 space-y-2.5">
+              <div className="flex items-center justify-between px-1">
+                <span className="text-[11px] uppercase font-bold tracking-wider text-amber-400">
+                  Theme Appearance
+                </span>
+                <ThemeSwitcher />
+              </div>
+              <div className="text-[11px] text-amber-300/80 flex items-center gap-2 px-1">
+                <Phone className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <a href="tel:+919730392917" className="hover:underline font-medium">
+                  Helpline: +91 97303 92917
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }

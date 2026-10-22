@@ -201,7 +201,7 @@ export default function ManagerLayout({ children }) {
         {/* Mobile Off-Canvas Drawer (When opened on mobile phones < md) */}
         {isMobileNavOpen && (
           <div className="fixed inset-0 z-50 bg-stone-950/80 backdrop-blur-sm md:hidden animate-in fade-in duration-200">
-            <div className="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-amber-950 border-r border-amber-900/60 p-5 flex flex-col justify-between shadow-2xl overflow-y-auto animate-in slide-in-from-left duration-200 text-amber-50">
+            <div className="manager-mobile-drawer fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-amber-950 border-r border-amber-900/60 p-5 flex flex-col justify-between shadow-2xl overflow-y-auto animate-in slide-in-from-left duration-200 text-amber-50">
               <div className="space-y-5">
                 {/* Drawer Header */}
                 <div className="flex items-center justify-between pb-3 border-b border-amber-900/60">
@@ -271,7 +271,7 @@ export default function ManagerLayout({ children }) {
           isSidebarCollapsed ? "md:ml-20" : "md:ml-64"
         }`}>
           {/* Mobile-Only Header (< md screens) */}
-          <header className="md:hidden sticky top-0 z-40 h-14 bg-amber-950/95 backdrop-blur-md text-amber-100 border-b border-amber-900/40 px-4 flex items-center justify-between shrink-0 shadow-md">
+          <header className="manager-header md:hidden sticky top-0 z-40 h-14 bg-amber-950/95 backdrop-blur-md text-amber-100 border-b border-amber-900/40 px-4 flex items-center justify-between shrink-0 shadow-md">
             <div className="flex items-center gap-3 min-w-0">
               <button
                 type="button"
