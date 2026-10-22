@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import Header from "@/components/HeaderComponents/Header";
 import LayoutShell from "@/components/LayoutShell";
 import TopProgressBar from "@/components/TopProgressBar";
+import FloatingSocialWidgets from "@/components/FloatingSocialWidgets";
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 
@@ -89,6 +90,7 @@ export default async function RootLayout({ children }) {
               </LayoutShell>
             </CartProvider>
           </WishlistProvider>
+          <FloatingSocialWidgets />
         </body>
       </html>
     </ClerkProvider>
