@@ -355,7 +355,8 @@
 }
 
 /* Light Mode: Admin & Manager Portal Integration */
-[data-theme="light"] aside,
+[data-theme="light"] .admin-layout-shell aside,
+[data-theme="light"] .manager-layout-shell aside,
 [data-theme="light"] aside.bg-slate-950,
 [data-theme="light"] aside.bg-amber-950 {
   background-color: #ffffff !important;
@@ -2701,4 +2702,21 @@ footer.site-footer .developer-brand,
   color: #ffffff !important;
   opacity: 0.95 !important;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3) !important;
+}
+/* Floating Social Widgets: ALWAYS 100% Transparent Background across all themes */
+.floating-social-widgets,
+.floating-social-widgets *,
+.floating-social-widgets a,
+.floating-social-widgets div,
+[data-theme="light"] .floating-social-widgets,
+[data-theme="light"] .floating-social-widgets *,
+[data-theme="light"] .floating-social-widgets a,
+[data-theme="light"] .floating-social-widgets div,
+:root:not([data-theme="dark"]):not([data-theme="emerald"]):not([data-theme="royal"]) .floating-social-widgets,
+:root:not([data-theme="dark"]):not([data-theme="emerald"]):not([data-theme="royal"]) .floating-social-widgets *,
+:root:not([data-theme="dark"]):not([data-theme="emerald"]):not([data-theme="royal"]) .floating-social-widgets a {
+  background: transparent !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
 }
